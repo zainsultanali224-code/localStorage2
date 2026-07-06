@@ -1,0 +1,41 @@
+.Add-container {
+    width: 80vw;
+    display: flex;
+    margin: 60px;
+    min-height: 79vh;
+    padding: 16px 10px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.Add-pg {
+    width: 77vw;
+    padding: 5px;
+    /* border: 1px solid #e5e7eb; */
+
+}
+
+.ad-u {
+    display: flex;
+    /* width: 368px; */
+    gap: 25px;
+    min-height: 60vh;
+    margin: 10px -8px;
+    border: 1px solid #e5e7eb
+}
+
+.add-ul {
+   display: flex;
+   flex-wrap: wrap;
+    width: 75vw;
+    gap: 25px;
+    margin: 10px -8px;
+}
+
+.add-mp {
+   list-style: none;
+    width: 168px;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+}
