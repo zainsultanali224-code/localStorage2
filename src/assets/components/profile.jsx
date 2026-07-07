@@ -47,7 +47,6 @@ function Profile() {
 
     setupListener();
 
-    // Cleanup function
     return () => {
       if (unsubscribe) {
         unsubscribe();
@@ -83,13 +82,10 @@ function Profile() {
               />
             )}
           </div>
-          <h3>Welcome {userDetails.firstName}</h3>
+          <h3>Welcome {userDetails.firstName} 🙏🙏</h3>
           <div>
             <p>Email: {userDetails.email}</p>
             <p>First Name: {userDetails.firstName}</p>
-            {userDetails.lastName && (
-              <p>Last Name: {userDetails.lastName}</p>
-            )}
           </div>
           <button className="btn btn-primary" onClick={handleLogout}>
             Logout
