@@ -3,6 +3,7 @@ import { auth, db } from "./firebase"
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
     const [userDetails, setUserDetails] = useState(null)
@@ -23,9 +24,10 @@ function Profile() {
         fetchUserData()
     }, [])
     async function handleLogout() {
+        const navigate = useNavigate();
         try {
             await auth.signOut();
-            window.location.href ="/login";
+          navigate("/login");
             console.log("User logged out successfully!")
         } catch (error) {
             console.log("Error Logging out:", error.message)
