@@ -26,6 +26,12 @@ function Register() {
             toast.success("User Registered Successfully!!", {
                 position: "top-center"
             });
+
+            // ✅ Ye add karo — 1 second wait karke redirect
+            setTimeout(() => {
+                window.location.href = "/profile";
+            }, 1000);
+
         } catch (error) {
             console.log(error.message);
             toast.error(error.message, {
@@ -55,7 +61,6 @@ function Register() {
                     placeholder="Last Name"
                     onChange={(e) => setLname(e.target.value)}
                 />
-
             </div>
 
             <div className="mb-3">
@@ -83,7 +88,9 @@ function Register() {
                     Submit
                 </button>
             </div>
-
+            <p className="forgot-password text-right">
+                Already have an account? <a href="/login">Login Here</a>
+            </p>
         </form>
     )
 }
