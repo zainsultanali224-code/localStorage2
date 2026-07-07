@@ -12,28 +12,44 @@ function Register() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            console.log("UID:", userCredential.user.uid);
+        console.log("Register button clicked"); // ✅ Test ke liye
+        
+        // Validation
+        if (!fname || !email || !password) {
+            toast.error("Please fill all fields", { position: "bottom-center" });
+            return;
+        }
 
+        try {
+            console.log("Creating user...");
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            console.log("User created, UID:", userCredential.user.uid);
+
+            console.log("Saving to Firestore...");
             await setDoc(doc(db, "Users", userCredential.user.uid), {
                 email: userCredential.user.email,
                 firstName: fname,
                 lastName: lname
             });
+            console.log("Data saved successfully!");
 
-            console.log("Data saved, User Registered Successfully!!");
             toast.success("User Registered Successfully!!", {
                 position: "top-center"
             });
 
-            // ✅ Ye add karo — 1 second wait karke redirect
+            // Clear fields
+            setEmail("");
+            setPassword("");
+            setFname("");
+            setLname("");
+
+            // Redirect
             setTimeout(() => {
                 window.location.href = "/profile";
             }, 1000);
 
         } catch (error) {
-            console.log(error.message);
+            console.error("Error:", error.message);
             toast.error(error.message, {
                 position: "bottom-center"
             });
@@ -49,6 +65,7 @@ function Register() {
                     type="text"
                     className="form-control"
                     placeholder="First Name"
+                    value={fname}  // ✅ value add kiya
                     onChange={(e) => setFname(e.target.value)}
                     required
                 />
@@ -59,6 +76,7 @@ function Register() {
                     type="text"
                     className="form-control"
                     placeholder="Last Name"
+                    value={lname}  // ✅ value add kiya
                     onChange={(e) => setLname(e.target.value)}
                 />
             </div>
@@ -68,6 +86,7 @@ function Register() {
                     type="email"
                     className="form-control"
                     placeholder="Enter Email"
+                    value={email}  // ✅ value add kiya
                     onChange={(e) => setEmail(e.target.value)}
                     required
                 />
@@ -78,6 +97,7 @@ function Register() {
                     type="password"
                     className="form-control"
                     placeholder="Enter Password"
+                    value={password}  // ✅ value add kiya
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
