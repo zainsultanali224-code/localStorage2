@@ -2,6 +2,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth, db } from "./firebase";
 import { setDoc, doc } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 function Register() {
     const [email, setEmail] = useState("");
@@ -23,8 +24,15 @@ function Register() {
                     lastName: lname
                 });
             }
+            console.log("User Registered Successfully!!")
+            toast.success("User Registered Successfully!!", {
+                position: "top-center"
+            })
         } catch (error) {
             console.log(error.message)
+             toast.success(error.message, {
+                position: "bottom-center"
+            })
         }
     }
 
