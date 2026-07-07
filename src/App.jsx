@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Login from './assets/components/login';
 import Register from './assets/components/register';
+import Profile from './assets/components/profile';
 
 import { ToastContainer } from 'react-toastify';
 
@@ -22,6 +23,7 @@ export default function App() {
         <Route path='/' element ={<Login />} />
         <Route path='/login' element ={<Login />} />
         <Route path='/register' element ={<Register />} />
+        <Route path='/profile' element ={<Profile />} />
         </Routes>
         <ToastContainer/>
       </div>
