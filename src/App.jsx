@@ -37,14 +37,14 @@ export default function App() {
           </div>
         </div>
       </BrowserRouter>
-
+{/* 
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Search />} />
           <Route path='/add-task' element={<SignupForm />} />
           <Route path='/edit-Task/:id' element={<EditTask />} />
         </Routes>
-      </BrowserRouter>
+      </BrowserRouter> */}
     </>
   )
 }
