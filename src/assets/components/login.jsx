@@ -42,7 +42,7 @@ function Login() {
             <p className="forgot-password text-right">
                 New user <a href="/register">Register Here</a>
             </p>
-            <SignInwithGoogle />
+            {/* <SignInwithGoogle /> */}
         </form>
     )
 }
