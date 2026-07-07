@@ -3,6 +3,8 @@ import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
+import SignupForm from "../../tasklist";
+
 function Profile() {
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,37 +72,38 @@ function Profile() {
   }
 
   return (
-    <div>
-      {userDetails ? (
-        <>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            {userDetails.photo && (
-              <img
-                src={userDetails.photo}
-                width={"40%"}
-                style={{ borderRadius: "50%" }}
-              />
-            )}
-          </div>
-          <h3>Welcome {userDetails.firstName}</h3>
-          <div>
-            <p>Email: {userDetails.email}</p>
-            <p>First Name: {userDetails.firstName}</p>
-            <p>Last Name: {userDetails.lastName}</p>
-          </div>
-          <button className="btn btn-primary" onClick={handleLogout}>
-            Logout
-          </button>
-        </>
-      ) : (
-        <>
-          <p>User data not found.</p>
-          <button className="btn btn-primary" onClick={handleLogout}>
-            Back to Login
-          </button>
-        </>
-      )}
-    </div>
+    // <div>
+    //   {userDetails ? (
+    //     <>
+    //       <div style={{ display: "flex", justifyContent: "center" }}>
+    //         {userDetails.photo && (
+    //           <img
+    //             src={userDetails.photo}
+    //             width={"40%"}
+    //             style={{ borderRadius: "50%" }}
+    //           />
+    //         )}
+    //       </div>
+    //       <h3>Welcome {userDetails.firstName}</h3>
+    //       <div>
+    //         <p>Email: {userDetails.email}</p>
+    //         <p>First Name: {userDetails.firstName}</p>
+    //         <p>Last Name: {userDetails.lastName}</p>
+    //       </div>
+    //       <button className="btn btn-primary" onClick={handleLogout}>
+    //         Logout
+    //       </button>
+    //     </>
+    //   ) : (
+    //     <>
+    //       <p>User data not found.</p>
+    //       <button className="btn btn-primary" onClick={handleLogout}>
+    //         Back to Login
+    //       </button>
+    //     </>
+    //   )}
+    // </div>
+    <SignupForm />
   );
 }
 

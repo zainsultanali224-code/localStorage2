@@ -7,7 +7,7 @@ import { auth } from "./firebase";
 
 
 function Login() {
-    const [email, setEmail] = useState("");
+    const [email, setEmail] = useState("");8
     const [password, setPassword] = useState("");
 
     const handleSubmit = async (e) => {
