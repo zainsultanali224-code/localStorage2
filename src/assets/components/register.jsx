@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
-import { auth } from "./firebase";
+import { auth, db } from "./firebase";
+import { setDoc, doc } from "firebase/firestore";
 
 function Register() {
     const [email, setEmail] = useState("");
@@ -15,6 +16,13 @@ function Register() {
             const user = auth.currentUser;
             console.log(user)
             console.log("User Registered Successfully!!")
+            if (user) {
+                await setDoc(doc(db, "Users", user.uid),{
+                    email: user.email,
+                    firstName: user.fname,
+                    lastName: user.lname
+                });
+            }
         } catch (error) {
             console.log(error.message)
         }
