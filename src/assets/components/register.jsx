@@ -25,7 +25,7 @@ function Register() {
                 });
             }
             console.log("User Registered Successfully!!")
-            toast.success("User Registered Successfully!!", {
+            toast.error("User Registered Successfully!!", {
                 position: "top-center"
             })
         } catch (error) {
