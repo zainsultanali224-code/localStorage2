@@ -8,6 +8,7 @@ import { ToastContainer } from 'react-toastify';
 import SignupForm from "./tasklist";
 import EditTask from "./todolist";
 import { Search } from "./todolist";
+import Profile_t from './assets/components/profile2';
 
 
 
@@ -53,9 +54,15 @@ export default function App() {
                   path='/profile'
                   element={user ? <Profile /> : <Navigate to="/login" />}
                 />
+               
                 <Route path="/" element={<Search />} />
                 <Route path='/add-task' element={<SignupForm />} />
                 <Route path='/edit-Task/:id' element={<EditTask />} />
+
+                 <Route
+                  path='/profile_t'
+                  element={user ? <Profile_t /> : <Navigate to="/SignupForm" />}
+                />
               </Routes>
               <ToastContainer />
             </div>
