@@ -73,67 +73,69 @@ function Register() {
     }
 
     return (
-        // <form onSubmit={handleRegister}>
-        //     <h3>Sign Up</h3>
+        <form onSubmit={handleRegister}>
+            <h3>Sign Up</h3>
+ <p style={{color: 'red'}}>Form loaded - ready for input</p>
+            <div className="mb-3">
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="First Name"
+                    value={fname}
+                    onChange={(e) => setFname(e.target.value)}
+                    required
+                />
+            </div>
 
-        //     <div className="mb-3">
-        //         <input
-        //             type="text"
-        //             className="form-control"
-        //             placeholder="First Name"
-        //             value={fname}
-        //             onChange={(e) => setFname(e.target.value)}
-        //             required
-        //         />
-        //     </div>
+            {/* <div className="mb-3">
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Last Name"
+                    value={lname}
+                    onChange={(e) => setLname(e.target.value)}
+                />
+            </div> */}
 
-        //     <div className="mb-3">
-        //         <input
-        //             type="text"
-        //             className="form-control"
-        //             placeholder="Last Name"
-        //             value={lname}
-        //             onChange={(e) => setLname(e.target.value)}
-        //         />
-        //     </div>
+            {/* <div className="mb-3">
+                <input
+                    type="email"
+                    className="form-control"
+                    placeholder="Enter Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+            </div> */}
 
-        //     <div className="mb-3">
-        //         <input
-        //             type="email"
-        //             className="form-control"
-        //             placeholder="Enter Email"
-        //             value={email}
-        //             onChange={(e) => setEmail(e.target.value)}
-        //             required
-        //         />
-        //     </div>
+            {/* <div className="mb-3">
+                <input
+                    type="password"
+                    className="form-control"
+                    placeholder="Enter Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+            </div> */}
 
-        //     <div className="mb-3">
-        //         <input
-        //             type="password"
-        //             className="form-control"
-        //             placeholder="Enter Password"
-        //             value={password}
-        //             onChange={(e) => setPassword(e.target.value)}
-        //             required
-        //         />
-        //     </div>
+            {/* <div className="d-grid">
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                    {loading ? "Creating account..." : "Submit"}
+                </button>
+            </div>
 
-        //     <div className="d-grid">
-        //         <button type="submit" className="btn btn-primary" disabled={loading}>
-        //             {loading ? "Creating account..." : "Submit"}
-        //         </button>
-        //     </div>
+            <p className="forgot-password text-right">
+                Already have an account? <a href="/login">Login Here</a>
+            </p> */}
 
-        //     <p className="forgot-password text-right">
-        //         Already have an account? <a href="/login">Login Here</a>
-        //     </p>
-        // </form>
-        <form onSubmit={(e) => {
-            console.log("FORM SUBMITTED");
-            e.preventDefault();
-            handleRegister(e);
-        }} />
+              <div className="d-grid">
+            <button type="submit" className="btn btn-primary">
+                Submit
+            </button>
+        </div>
+        </form>
+        
     )
 }
 
