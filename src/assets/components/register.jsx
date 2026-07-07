@@ -19,8 +19,8 @@ function Register() {
             if (user) {
                 await setDoc(doc(db, "Users", user.uid),{
                     email: user.email,
-                    firstName: user.fname,
-                    lastName: user.lname
+                    firstName: fname,
+                    lastName: lname
                 });
             }
         } catch (error) {
