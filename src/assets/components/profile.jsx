@@ -4,20 +4,33 @@ import { doc, getDoc } from "firebase/firestore";
 
 function Profile() {
   const [userDetails, setUserDetails] = useState(null);
-  const fetchUserData = async () => {
-    auth.onAuthStateChanged(async (user) => {
-      console.log(user);
+ const fetchUserData = async () => {
+    console.log("fetchUserData called");
 
-      const docRef = doc(db, "Users", user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setUserDetails(docSnap.data());
-        console.log(docSnap.data());
-      } else {
-        console.log("User is not logged in");
-      }
+    auth.onAuthStateChanged(async (user) => {
+        console.log("Inside onAuthStateChanged");
+        console.log(user);
+
+        if (!user) {
+            console.log("No user");
+            return;
+        }
+
+        const docRef = doc(db, "Users", user.uid);
+        console.log("DocRef created");
+
+        const docSnap = await getDoc(docRef);
+
+        console.log("Exists:", docSnap.exists());
+
+        if (docSnap.exists()) {
+            console.log(docSnap.data());
+            setUserDetails(docSnap.data());
+        } else {
+            console.log("Document not found");
+        }
     });
-  };
+};
   useEffect(() => {
     fetchUserData();
   }, []);
