@@ -18,7 +18,7 @@ import { Field } from "formik";
 
 
 
-export function EditTask() {
+export default function EditTask() {
     const navigate = useNavigate();
     const { id } = useParams();
 

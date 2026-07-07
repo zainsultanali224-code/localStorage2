@@ -4,6 +4,8 @@ import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 import SignupForm from "../../tasklist";
+import EditTask from "../../todolist";
+import { Search } from "../../todolist";
 
 function Profile() {
   const [userDetails, setUserDetails] = useState(null);
@@ -76,16 +78,19 @@ function Profile() {
       {userDetails ? (
         <>
          
-          <h3>Welcome {userDetails.firstName}</h3>
+          {/* <h3>Welcome {userDetails.firstName}</h3> */}
           {/* <div>
             <p>Email: {userDetails.email}</p>
             <p>First Name: {userDetails.firstName}</p>
             <p>Last Name: {userDetails.lastName}</p>
           </div> */}
            <SignupForm />
-          <button className="btn btn-primary" onClick={handleLogout}>
+
+           <EditTask />
+           <Search />
+          {/* <button className="btn btn-primary" onClick={handleLogout}>
             Logout
-          </button>
+          </button> */}
         </>
       ) : (
         <>
