@@ -84,9 +84,9 @@ function Profile() {
             <p>First Name: {userDetails.firstName}</p>
             <p>Last Name: {userDetails.lastName}</p>
           </div> */}
+            <Search />
            <SignupForm />
            <EditTask />
-           <Search />
           <button className="btn btn-primary" onClick={handleLogout}>
             Logout
           </button>
