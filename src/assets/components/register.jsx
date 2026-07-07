@@ -1,5 +1,6 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";  // ✅ Add karo
 import { auth, db } from "./firebase";
 import { setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
@@ -10,15 +11,16 @@ function Register() {
     const [fname, setFname] = useState("");
     const [lname, setLname] = useState("");
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();  // ✅ Add karo
 
     const handleRegister = async (e) => {
         e.preventDefault();
         console.log("1. Register button clicked");
         console.log("2. Email:", email, "Password:", password, "Name:", fname);
-
+        
         if (!fname || !email || !password) {
-            toast.error("Please fill all required fields", {
-                position: "bottom-center"
+            toast.error("Please fill all required fields", { 
+                position: "bottom-center" 
             });
             return;
         }
@@ -42,8 +44,8 @@ function Register() {
 
             await setDoc(doc(db, "Users", uid), userData);
             console.log("7. Data saved to Firestore successfully!");
-            console.log("DB object:", db); // ← ye add karo handleRegister ke andar, pehle line
-            toast.success("Registration Successful! Redirecting...", {
+
+            toast.success("Registration Successful!", {
                 position: "top-center"
             });
 
@@ -53,18 +55,20 @@ function Register() {
             setFname("");
             setLname("");
 
-
+            // ✅ window.location.href ki jagay navigate use karo
             console.log("8. Redirecting to profile...");
-            window.location.href = "/profile";
+            setTimeout(() => {
+                navigate("/profile");  // Soft navigation, console persist rahega
+            }, 1500);
+
         } catch (error) {
             console.error("ERROR:", error);
             console.error("Error message:", error.message);
             console.error("Error code:", error.code);
-
+            
             toast.error(error.message || "Registration failed", {
                 position: "bottom-center"
             });
-        } finally {
             setLoading(false);
         }
     }
@@ -72,7 +76,7 @@ function Register() {
     return (
         <form onSubmit={handleRegister}>
             <h3>Sign Up</h3>
-            <p style={{ color: 'red' }}>Form loaded - ready for input</p>
+
             <div className="mb-3">
                 <input
                     type="text"
@@ -84,7 +88,7 @@ function Register() {
                 />
             </div>
 
-            {/* <div className="mb-3">
+            <div className="mb-3">
                 <input
                     type="text"
                     className="form-control"
@@ -92,9 +96,9 @@ function Register() {
                     value={lname}
                     onChange={(e) => setLname(e.target.value)}
                 />
-            </div> */}
+            </div>
 
-            {/* <div className="mb-3">
+            <div className="mb-3">
                 <input
                     type="email"
                     className="form-control"
@@ -103,9 +107,9 @@ function Register() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                 />
-            </div> */}
+            </div>
 
-            {/* <div className="mb-3">
+            <div className="mb-3">
                 <input
                     type="password"
                     className="form-control"
@@ -114,9 +118,9 @@ function Register() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-            </div> */}
+            </div>
 
-            {/* <div className="d-grid">
+            <div className="d-grid">
                 <button type="submit" className="btn btn-primary" disabled={loading}>
                     {loading ? "Creating account..." : "Submit"}
                 </button>
@@ -124,15 +128,8 @@ function Register() {
 
             <p className="forgot-password text-right">
                 Already have an account? <a href="/login">Login Here</a>
-            </p> */}
-
-            <div className="d-grid">
-                <button type="submit" className="btn btn-primary">
-                    Submit
-                </button>
-            </div>
+            </p>
         </form>
-
     )
 }
 
