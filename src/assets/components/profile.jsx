@@ -1,72 +1,67 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const [userDetails, setUserDetails] = useState(null);
- const fetchUserData = async () => {
-    console.log("fetchUserData called");
+  const [loading, setLoading] = useState(true);   // separate loading state
+  const navigate = useNavigate();
 
-    auth.onAuthStateChanged(async (user) => {
-        console.log("Inside onAuthStateChanged");
-        console.log(user);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        setLoading(false);
+        navigate("/login");   // login nahi hai to redirect
+        return;
+      }
 
-        if (!user) {
-            console.log("No user");
-            return;
-        }
-
+      try {
         const docRef = doc(db, "Users", user.uid);
-        console.log("DocRef created");
-
         const docSnap = await getDoc(docRef);
 
-        console.log("Exists:", docSnap.exists());
-
         if (docSnap.exists()) {
-            console.log(docSnap.data());
-            setUserDetails(docSnap.data());
+          setUserDetails(docSnap.data());
         } else {
-            console.log("Document not found");
+          console.log("Document not found");
         }
+      } catch (err) {
+        console.error("Error fetching user data:", err.message);
+      } finally {
+        setLoading(false);   // chahe data mile ya na mile, loading band karo
+      }
     });
-};
-  useEffect(() => {
-    fetchUserData();
-  }, []);
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   async function handleLogout() {
     try {
       await auth.signOut();
       window.location.href = "/login";
-      console.log("User logged out successfully!");
     } catch (error) {
       console.error("Error logging out:", error.message);
     }
   }
+
+  if (loading) return <p>Loading...</p>;
+
   return (
     <div>
       {userDetails ? (
         <>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <img
-              src={userDetails.photo}
-              width={"40%"}
-              style={{ borderRadius: "50%" }}
-            />
+            <img src={userDetails.photo} width={"40%"} style={{ borderRadius: "50%" }} />
           </div>
           <h3>Welcome {userDetails.firstName} 🙏🙏</h3>
           <div>
             <p>Email: {userDetails.email}</p>
             <p>First Name: {userDetails.firstName}</p>
-            {/* <p>Last Name: {userDetails.lastName}</p> */}
           </div>
-          <button className="btn btn-primary" onClick={handleLogout}>
-            Logout
-          </button>
+          <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
         </>
       ) : (
-        <p>Loading...</p>
+        <p>User data not found.</p>
       )}
     </div>
   );
