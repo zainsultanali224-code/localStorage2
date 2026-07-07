@@ -75,15 +75,7 @@ function Profile() {
     <div>
       {userDetails ? (
         <>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            {userDetails.photo && (
-              <img
-                src={userDetails.photo}
-                width={"40%"}
-                style={{ borderRadius: "50%" }}
-              />
-            )}
-          </div>
+         
           <h3>Welcome {userDetails.firstName}</h3>
           <div>
             <p>Email: {userDetails.email}</p>
