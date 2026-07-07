@@ -42,6 +42,7 @@ function Register() {
 
             await setDoc(doc(db, "Users", uid), userData);
             console.log("7. Data saved to Firestore successfully!");
+            console.log("DB object:", db); // ← ye add karo handleRegister ke andar, pehle line
             toast.success("Registration Successful! Redirecting...", {
                 position: "top-center"
             });
