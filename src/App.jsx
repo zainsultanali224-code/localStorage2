@@ -5,9 +5,9 @@ import Login from './assets/components/login';
 import Register from './assets/components/register';
 import Profile from './assets/components/profile';
 import { ToastContainer } from 'react-toastify';
-import SignupForm from "../../tasklist";
-import EditTask from "../../todolist";
-import { Search } from "../../todolist";
+import SignupForm from "./tasklist";
+import EditTask from "./todolist";
+import { Search } from "./todolist";
 
 
 
