@@ -51,6 +51,9 @@ export default function App() {
                   path='/profile'
                   element={user ? <Profile /> : <Navigate to="/login" />}
                 />
+                <Route path="/" element={<Search />} />
+                <Route path='/add-task' element={<SignupForm />} />
+                <Route path='/edit-Task/:id' element={<EditTask />} />
               </Routes>
               <ToastContainer />
             </div>
