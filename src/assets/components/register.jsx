@@ -9,50 +9,66 @@ function Register() {
     const [password, setPassword] = useState("");
     const [fname, setFname] = useState("");
     const [lname, setLname] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        console.log("Register button clicked"); // ✅ Test ke liye
+        console.log("1. Register button clicked");
+        console.log("2. Email:", email, "Password:", password, "Name:", fname);
         
-        // Validation
         if (!fname || !email || !password) {
-            toast.error("Please fill all fields", { position: "bottom-center" });
+            toast.error("Please fill all required fields", { 
+                position: "bottom-center" 
+            });
             return;
         }
 
+        setLoading(true);
+
         try {
-            console.log("Creating user...");
+            console.log("3. Creating user in Firebase Auth...");
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            console.log("User created, UID:", userCredential.user.uid);
+            const uid = userCredential.user.uid;
+            console.log("4. User created successfully, UID:", uid);
 
-            console.log("Saving to Firestore...");
-            await setDoc(doc(db, "Users", userCredential.user.uid), {
-                email: userCredential.user.email,
+            console.log("5. Saving user data to Firestore...");
+            const userData = {
+                email: email,
                 firstName: fname,
-                lastName: lname
-            });
-            console.log("Data saved successfully!");
+                lastName: lname || "",
+                createdAt: new Date()
+            };
+            console.log("6. User data to save:", userData);
 
-            toast.success("User Registered Successfully!!", {
+            await setDoc(doc(db, "Users", uid), userData);
+            console.log("7. Data saved to Firestore successfully!");
+
+            toast.success("Registration Successful! Redirecting...", {
                 position: "top-center"
             });
 
-            // Clear fields
+            // Clear form
             setEmail("");
             setPassword("");
             setFname("");
             setLname("");
 
-            // Redirect
+            // Redirect after 2 seconds
             setTimeout(() => {
+                console.log("8. Redirecting to profile...");
                 window.location.href = "/profile";
-            }, 1000);
+            }, 2000);
 
         } catch (error) {
-            console.error("Error:", error.message);
-            toast.error(error.message, {
+            console.error("ERROR:", error);
+            console.error("Error message:", error.message);
+            console.error("Error code:", error.code);
+            
+            toast.error(error.message || "Registration failed", {
                 position: "bottom-center"
             });
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -65,7 +81,7 @@ function Register() {
                     type="text"
                     className="form-control"
                     placeholder="First Name"
-                    value={fname}  // ✅ value add kiya
+                    value={fname}
                     onChange={(e) => setFname(e.target.value)}
                     required
                 />
@@ -76,7 +92,7 @@ function Register() {
                     type="text"
                     className="form-control"
                     placeholder="Last Name"
-                    value={lname}  // ✅ value add kiya
+                    value={lname}
                     onChange={(e) => setLname(e.target.value)}
                 />
             </div>
@@ -86,7 +102,7 @@ function Register() {
                     type="email"
                     className="form-control"
                     placeholder="Enter Email"
-                    value={email}  // ✅ value add kiya
+                    value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                 />
@@ -97,17 +113,18 @@ function Register() {
                     type="password"
                     className="form-control"
                     placeholder="Enter Password"
-                    value={password}  // ✅ value add kiya
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
             </div>
 
             <div className="d-grid">
-                <button type="submit" className="btn btn-primary">
-                    Submit
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                    {loading ? "Creating account..." : "Submit"}
                 </button>
             </div>
+
             <p className="forgot-password text-right">
                 Already have an account? <a href="/login">Login Here</a>
             </p>
