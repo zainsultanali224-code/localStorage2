@@ -1,0 +1,48 @@
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa, #dfe9f3);
+}
+
+.login-card {
+    border-radius: 20px;
+    overflow: hidden;
+    transition: 0.3s ease;
+}
+
+.login-card:hover {
+    transform: translateY(-3px);
+}
+
+.login-card h3 {
+    color: #0d6efd;
+}
+
+.form-control {
+    height: 48px;
+    border-radius: 10px;
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.btn-primary {
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+}
+
+a {
+    color: #0d6efd;
+}
+
+a:hover {
+    text-decoration: underline;
+}
