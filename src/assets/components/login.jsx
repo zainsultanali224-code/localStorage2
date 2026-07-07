@@ -14,6 +14,9 @@ function Login() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             console.log("User Registered Successfully!!")
+            toast.success("User Registered Successfully!!", {
+                position: "top-center"
+            })
         } catch (error) {
             console.log(error.message)
             toast.error(error.message, {
