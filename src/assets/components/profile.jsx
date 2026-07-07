@@ -27,7 +27,7 @@ function Profile() {
         const navigate = useNavigate();
         try {
             await auth.signOut();
-          navigate("/login");
+            window.location.href ="/login";
             console.log("User logged out successfully!")
         } catch (error) {
             console.log("Error Logging out:", error.message)
