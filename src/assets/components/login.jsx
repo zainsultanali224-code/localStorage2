@@ -1,7 +1,7 @@
 import { Form } from "formik";
 import React, { useState } from "react";
 
- function Login() {
+function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -37,7 +37,10 @@ import React, { useState } from "react";
                     Submit
                 </button>
             </div>
-
+            <p className="forgot-password text-right">
+                New user <a href="/register">Register Here</a>
+            </p>
+            <SignInwithGoogle />
         </form>
     )
 }
