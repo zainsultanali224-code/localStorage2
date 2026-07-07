@@ -3,7 +3,7 @@ import SignupForm from './tasklist'
 import { auth } from "./assets/components/firebase";
 import { Search, EditTask } from './todolist';
 import React from "react";
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate  } from 'react-router-dom';
 
 import Login from './assets/components/login';
 import Register from './assets/components/register';
