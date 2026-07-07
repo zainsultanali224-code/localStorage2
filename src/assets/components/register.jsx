@@ -1,6 +1,6 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";  // ✅ Add karo
+import { useNavigate } from "react-router-dom";  
 import { auth, db } from "./firebase";
 import { setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
@@ -11,7 +11,7 @@ function Register() {
     const [fname, setFname] = useState("");
     const [lname, setLname] = useState("");
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();  // ✅ Add karo
+    const navigate = useNavigate();  
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -49,16 +49,15 @@ function Register() {
                 position: "top-center"
             });
 
-            // Clear form
+            
             setEmail("");
             setPassword("");
             setFname("");
             setLname("");
 
-            // ✅ window.location.href ki jagay navigate use karo
             console.log("8. Redirecting to profile...");
             setTimeout(() => {
-                navigate("/profile");  // Soft navigation, console persist rahega
+                navigate("/profile"); 
             }, 1500);
 
         } catch (error) {

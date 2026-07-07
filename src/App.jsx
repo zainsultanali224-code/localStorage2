@@ -8,60 +8,22 @@ import { ToastContainer } from 'react-toastify';
 
 
 
-// export default function App() {
-//   const [user, setUser] = useState();
-//   useEffect(() => {
-//   const unsubscribe = auth.onAuthStateChanged((user) => {
-//     console.log("App User:", user);
-//     setUser(user);
-//   });
 
-//   return () => unsubscribe();
-// }, []);
-//   return (
-//     <>
-//       <BrowserRouter>
-//         <div className='App'>
-//           <div className='auth-wrapper'>
-//             <div className='auth-inner'>
-//               <Routes>
-//                 <Route path="/" element={user ? <Navigate to="/profile" /> : <Login />} />
-//                 <Route path='/login' element={<Login />} />
-//                 <Route path='/register' element={<Register />} />
-//                 <Route path='/profile' element={<Profile />} />
-//               </Routes>
-//               <ToastContainer />
-//             </div>
-//           </div>
-//         </div>
-//       </BrowserRouter>
-// {/* 
-//       <BrowserRouter>
-//         <Routes>
-//           <Route path="/" element={<Search />} />
-//           <Route path='/add-task' element={<SignupForm />} />
-//           <Route path='/edit-Task/:id' element={<EditTask />} />
-//         </Routes>
-//       </BrowserRouter> */}
-//     </>
-//   )
-// }
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);  // ✅ Loading state add karo
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       console.log("App.jsx - Auth state changed, user:", user?.uid);
       setUser(user);
-      setLoading(false);  // ✅ Loading complete
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  // ✅ Loading ke doran kuch mat render karo
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -73,21 +35,21 @@ export default function App() {
           <div className='auth-wrapper'>
             <div className='auth-inner'>
               <Routes>
-                <Route 
-                  path="/" 
-                  element={user ? <Navigate to="/profile" /> : <Navigate to="/login" />} 
+                <Route
+                  path="/"
+                  element={user ? <Navigate to="/profile" /> : <Navigate to="/login" />}
                 />
-                <Route 
-                  path='/login' 
-                  element={user ? <Navigate to="/profile" /> : <Login />}  // ✅ Agar logged in hai to profile bhejo
+                <Route
+                  path='/login'
+                  element={user ? <Navigate to="/profile" /> : <Login />}
                 />
-                <Route 
-                  path='/register' 
-                  element={user ? <Navigate to="/profile" /> : <Register />} // ✅ Agar logged in hai to profile bhejo
+                <Route
+                  path='/register'
+                  element={user ? <Navigate to="/profile" /> : <Register />}
                 />
-                <Route 
-                  path='/profile' 
-                  element={user ? <Profile /> : <Navigate to="/login" />}  // ✅ Agar logged in nahi to login bhejo
+                <Route
+                  path='/profile'
+                  element={user ? <Profile /> : <Navigate to="/login" />}
                 />
               </Routes>
               <ToastContainer />
