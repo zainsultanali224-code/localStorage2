@@ -24,15 +24,14 @@ function Profile() {
         fetchUserData()
     }, [])
     async function handleLogout() {
-        const navigate = useNavigate();
-        try {
-            await auth.signOut();
-            window.location.href ="/login";
-            console.log("User logged out successfully!")
-        } catch (error) {
-            console.log("Error Logging out:", error.message)
-        }
+    try {
+      await auth.signOut();
+      window.location.href = "/login";
+      console.log("User logged out successfully!");
+    } catch (error) {
+      console.error("Error logging out:", error.message);
     }
+  }
     return (
         <div>
             {userDetails ? (
