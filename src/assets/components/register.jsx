@@ -42,7 +42,6 @@ function Register() {
 
             await setDoc(doc(db, "Users", uid), userData);
             console.log("7. Data saved to Firestore successfully!");
-
             toast.success("Registration Successful! Redirecting...", {
                 position: "top-center"
             });
@@ -53,12 +52,9 @@ function Register() {
             setFname("");
             setLname("");
 
-            // Redirect after 2 seconds
-            setTimeout(() => {
-                console.log("8. Redirecting to profile...");
-                window.location.href = "/profile";
-            }, 2000);
 
+            console.log("8. Redirecting to profile...");
+            window.location.href = "/profile";
         } catch (error) {
             console.error("ERROR:", error);
             console.error("Error message:", error.message);
@@ -75,7 +71,7 @@ function Register() {
     return (
         <form onSubmit={handleRegister}>
             <h3>Sign Up</h3>
- <p style={{color: 'red'}}>Form loaded - ready for input</p>
+            <p style={{ color: 'red' }}>Form loaded - ready for input</p>
             <div className="mb-3">
                 <input
                     type="text"
@@ -129,13 +125,13 @@ function Register() {
                 Already have an account? <a href="/login">Login Here</a>
             </p> */}
 
-              <div className="d-grid">
-            <button type="submit" className="btn btn-primary">
-                Submit
-            </button>
-        </div>
+            <div className="d-grid">
+                <button type="submit" className="btn btn-primary">
+                    Submit
+                </button>
+            </div>
         </form>
-        
+
     )
 }
 
