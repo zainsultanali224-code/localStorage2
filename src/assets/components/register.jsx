@@ -15,10 +15,10 @@ function Register() {
         e.preventDefault();
         console.log("1. Register button clicked");
         console.log("2. Email:", email, "Password:", password, "Name:", fname);
-        
+
         if (!fname || !email || !password) {
-            toast.error("Please fill all required fields", { 
-                position: "bottom-center" 
+            toast.error("Please fill all required fields", {
+                position: "bottom-center"
             });
             return;
         }
@@ -63,7 +63,7 @@ function Register() {
             console.error("ERROR:", error);
             console.error("Error message:", error.message);
             console.error("Error code:", error.code);
-            
+
             toast.error(error.message || "Registration failed", {
                 position: "bottom-center"
             });
@@ -73,62 +73,67 @@ function Register() {
     }
 
     return (
-        <form onSubmit={handleRegister}>
-            <h3>Sign Up</h3>
+        // <form onSubmit={handleRegister}>
+        //     <h3>Sign Up</h3>
 
-            <div className="mb-3">
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="First Name"
-                    value={fname}
-                    onChange={(e) => setFname(e.target.value)}
-                    required
-                />
-            </div>
+        //     <div className="mb-3">
+        //         <input
+        //             type="text"
+        //             className="form-control"
+        //             placeholder="First Name"
+        //             value={fname}
+        //             onChange={(e) => setFname(e.target.value)}
+        //             required
+        //         />
+        //     </div>
 
-            <div className="mb-3">
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Last Name"
-                    value={lname}
-                    onChange={(e) => setLname(e.target.value)}
-                />
-            </div>
+        //     <div className="mb-3">
+        //         <input
+        //             type="text"
+        //             className="form-control"
+        //             placeholder="Last Name"
+        //             value={lname}
+        //             onChange={(e) => setLname(e.target.value)}
+        //         />
+        //     </div>
 
-            <div className="mb-3">
-                <input
-                    type="email"
-                    className="form-control"
-                    placeholder="Enter Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-            </div>
+        //     <div className="mb-3">
+        //         <input
+        //             type="email"
+        //             className="form-control"
+        //             placeholder="Enter Email"
+        //             value={email}
+        //             onChange={(e) => setEmail(e.target.value)}
+        //             required
+        //         />
+        //     </div>
 
-            <div className="mb-3">
-                <input
-                    type="password"
-                    className="form-control"
-                    placeholder="Enter Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-            </div>
+        //     <div className="mb-3">
+        //         <input
+        //             type="password"
+        //             className="form-control"
+        //             placeholder="Enter Password"
+        //             value={password}
+        //             onChange={(e) => setPassword(e.target.value)}
+        //             required
+        //         />
+        //     </div>
 
-            <div className="d-grid">
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? "Creating account..." : "Submit"}
-                </button>
-            </div>
+        //     <div className="d-grid">
+        //         <button type="submit" className="btn btn-primary" disabled={loading}>
+        //             {loading ? "Creating account..." : "Submit"}
+        //         </button>
+        //     </div>
 
-            <p className="forgot-password text-right">
-                Already have an account? <a href="/login">Login Here</a>
-            </p>
-        </form>
+        //     <p className="forgot-password text-right">
+        //         Already have an account? <a href="/login">Login Here</a>
+        //     </p>
+        // </form>
+        <form onSubmit={(e) => {
+            console.log("FORM SUBMITTED");
+            e.preventDefault();
+            handleRegister(e);
+        }} />
     )
 }
 
