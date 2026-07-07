@@ -87,9 +87,9 @@ function Profile() {
            <SignupForm />
            <EditTask />
            <Search />
-          {/* <button className="btn btn-primary" onClick={handleLogout}>
+          <button className="btn btn-primary" onClick={handleLogout}>
             Logout
-          </button> */}
+          </button>
         </>
       ) : (
         <>
