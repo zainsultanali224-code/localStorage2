@@ -1,5 +1,6 @@
 import {useEffect, useState } from 'react'
 import SignupForm from './tasklist'
+import { auth } from "./firebase"
 import { Search, EditTask } from './todolist';
 import React from "react";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
