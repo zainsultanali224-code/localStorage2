@@ -1,84 +1,61 @@
-import React, { useEffect, useState } from "react"
-import { auth, db } from "./firebase"
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { auth, db } from "./firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 function Profile() {
-       console.log("Profile Component Rendered");
-    const [userDetails, setUserDetails] = useState(null)
-    const fetchUserData = async () => {
-    const fetchUserData = async () => {
+  const [userDetails, setUserDetails] = useState(null);
+  const fetchUserData = async () => {
     auth.onAuthStateChanged(async (user) => {
-        console.log("Auth User:", user);
+      console.log(user);
 
-        if (!user) {
-            console.log("No user logged in");
-            return;
-        }
-
-        console.log("UID:", user.uid);
-
-        const docRef = doc(db, "Users", user.uid);
-        const docSnap = await getDoc(docRef);
-
-        console.log("Document Exists:", docSnap.exists());
-
-        if (docSnap.exists()) {
-            console.log("Data:", docSnap.data());
-            setUserDetails(docSnap.data());
-        } else {
-            console.log("No such document!");
-        }
+      const docRef = doc(db, "Users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setUserDetails(docSnap.data());
+        console.log(docSnap.data());
+      } else {
+        console.log("User is not logged in");
+      }
     });
-};
+  };
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  async function handleLogout() {
+    try {
+      await auth.signOut();
+      window.location.href = "/login";
+      console.log("User logged out successfully!");
+    } catch (error) {
+      console.error("Error logging out:", error.message);
     }
-    useEffect(() => {
-         console.log("useEffect Running");
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const docRef = doc(db, "Users", user.uid);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    setUserDetails(docSnap.data());
-                }
-            }
-        });
-
-        return () => unsubscribe();
-    }, []);
-
-    const navigate = useNavigate();
-    async function handleLogout() {
-        try {
-            await auth.signOut();
-            navigate("/login");
-            console.log("User logged out successfully!");
-        } catch (error) {
-            console.error("Error logging out:", error.message);
-        }
-    }
-    return (
-        <div>
-            {userDetails ? (
-                <>
-                    <h3>Welcome {userDetails.firstName}</h3>
-                    <div>
-                        <p>Email: {userDetails.email}</p>
-                        <p>FirstName: {userDetails.firstName}</p>
-                        <p>LastName: {userDetails.lastName}</p>
-                    </div>
-                    <button className="btn btn-primary" onClick={handleLogout}>
-                        Logout
-                    </button>
-                </>
-            ) : (
-                <p>Loading...</p>
-            )}
-        </div>
-    )
+  }
+  return (
+    <div>
+      {userDetails ? (
+        <>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <img
+              src={userDetails.photo}
+              width={"40%"}
+              style={{ borderRadius: "50%" }}
+            />
+          </div>
+          <h3>Welcome {userDetails.firstName} 🙏🙏</h3>
+          <div>
+            <p>Email: {userDetails.email}</p>
+            <p>First Name: {userDetails.firstName}</p>
+            {/* <p>Last Name: {userDetails.lastName}</p> */}
+          </div>
+          <button className="btn btn-primary" onClick={handleLogout}>
+            Logout
+          </button>
+        </>
+      ) : (
+        <p>Loading...</p>
+      )}
+    </div>
+  );
 }
-
 export default Profile;
