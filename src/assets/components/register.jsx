@@ -16,27 +16,21 @@ function Register() {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             console.log("UID:", userCredential.user.uid);
 
-            await createUserWithEmailAndPassword(auth, email, password);
-            const user = auth.currentUser;
-            console.log(user)
-            console.log("User Registered Successfully!!")
-            if (user) {
-                await setDoc(doc(db, "Users", userCredential.user.uid), {
-                    email: userCredential.user.email,
-                    firstName: fname,
-                    lastName: lname
-                });
-console.log("Data saved");
-            }
-            console.log("User Registered Successfully!!")
+            await setDoc(doc(db, "Users", userCredential.user.uid), {
+                email: userCredential.user.email,
+                firstName: fname,
+                lastName: lname
+            });
+
+            console.log("Data saved, User Registered Successfully!!");
             toast.success("User Registered Successfully!!", {
                 position: "top-center"
-            })
+            });
         } catch (error) {
-            console.log(error.message)
+            console.log(error.message);
             toast.error(error.message, {
                 position: "bottom-center"
-            })
+            });
         }
     }
 
