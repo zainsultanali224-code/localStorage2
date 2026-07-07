@@ -1,13 +1,26 @@
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { Form } from "formik";
 import React, { useState } from "react";
 import { ToastContainer } from 'react-toastify';
+import { auth } from "./firebase";
 
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            console.log("User Registered Successfully!!")
+        } catch (error) {
+            console.log(error.message)
+            toast.error(error.message, {
+                position: "bottom-center"
+            })
+        }
+    }
     return (
         <form>
             <h3>Login</h3>
