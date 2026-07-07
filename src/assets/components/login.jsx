@@ -1,7 +1,8 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Form } from "formik";
 import React, { useState } from "react";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { auth } from "./firebase";
 
 
