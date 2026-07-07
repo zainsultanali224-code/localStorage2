@@ -5,65 +5,106 @@ import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const [userDetails, setUserDetails] = useState(null);
-  const [loading, setLoading] = useState(true);   // separate loading state
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        setLoading(false);
-        navigate("/login");   // login nahi hai to redirect
-        return;
-      }
+    let unsubscribe;
 
-      try {
-        const docRef = doc(db, "Users", user.uid);
-        const docSnap = await getDoc(docRef);
+    const setupListener = () => {
+      unsubscribe = auth.onAuthStateChanged(async (user) => {
+        console.log("Auth state changed, user:", user?.uid);
 
-        if (docSnap.exists()) {
-          setUserDetails(docSnap.data());
-        } else {
-          console.log("Document not found");
+        if (!user) {
+          console.log("No user, redirecting to login");
+          setLoading(false);
+          navigate("/login");
+          return;
         }
-      } catch (err) {
-        console.error("Error fetching user data:", err.message);
-      } finally {
-        setLoading(false);   // chahe data mile ya na mile, loading band karo
-      }
-    });
 
-    return () => unsubscribe();
+        try {
+          console.log("Fetching user data for UID:", user.uid);
+          const docRef = doc(db, "Users", user.uid);
+          const docSnap = await getDoc(docRef);
+
+          console.log("Document exists:", docSnap.exists());
+
+          if (docSnap.exists()) {
+            console.log("User data:", docSnap.data());
+            setUserDetails(docSnap.data());
+          } else {
+            console.log("Document not found for UID:", user.uid);
+            setUserDetails(null);
+          }
+        } catch (err) {
+          console.error("Error fetching user data:", err.message);
+          setUserDetails(null);
+        } finally {
+          setLoading(false);
+        }
+      });
+    };
+
+    setupListener();
+
+    // Cleanup function
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [navigate]);
 
   async function handleLogout() {
     try {
+      console.log("Logging out...");
       await auth.signOut();
-      window.location.href = "/login";
+      console.log("Logged out successfully");
+      navigate("/login");
     } catch (error) {
       console.error("Error logging out:", error.message);
     }
   }
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div>
       {userDetails ? (
         <>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <img src={userDetails.photo} width={"40%"} style={{ borderRadius: "50%" }} />
+            {userDetails.photo && (
+              <img
+                src={userDetails.photo}
+                width={"40%"}
+                style={{ borderRadius: "50%" }}
+              />
+            )}
           </div>
-          <h3>Welcome {userDetails.firstName} 🙏🙏</h3>
+          <h3>Welcome {userDetails.firstName}</h3>
           <div>
             <p>Email: {userDetails.email}</p>
             <p>First Name: {userDetails.firstName}</p>
+            {userDetails.lastName && (
+              <p>Last Name: {userDetails.lastName}</p>
+            )}
           </div>
-          <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
+          <button className="btn btn-primary" onClick={handleLogout}>
+            Logout
+          </button>
         </>
       ) : (
-        <p>User data not found.</p>
+        <>
+          <p>User data not found.</p>
+          <button className="btn btn-primary" onClick={handleLogout}>
+            Back to Login
+          </button>
+        </>
       )}
     </div>
   );
 }
+
 export default Profile;
