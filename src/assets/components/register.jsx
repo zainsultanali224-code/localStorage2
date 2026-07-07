@@ -13,16 +13,20 @@ function Register() {
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            await  createUserWithEmailAndPassword(auth, email, password);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            console.log("UID:", userCredential.user.uid);
+
+            await createUserWithEmailAndPassword(auth, email, password);
             const user = auth.currentUser;
             console.log(user)
             console.log("User Registered Successfully!!")
             if (user) {
-                await setDoc(doc(db, "Users", user.uid),{
-                    email: user.email,
+                await setDoc(doc(db, "Users", userCredential.user.uid), {
+                    email: userCredential.user.email,
                     firstName: fname,
                     lastName: lname
                 });
+console.log("Data saved");
             }
             console.log("User Registered Successfully!!")
             toast.success("User Registered Successfully!!", {
@@ -30,7 +34,7 @@ function Register() {
             })
         } catch (error) {
             console.log(error.message)
-             toast.error(error.message, {
+            toast.error(error.message, {
                 position: "bottom-center"
             })
         }
@@ -52,35 +56,35 @@ function Register() {
 
             <div className="mb-3">
                 <input
-                type="text"
-                className="form-control"
-                placeholder="Last Name"
-                onChange={(e) => setLname(e.target.value)}
+                    type="text"
+                    className="form-control"
+                    placeholder="Last Name"
+                    onChange={(e) => setLname(e.target.value)}
                 />
 
             </div>
 
             <div className="mb-3">
                 <input
-                type="email"
-                className="form-control"
-                placeholder="Enter Email"
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                    type="email"
+                    className="form-control"
+                    placeholder="Enter Email"
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                 />
             </div>
 
             <div className="mb-3">
-            <input
-            type="password"
-            className="form-control"
-            placeholder="Enter Password"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            />
+                <input
+                    type="password"
+                    className="form-control"
+                    placeholder="Enter Password"
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
             </div>
 
-             <div className="d-grid">
+            <div className="d-grid">
                 <button type="submit" className="btn btn-primary">
                     Submit
                 </button>
