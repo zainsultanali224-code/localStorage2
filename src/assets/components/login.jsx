@@ -14,6 +14,7 @@ function Login() {
         e.preventDefault();
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            window.location.href = "/profile";
             console.log("User Registered Successfully!!")
             toast.success("User Registered Successfully!!", {
                 position: "top-center"

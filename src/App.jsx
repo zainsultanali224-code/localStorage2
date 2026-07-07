@@ -16,10 +16,13 @@ import { ToastContainer } from 'react-toastify';
 export default function App() {
   const [user, setUser] = useState();
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      setUser(user);
-    });
+  const unsubscribe = auth.onAuthStateChanged((user) => {
+    console.log("App User:", user);
+    setUser(user);
   });
+
+  return () => unsubscribe();
+}, []);
   return (
     <>
       <BrowserRouter>

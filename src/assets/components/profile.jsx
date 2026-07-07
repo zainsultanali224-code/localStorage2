@@ -6,6 +6,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 function Profile() {
+       console.log("Profile Component Rendered");
     const [userDetails, setUserDetails] = useState(null)
     const fetchUserData = async () => {
     const fetchUserData = async () => {
@@ -34,6 +35,7 @@ function Profile() {
 };
     }
     useEffect(() => {
+         console.log("useEffect Running");
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const docRef = doc(db, "Users", user.uid);
