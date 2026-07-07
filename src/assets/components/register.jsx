@@ -56,7 +56,7 @@ function Register() {
 
             setTimeout(() => {
                 navigate("/profile");
-            }, 1500);
+            }, 1000);
 
         } catch (error) {
             console.error(error);
