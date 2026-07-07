@@ -13,16 +13,57 @@ import { ToastContainer } from 'react-toastify';
 
 
 
+// export default function App() {
+//   const [user, setUser] = useState();
+//   useEffect(() => {
+//   const unsubscribe = auth.onAuthStateChanged((user) => {
+//     console.log("App User:", user);
+//     setUser(user);
+//   });
+
+//   return () => unsubscribe();
+// }, []);
+//   return (
+//     <>
+//       <BrowserRouter>
+//         <div className='App'>
+//           <div className='auth-wrapper'>
+//             <div className='auth-inner'>
+//               <Routes>
+//                 <Route path="/" element={user ? <Navigate to="/profile" /> : <Login />} />
+//                 <Route path='/login' element={<Login />} />
+//                 <Route path='/register' element={<Register />} />
+//                 <Route path='/profile' element={<Profile />} />
+//               </Routes>
+//               <ToastContainer />
+//             </div>
+//           </div>
+//         </div>
+//       </BrowserRouter>
+// {/* 
+//       <BrowserRouter>
+//         <Routes>
+//           <Route path="/" element={<Search />} />
+//           <Route path='/add-task' element={<SignupForm />} />
+//           <Route path='/edit-Task/:id' element={<EditTask />} />
+//         </Routes>
+//       </BrowserRouter> */}
+//     </>
+//   )
+// }
+
 export default function App() {
   const [user, setUser] = useState();
+  
   useEffect(() => {
-  const unsubscribe = auth.onAuthStateChanged((user) => {
-    console.log("App User:", user);
-    setUser(user);
-  });
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      console.log("App User:", user);
+      setUser(user);
+    });
 
-  return () => unsubscribe();
-}, []);
+    return () => unsubscribe();
+  }, []);
+
   return (
     <>
       <BrowserRouter>
@@ -30,24 +71,22 @@ export default function App() {
           <div className='auth-wrapper'>
             <div className='auth-inner'>
               <Routes>
-                <Route path="/" element={user ? <Navigate to="/profile" /> : <Login />} />
+                <Route 
+                  path="/" 
+                  element={user ? <Navigate to="/profile" /> : <Login />} 
+                />
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<Register />} />
-                <Route path='/profile' element={<Profile />} />
+                <Route 
+                  path='/profile' 
+                  element={user ? <Profile /> : <Navigate to="/login" />} 
+                />
               </Routes>
               <ToastContainer />
             </div>
           </div>
         </div>
       </BrowserRouter>
-{/* 
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Search />} />
-          <Route path='/add-task' element={<SignupForm />} />
-          <Route path='/edit-Task/:id' element={<EditTask />} />
-        </Routes>
-      </BrowserRouter> */}
     </>
   )
 }
