@@ -8,28 +8,30 @@ import { useNavigate } from "react-router-dom";
 function Profile() {
     const [userDetails, setUserDetails] = useState(null)
     const fetchUserData = async () => {
-      auth.onAuthStateChanged(async (user) => {
-    console.log("User:", user);
+    const fetchUserData = async () => {
+    auth.onAuthStateChanged(async (user) => {
+        console.log("Auth User:", user);
 
-    if (!user) {
-        console.log("No user found");
-        return;
-    }
+        if (!user) {
+            console.log("No user logged in");
+            return;
+        }
 
-    console.log("UID:", user.uid);
+        console.log("UID:", user.uid);
 
-    const docRef = doc(db, "Users", user.uid);
-    const docSnap = await getDoc(docRef);
+        const docRef = doc(db, "Users", user.uid);
+        const docSnap = await getDoc(docRef);
 
-    console.log("Exists:", docSnap.exists());
+        console.log("Document Exists:", docSnap.exists());
 
-    if (docSnap.exists()) {
-        console.log(docSnap.data());
-        setUserDetails(docSnap.data());
-    } else {
-        console.log("Document not found");
-    }
-});
+        if (docSnap.exists()) {
+            console.log("Data:", docSnap.data());
+            setUserDetails(docSnap.data());
+        } else {
+            console.log("No such document!");
+        }
+    });
+};
     }
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
