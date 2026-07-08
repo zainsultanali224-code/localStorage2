@@ -43,32 +43,37 @@ function Login() {
 
     };
     const handleForgotPassword = async () => {
-        if (!email) {
-            toast.error("Please enter your email.", {
-                position: "bottom-center"
-            })
-            return;
-        }
-
-        const codeSetting = {
-            url: window.location.origin + "/reset-password",
-            handleCode: true
-        }
-        try {
-            await sendPasswordResetEmail(auth, email, codeSetting);
-           toast.success("Password reset email sent. Please check your email.", {
-        position: "top-center",
-    });
-
-console.log(email);
-        } catch (error) {
-            console.log(error);
-
-            toast.error(error.message, {
-                position: "bottom-center",
-            });
-        }
+    if (!email) {
+        toast.error("Please enter your email.", {
+            position: "bottom-center"
+        });
+        return; // ← zaroori hai!
     }
+
+    // ← ye actionCodeSettings add karo
+    const actionCodeSettings = {
+        url: window.location.origin + "/reset-password",
+        handleCodeInApp: true,
+    };
+
+    try {
+        console.log("📧 Sending reset email to:", email);
+        console.log("🔗 Reset URL:", window.location.origin + "/reset-password");
+        
+        await sendPasswordResetEmail(auth, email, actionCodeSettings);
+        
+        console.log("✅ Email sent successfully");
+        toast.success("Password reset email sent. Check your email!", {
+            position: "top-center",
+            autoClose: 2000,
+        });
+    } catch (error) {
+        console.error("❌ Error sending reset email:", error.code, error.message);
+        toast.error(error.message, {
+            position: "bottom-center",
+        });
+    }
+};
     return (
         <div className="login-page">
             <Container>
