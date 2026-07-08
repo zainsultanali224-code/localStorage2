@@ -19,7 +19,7 @@ function SignInWithGoogle() {
                 });
 
                 // Redirect after login
-                navigate("/profile2");
+                window.location.href = "/profile_t";
             }
         } catch (error) {
             console.error(error);
