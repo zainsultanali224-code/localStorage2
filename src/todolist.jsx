@@ -16,15 +16,38 @@ import { useLocation } from "react-router-dom";
 import { Field } from "formik";
 
 
-export default function EditTask() {
-     const navigate = useNavigate();
-    const { id } = useParams();
-    const [userId] = useAuth(); // ✅ GET current user
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Formik, Form, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { auth } from "./assets/components/firebase"; // ✅ ADD
+import {
+    Container,
+    Row,
+    Col,
+    Card,
+    Button,
+    Badge,
+    Form as FForm
+} from "react-bootstrap";
+import { useLocation } from "react-router-dom";
 
-    // ✅ User-specific storage key
-    const storageKey = `tasks_${userId}`;
-    const tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
-    const task = tasks.find((t) => t.id === id);
+export default function EditTask() {
+    const navigate = useNavigate();
+    const { id } = useParams();
+    const [userId, setUserId] = useState(null); // ✅ ADD
+
+    // ✅ GET current user ID
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                setUserId(user.uid);
+            } else {
+                navigate("/login");
+            }
+        });
+        return () => unsubscribe();
+    }, [navigate]);
 
     const SignupSchema = Yup.object().shape({
         title: Yup.string().required("Required"),
@@ -38,7 +61,6 @@ export default function EditTask() {
         status: Yup.string().required("Required"),
         merital: Yup.string()
             .oneOf(["Single", "Married"]),
-
         Children: Yup
             .number()
             .when("merital", {
@@ -50,18 +72,26 @@ export default function EditTask() {
             })
     });
 
-     const handleUpdate = (values) => {
+    // ✅ User-specific storage key
+    const storageKey = `tasks_${userId}`;
+    const tasks = userId ? JSON.parse(localStorage.getItem(storageKey)) || [] : [];
+    const task = tasks.find((t) => t.id === id);
+
+    const handleUpdate = (values) => {
         const updated = tasks.map((t) =>
             t.id === task.id ? { ...t, ...values } : t
         );
 
-        // ✅ Update user-specific storage
         localStorage.setItem(storageKey, JSON.stringify(updated));
         const currentPage = localStorage.getItem("currentPage") || 1;
         navigate("/profile", {
             state: { page: parseInt(currentPage) }
         });
     };
+
+    if (!userId || !task) {
+        return <p>Loading...</p>; // ✅ Wait for userId aur task to load
+    }
 
     return (<Container fluid className="bg-light min-vh-100 py-5"> <Container>
         <Card
@@ -92,7 +122,6 @@ export default function EditTask() {
                         gender: task?.gender || "",
                         merital: task?.merital || "",
                         Children: task?.Children || "0",
-
                     }}
                     validationSchema={SignupSchema}
                     onSubmit={handleUpdate}
@@ -116,7 +145,6 @@ export default function EditTask() {
                                     />
                                 </Col>
 
-                                <ErrorMessage name="title" component="div" className="text-danger" />
                                 <Col md={6}>
                                     <FForm.Label>Location</FForm.Label>
                                     <FForm.Control
@@ -212,7 +240,7 @@ export default function EditTask() {
                                     </FForm.Label>
 
                                     <Col>
-                                          <div className="mb-3">
+                                        <div className="mb-3">
                                             <FForm.Check
                                                 inline
                                                 label="Pending"
@@ -247,7 +275,7 @@ export default function EditTask() {
                                     </FForm.Label>
 
                                     <Col>
-                                       <div className="mb-3">
+                                        <div className="mb-3">
                                             <FForm.Check
                                                 inline
                                                 label="Male"
@@ -290,7 +318,7 @@ export default function EditTask() {
                                     <FForm.Label>
                                     </FForm.Label>
                                     <Col>
-                                          <div className="mb-3">
+                                        <div className="mb-3">
                                             <FForm.Check
                                                 inline
                                                 label="Single"
@@ -367,8 +395,6 @@ export default function EditTask() {
         </Card>
     </Container>
     </Container>
-
-
     );
 }
 
