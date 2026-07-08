@@ -10,20 +10,16 @@ import EditTask from "./todolist";
 import { Search } from "./todolist";
 import Profile_t from './assets/components/profile2';
 
-
-
-
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      console.log("App.jsx - Auth state changed, user:", user?.uid);
-      setUser(user);
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      console.log("App.jsx - Auth state changed, user:", currentUser?.uid);
+      setUser(currentUser);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -50,18 +46,17 @@ export default function App() {
                   path='/register'
                   element={user ? <Navigate to="/profile" /> : <Register />}
                 />
+                {/* ✅ Key laga do taake component remount ho */}
                 <Route
                   path='/profile'
-                  element={user ? <Profile /> : <Navigate to="/login" />}
+                  element={user ? <Profile key={user.uid} /> : <Navigate to="/login" />}
                 />
-               
                 <Route path="/" element={<Search />} />
                 <Route path='/add-task' element={<SignupForm />} />
                 <Route path='/edit-Task/:id' element={<EditTask />} />
-
-                 <Route
+                <Route
                   path='/profile_t'
-                  element={user ? <Profile_t /> : <Navigate to="/SignupForm" />}
+                  element={user ? <Profile_t key={user.uid} /> : <Navigate to="/login" />}
                 />
               </Routes>
               <ToastContainer />
