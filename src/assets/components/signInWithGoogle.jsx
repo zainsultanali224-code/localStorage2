@@ -14,7 +14,7 @@ function SignInWithGoogle() {
                 toast.success("User Logged in successfully", {
                     position: "top-center"
                 });
-                window.location.href = "/profile2"
+                  navigate("/profile2");
             }
         })
     }
