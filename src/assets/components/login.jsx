@@ -49,8 +49,13 @@ function Login() {
             })
             return;
         }
+
+        const codeSetting = {
+            url: window.location.origin + "/reset-password",
+            handleCode: true
+        }
         try {
-            await sendPasswordResetEmail(auth, email);
+            await sendPasswordResetEmail(auth, email, codeSetting);
            toast.success("Password reset email sent. Please check your email.", {
         position: "top-center",
     });

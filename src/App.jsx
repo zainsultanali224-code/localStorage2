@@ -9,6 +9,7 @@ import SignupForm from "./tasklist";
 import EditTask from "./todolist";
 import { Search } from "./todolist";
 import Profile_t from './assets/components/profile2';
+import ResetPassword from "./ResetPassword";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -59,6 +60,8 @@ export default function App() {
                   element={user ? <Navigate to="/profile" /> : <Login />}
                 />
 
+                <Route path="/reset-password" element={<ResetPassword />} />
+                
                 <Route
                   path='/register'
                   element={user ? <Navigate to="/profile" /> : <Register />}
