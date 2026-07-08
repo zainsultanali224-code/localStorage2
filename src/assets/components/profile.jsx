@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { Search } from "../../todolist";
 
-
 function Profile() {
- const [userDetails, setUserDetails] = useState(null);
+  const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
@@ -25,7 +24,7 @@ function Profile() {
         if (!user) {
           console.log("No user, redirecting to login");
           setUserDetails(null);
-          setCurrentUser(null); 
+          setCurrentUser(null);
           setLoading(false);
           navigate("/login");
           return;
@@ -89,7 +88,7 @@ function Profile() {
     <div>
       {userDetails ? (
         <>
-          <Search userId={currentUser?.uid} /> 
+          <Search userId={currentUser?.uid} />
           <button className="btn btn-primary" onClick={handleLogout}>
             Logout
           </button>
