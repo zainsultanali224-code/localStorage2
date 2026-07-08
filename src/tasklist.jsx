@@ -94,9 +94,9 @@ export default function SignupForm() {
         );
         const itemsPerPage = 5;
         const totalPages = Math.ceil(newarr.length / itemsPerPage)
-        navigate("/", {
-            state: { page: totalPages }
-        })
+        navigate("/profile", {
+        state: { page: totalPages }
+    });
     }
 
     return (

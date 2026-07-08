@@ -34,30 +34,44 @@ export default function App() {
           <div className='auth-wrapper'>
             <div className='auth-inner'>
               <Routes>
-                <Route
-                  path="/"
-                  element={user ? <Navigate to="/profile" /> : <Navigate to="/login" />}
-                />
-                <Route
-                  path='/login'
-                  element={user ? <Navigate to="/profile" /> : <Login />}
-                />
-                <Route
-                  path='/register'
-                  element={user ? <Navigate to="/profile" /> : <Register />}
-                />
-                {/* ✅ Key laga do taake component remount ho */}
+                {/* ✅ Pehle protected routes */}
                 <Route
                   path='/profile'
                   element={user ? <Profile key={user.uid} /> : <Navigate to="/login" />}
                 />
-                <Route path="/" element={<Search />} />
-                <Route path='/add-task' element={<SignupForm />} />
-                <Route path='/edit-Task/:id' element={<EditTask />} />
+                
                 <Route
                   path='/profile_t'
                   element={user ? <Profile_t key={user.uid} /> : <Navigate to="/login" />}
                 />
+
+                <Route
+                  path='/add-task'
+                  element={user ? <SignupForm /> : <Navigate to="/login" />}
+                />
+
+                <Route
+                  path='/edit-Task/:id'
+                  element={user ? <EditTask /> : <Navigate to="/login" />}
+                />
+
+                {/* ✅ Public auth routes */}
+                <Route
+                  path='/login'
+                  element={user ? <Navigate to="/profile" /> : <Login />}
+                />
+
+                <Route
+                  path='/register'
+                  element={user ? <Navigate to="/profile" /> : <Register />}
+                />
+
+                {/* ✅ Default "/" route - SIRF ek! */}
+                <Route
+                  path="/"
+                  element={user ? <Navigate to="/profile" /> : <Navigate to="/login" />}
+                />
+
               </Routes>
               <ToastContainer />
             </div>

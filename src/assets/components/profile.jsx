@@ -7,24 +7,21 @@ import SignupForm from "../../tasklist";
 import EditTask from "../../todolist";
 import { Search } from "../../todolist";
 
-function Profile_t() {
+function Profile() {
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    let unsubscribeAuth = null;
-    let isMounted = true; // ✅ ADD
+    let unsubscribe;
 
     const setupListener = () => {
-      unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-        console.log("Profile_t - Auth state changed, user:", user?.uid);
-
-        if (!isMounted) return; // ✅ ADD
+      unsubscribe = auth.onAuthStateChanged(async (user) => {
+        console.log("Auth state changed, user:", user?.uid);
 
         if (!user) {
           console.log("No user, redirecting to login");
-          setUserDetails(null);
+          setUserDetails(null); // ✅ Data clear karo
           setLoading(false);
           navigate("/login");
           return;
@@ -32,27 +29,24 @@ function Profile_t() {
 
         try {
           console.log("Fetching user data for UID:", user.uid);
+          // ❌ REMOVED: const user = auth.currentUser; (variable conflict)
           const docRef = doc(db, "Users", user.uid);
-          
-          // ✅ ADD cache busting
-          const docSnap = await getDoc(docRef, { source: 'server' });
+          const docSnap = await getDoc(docRef);
 
           console.log("Document exists:", docSnap.exists());
 
-          if (!isMounted) return; // ✅ ADD
-
           if (docSnap.exists()) {
             console.log("User data:", docSnap.data());
-            setUserDetails(docSnap.data());
+            setUserDetails(docSnap.data()); // ✅ Naye user ka data set karo
           } else {
             console.log("Document not found for UID:", user.uid);
             setUserDetails(null);
           }
         } catch (err) {
           console.error("Error fetching user data:", err.message);
-          if (isMounted) setUserDetails(null);
+          setUserDetails(null);
         } finally {
-          if (isMounted) setLoading(false);
+          setLoading(false);
         }
       });
     };
@@ -60,19 +54,20 @@ function Profile_t() {
     setupListener();
 
     return () => {
-      isMounted = false; // ✅ ADD
-      if (unsubscribeAuth) {
-        unsubscribeAuth();
+      if (unsubscribe) {
+        unsubscribe();
       }
     };
-  }, []); // ✅ CHANGE - empty dependency array
+  }, [navigate]);
 
+  // ✅ FIX: handleLogout ko properly likha
   async function handleLogout() {
     try {
       console.log("Logging out...");
-      setUserDetails(null); // ✅ Clear first
-      setLoading(true);
       await signOut(auth);
+      setUserDetails(null); // ✅ State clear karo
+      setLoading(true);
+      navigate("/login");
       console.log("Logged out successfully");
     } catch (error) {
       console.error("Error logging out:", error.message);
@@ -87,8 +82,7 @@ function Profile_t() {
     <div>
       {userDetails ? (
         <>
-          <h2>Welcome, {userDetails.firstName}</h2>
-          <SignupForm />
+          <Search />
           <button className="btn btn-primary" onClick={handleLogout}>
             Logout
           </button>
@@ -105,4 +99,4 @@ function Profile_t() {
   );
 }
 
-export default Profile_t;
+export default Profile;
