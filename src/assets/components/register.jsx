@@ -53,7 +53,8 @@ function Register() {
             setPassword("");
             setFname("");
             setLname("");
-
+            setLoading(false);
+            
             setTimeout(() => {
                 navigate("/profile");
             }, 1000);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import SignupForm from "../../tasklist";
 import EditTask from "../../todolist";
 import { Search } from "../../todolist";
@@ -21,6 +21,7 @@ function Profile() {
 
         if (!user) {
           console.log("No user, redirecting to login");
+          setUserDetails(null); // ✅ Data clear karo
           setLoading(false);
           navigate("/login");
           return;
@@ -28,6 +29,7 @@ function Profile() {
 
         try {
           console.log("Fetching user data for UID:", user.uid);
+          // ❌ REMOVED: const user = auth.currentUser; (variable conflict)
           const docRef = doc(db, "Users", user.uid);
           const docSnap = await getDoc(docRef);
 
@@ -35,7 +37,7 @@ function Profile() {
 
           if (docSnap.exists()) {
             console.log("User data:", docSnap.data());
-            setUserDetails(docSnap.data());
+            setUserDetails(docSnap.data()); // ✅ Naye user ka data set karo
           } else {
             console.log("Document not found for UID:", user.uid);
             setUserDetails(null);
@@ -58,12 +60,15 @@ function Profile() {
     };
   }, [navigate]);
 
+  // ✅ FIX: handleLogout ko properly likha
   async function handleLogout() {
     try {
       console.log("Logging out...");
-      await auth.signOut();
-      console.log("Logged out successfully");
+      await signOut(auth);
+      setUserDetails(null); // ✅ State clear karo
+      setLoading(true);
       navigate("/login");
+      console.log("Logged out successfully");
     } catch (error) {
       console.error("Error logging out:", error.message);
     }
@@ -77,7 +82,7 @@ function Profile() {
     <div>
       {userDetails ? (
         <>
-            <Search />
+          <Search />
           <button className="btn btn-primary" onClick={handleLogout}>
             Logout
           </button>
