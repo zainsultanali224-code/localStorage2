@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
-import { auth } from './firebase';
-import { Navigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { auth, db } from "./firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom"; // ✅ YEH ADD KARO
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { Search } from "../../todolist";
 
 
 function Profile() {
-  const [userDetails, setUserDetails] = useState(null);
+ const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState(null); // ✅ ADD
+  const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
