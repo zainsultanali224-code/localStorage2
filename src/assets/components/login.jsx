@@ -47,6 +47,7 @@ function Login() {
             toast.error("Please enter your email.", {
                 position: "bottom-center"
             })
+            return;
         }
         try {
             await sendPasswordResetEmail(auth, email);
