@@ -1,52 +1,51 @@
-import React, { useEffect, useState } from "react";
-import { auth, db } from "./firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import SignupForm from "../../tasklist";
-import EditTask from "../../todolist";
-import { Search } from "../../todolist";
-
 function Profile() {
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null); // ✅ ADD
   const navigate = useNavigate();
 
   useEffect(() => {
     let unsubscribe;
+    let isMounted = true;
 
     const setupListener = () => {
-      unsubscribe = auth.onAuthStateChanged(async (user) => {
-        console.log("Auth state changed, user:", user?.uid);
+      unsubscribe = onAuthStateChanged(auth, async (user) => {
+        console.log("Profile - Auth state changed, user:", user?.uid);
+
+        if (!isMounted) return;
 
         if (!user) {
           console.log("No user, redirecting to login");
-          setUserDetails(null); // ✅ Data clear karo
+          setUserDetails(null);
+          setCurrentUser(null); // ✅ ADD
           setLoading(false);
           navigate("/login");
           return;
         }
 
+        setCurrentUser(user); // ✅ ADD - track current user
+
         try {
           console.log("Fetching user data for UID:", user.uid);
-          // ❌ REMOVED: const user = auth.currentUser; (variable conflict)
           const docRef = doc(db, "Users", user.uid);
-          const docSnap = await getDoc(docRef);
+          const docSnap = await getDoc(docRef, { source: 'server' });
 
           console.log("Document exists:", docSnap.exists());
 
+          if (!isMounted) return;
+
           if (docSnap.exists()) {
             console.log("User data:", docSnap.data());
-            setUserDetails(docSnap.data()); // ✅ Naye user ka data set karo
+            setUserDetails(docSnap.data());
           } else {
             console.log("Document not found for UID:", user.uid);
             setUserDetails(null);
           }
         } catch (err) {
           console.error("Error fetching user data:", err.message);
-          setUserDetails(null);
+          if (isMounted) setUserDetails(null);
         } finally {
-          setLoading(false);
+          if (isMounted) setLoading(false);
         }
       });
     };
@@ -54,20 +53,20 @@ function Profile() {
     setupListener();
 
     return () => {
+      isMounted = false;
       if (unsubscribe) {
         unsubscribe();
       }
     };
-  }, [navigate]);
+  }, []);
 
-  // ✅ FIX: handleLogout ko properly likha
   async function handleLogout() {
     try {
       console.log("Logging out...");
-      await signOut(auth);
-      setUserDetails(null); // ✅ State clear karo
+      setUserDetails(null);
+      setCurrentUser(null); // ✅ ADD
       setLoading(true);
-      navigate("/login");
+      await signOut(auth);
       console.log("Logged out successfully");
     } catch (error) {
       console.error("Error logging out:", error.message);
@@ -82,7 +81,8 @@ function Profile() {
     <div>
       {userDetails ? (
         <>
-          <Search />
+          <h2>Welcome, {userDetails.firstName}</h2>
+          <Search userId={currentUser?.uid} /> {/* ✅ Pass userId */}
           <button className="btn btn-primary" onClick={handleLogout}>
             Logout
           </button>
@@ -98,5 +98,3 @@ function Profile() {
     </div>
   );
 }
-
-export default Profile;

@@ -62,12 +62,13 @@ const SignupSchema = Yup.object().shape({
 
 
 export default function SignupForm() {
-    const navigate = useNavigate();
+      const navigate = useNavigate();
+    const [userId] = useAuth(); // ✅ GET current user ID
 
     function handleSubmit(values) {
-        const tasks =
-            JSON.parse(localStorage.getItem("newarr")) || [];
-
+        // ✅ localStorage key ko user ke UID se scope karo
+        const storageKey = `tasks_${userId}`;
+        const tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
 
         const newarr = [
             ...tasks,
@@ -88,16 +89,14 @@ export default function SignupForm() {
             },
         ];
 
-        localStorage.setItem(
-            "newarr",
-            JSON.stringify(newarr)
-        );
+        localStorage.setItem(storageKey, JSON.stringify(newarr)); // ✅ User-specific storage
         const itemsPerPage = 5;
-        const totalPages = Math.ceil(newarr.length / itemsPerPage)
+        const totalPages = Math.ceil(newarr.length / itemsPerPage);
         navigate("/profile", {
-        state: { page: totalPages }
-    });
+            state: { page: totalPages }
+        });
     }
+
 
     return (
         <Formik

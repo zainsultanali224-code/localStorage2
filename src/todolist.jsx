@@ -18,10 +18,13 @@ import { Field } from "formik";
 
 
 export default function EditTask() {
-    const navigate = useNavigate();
+     const navigate = useNavigate();
     const { id } = useParams();
+    const [userId] = useAuth(); // ✅ GET current user
 
-    const tasks = JSON.parse(localStorage.getItem("newarr")) || [];
+    // ✅ User-specific storage key
+    const storageKey = `tasks_${userId}`;
+    const tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
     const task = tasks.find((t) => t.id === id);
 
     const SignupSchema = Yup.object().shape({
@@ -48,17 +51,17 @@ export default function EditTask() {
             })
     });
 
-    const handleUpdate = (values) => {
+     const handleUpdate = (values) => {
         const updated = tasks.map((t) =>
             t.id === task.id ? { ...t, ...values } : t
         );
 
-
-        localStorage.setItem("newarr", JSON.stringify(updated));
+        // ✅ Update user-specific storage
+        localStorage.setItem(storageKey, JSON.stringify(updated));
         const currentPage = localStorage.getItem("currentPage") || 1;
-        navigate("/", {
+        navigate("/profile", {
             state: { page: parseInt(currentPage) }
-        })
+        });
     };
 
     return (<Container fluid className="bg-light min-vh-100 py-5"> <Container>
@@ -370,29 +373,28 @@ export default function EditTask() {
     );
 }
 
-export function Search() {
-    // const [toggle, setToggle] = useState(true)
-    const navigate = useNavigate();
+export function Search({ userId }) {
+       const navigate = useNavigate();
     const location = useLocation();
 
     const initialPage = location.state?.page || 1;
-
-    const [currentPage, setCurrentPage] = useState(initialPage)
+    const [currentPage, setCurrentPage] = useState(initialPage);
 
     useEffect(() => {
         localStorage.setItem("currentPage", currentPage.toString());
     }, [currentPage]);
 
+    // ✅ User-specific storage key
+    const storageKey = `tasks_${userId}`;
     const [isSet, setIsSet] = useState(
-        JSON.parse(localStorage.getItem("newarr")) || []
+        JSON.parse(localStorage.getItem(storageKey)) || []
     );
 
     function handleSearch(e) {
         const searchValue = e.target.value.toLowerCase();
 
-
-        const tasks =
-            JSON.parse(localStorage.getItem("newarr")) || [];
+        // ✅ User-specific tasks
+        const tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
 
         const filtered = tasks.filter(task =>
             (task.title || "")
@@ -413,21 +415,17 @@ export function Search() {
         if (currentPage > Math.ceil(updatedTasks.length / 5)) {
             setCurrentPage(1);
         }
-        localStorage.setItem(
-            "newarr",
-            JSON.stringify(updatedTasks)
-        );
+
+        // ✅ Update user-specific storage
+        localStorage.setItem(storageKey, JSON.stringify(updatedTasks));
     };
 
     function pagination() {
         const itemsPerPage = 5;
-
         const indexOfLastItem = currentPage * itemsPerPage;
         const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-
-        const currentItem = isSet.slice(indexOfFirstItem, indexOfLastItem)
-
-        const totalPages =  Math.max(0, Math.ceil(isSet.length / itemsPerPage));
+        const currentItem = isSet.slice(indexOfFirstItem, indexOfLastItem);
+        const totalPages = Math.max(0, Math.ceil(isSet.length / itemsPerPage));
         return { currentItem, totalPages };
     }
 
