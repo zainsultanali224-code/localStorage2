@@ -89,7 +89,6 @@ function Profile() {
     <div>
       {userDetails ? (
         <>
-          <h2>Welcome, {userDetails.firstName}</h2>
           <Search userId={currentUser?.uid} /> {/* ✅ Pass userId */}
           <button className="btn btn-primary" onClick={handleLogout}>
             Logout
