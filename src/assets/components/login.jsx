@@ -59,7 +59,6 @@ function Login() {
            toast.success("Password reset email sent. Please check your email.", {
         position: "top-center",
     });
-    alert("Reset email sent to: " + email);
 
 console.log(email);
         } catch (error) {
