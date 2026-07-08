@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "./firebase";
 import "./Login.css";
 import SignInWithGoogle from "./signInWithGoogle";
@@ -39,6 +39,26 @@ function Login() {
             });
 
             setLoading(false);
+        }
+
+        const handleForgotPassword = async () => {
+            const [email, setEmail] = useState("");
+            
+            if (!email) {
+                toast.error("Please enter your email.",{
+                    position: "bottom-center"
+                })
+            }
+            try {
+                await sendPasswordResetEmail(auth, email);
+                console.log("Password reset email sent.")
+            } catch (error) {
+                console.log(error);
+
+            toast.error(error.message, {
+                position: "bottom-center",
+            });
+            }
         }
     };
 
@@ -86,6 +106,14 @@ function Login() {
                                             disabled={loading}
                                             required
                                         />
+                                        <div>
+                                            <p
+                                                onClick={handleForgotPassword}
+                                                style={{ color: "blue", cursor: "pointer" }}
+                                            >
+                                                Forgot Password?
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <div className="d-grid">
