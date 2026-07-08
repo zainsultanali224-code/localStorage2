@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { auth } from "./assets/components/firebase"; // ✅ Sahi path
+import { auth } from "./assets/components/firebase"; 
 import { useState, useEffect } from "react";
 import {
     Container,
@@ -51,13 +51,13 @@ const SignupSchema = Yup.object().shape({
 
 export default function SignupForm() {
     const navigate = useNavigate();
-    const [userId, setUserId] = useState(null); // ✅ State for userId
+    const [userId, setUserId] = useState(null); 
 
-    // ✅ GET current user ID - NO useAuth hook needed
+    
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
-                setUserId(user.uid); // ✅ Set userId directly
+                setUserId(user.uid); 
             } else {
                 navigate("/login");
             }
@@ -71,8 +71,8 @@ export default function SignupForm() {
             return;
         }
 
-        // ✅ User-specific storage key
-        const storageKey = `tasks_${userId}`; // ✅ Use userId state directly
+        
+        const storageKey = `tasks_${userId}`; 
         const tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
 
         const newarr = [

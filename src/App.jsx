@@ -34,7 +34,6 @@ export default function App() {
           <div className='auth-wrapper'>
             <div className='auth-inner'>
               <Routes>
-                {/* ✅ Pehle protected routes */}
                 <Route
                   path='/profile'
                   element={user ? <Profile key={user.uid} /> : <Navigate to="/login" />}
@@ -55,7 +54,6 @@ export default function App() {
                   element={user ? <EditTask /> : <Navigate to="/login" />}
                 />
 
-                {/* ✅ Public auth routes */}
                 <Route
                   path='/login'
                   element={user ? <Navigate to="/profile" /> : <Login />}
@@ -66,7 +64,6 @@ export default function App() {
                   element={user ? <Navigate to="/profile" /> : <Register />}
                 />
 
-                {/* ✅ Default "/" route - SIRF ek! */}
                 <Route
                   path="/"
                   element={user ? <Navigate to="/profile" /> : <Navigate to="/login" />}

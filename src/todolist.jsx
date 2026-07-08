@@ -19,9 +19,8 @@ import { Field } from "formik";
 export default function EditTask() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const [userId, setUserId] = useState(null); // ✅ ADD
+    const [userId, setUserId] = useState(null); 
 
-    // ✅ GET current user ID
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
@@ -56,7 +55,6 @@ export default function EditTask() {
             })
     });
 
-    // ✅ User-specific storage key
     const storageKey = `tasks_${userId}`;
     const tasks = userId ? JSON.parse(localStorage.getItem(storageKey)) || [] : [];
     const task = tasks.find((t) => t.id === id);
@@ -74,7 +72,7 @@ export default function EditTask() {
     };
 
     if (!userId || !task) {
-        return <p>Loading...</p>; // ✅ Wait for userId aur task to load
+        return <p>Loading...</p>; 
     }
 
     return (<Container fluid className="bg-light min-vh-100 py-5"> <Container>
@@ -393,7 +391,6 @@ export function Search({ userId }) {
         localStorage.setItem("currentPage", currentPage.toString());
     }, [currentPage]);
 
-    // ✅ User-specific storage key
     const storageKey = `tasks_${userId}`;
     const [isSet, setIsSet] = useState(
         JSON.parse(localStorage.getItem(storageKey)) || []
@@ -402,7 +399,6 @@ export function Search({ userId }) {
     function handleSearch(e) {
         const searchValue = e.target.value.toLowerCase();
 
-        // ✅ User-specific tasks
         const tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
 
         const filtered = tasks.filter(task =>
@@ -425,7 +421,6 @@ export function Search({ userId }) {
             setCurrentPage(1);
         }
 
-        // ✅ Update user-specific storage
         localStorage.setItem(storageKey, JSON.stringify(updatedTasks));
     };
 
@@ -489,15 +484,7 @@ export function Search({ userId }) {
                                 >
                                     <strong>{task.title}</strong>
 
-                                    <div
-                                    // style={{
-                                    //     width: "20px",
-                                    //     height: "20px",
-                                    //     borderRadius: "50%",
-                                    //     backgroundColor: task.col,
-                                    //     border: "2px solid white"
-                                    // }}
-                                    />
+                                    <div/>
                                 </Card.Header>
 
                                 <Card.Body>
@@ -539,7 +526,6 @@ export function Search({ userId }) {
                                                 backgroundColor: task.col,
                                                 marginLeft: "8px",
                                                 marginTop: "6px",
-                                                // border: "1px solid #ccc",
                                             }}
                                         />
                                     </p>

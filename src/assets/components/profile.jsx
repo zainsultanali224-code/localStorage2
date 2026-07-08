@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom"; // ✅ YEH ADD KARO
+import { useNavigate } from "react-router-dom"; 
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { Search } from "../../todolist";
 
@@ -25,13 +25,13 @@ function Profile() {
         if (!user) {
           console.log("No user, redirecting to login");
           setUserDetails(null);
-          setCurrentUser(null); // ✅ ADD
+          setCurrentUser(null); 
           setLoading(false);
           navigate("/login");
           return;
         }
 
-        setCurrentUser(user); // ✅ ADD - track current user
+        setCurrentUser(user);
 
         try {
           console.log("Fetching user data for UID:", user.uid);
@@ -72,7 +72,7 @@ function Profile() {
     try {
       console.log("Logging out...");
       setUserDetails(null);
-      setCurrentUser(null); // ✅ ADD
+      setCurrentUser(null);
       setLoading(true);
       await signOut(auth);
       console.log("Logged out successfully");
@@ -89,7 +89,7 @@ function Profile() {
     <div>
       {userDetails ? (
         <>
-          <Search userId={currentUser?.uid} /> {/* ✅ Pass userId */}
+          <Search userId={currentUser?.uid} /> 
           <button className="btn btn-primary" onClick={handleLogout}>
             Logout
           </button>

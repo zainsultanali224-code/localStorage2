@@ -2,12 +2,12 @@ import google from "./google.png";
 import "../../index.css";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth, db } from "./firebase";
-import { useNavigate } from "react-router-dom"; // ✅ ADD
+import { useNavigate } from "react-router-dom"; 
 import { toast } from "react-toastify";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
 function SignInWithGoogle() {
-    const navigate = useNavigate(); // ✅ ADD
+    const navigate = useNavigate(); 
 
     const googleLogin = async () => {
         try {
@@ -32,8 +32,6 @@ function SignInWithGoogle() {
                 position: "top-center"
             })
             
-            // ✅ CHANGE: window.location.href = "/profile_t";
-            // ✅ TO:
             navigate("/profile_t");
             
         } catch (error) {
