@@ -18,17 +18,17 @@ function SignInWithGoogle() {
             const docSnap = await getDoc(docRef)
 
             if (!docSnap.exists()) {
-                await setDoc(docRef,{
+                await setDoc(docRef, {
                     firstName: user.displayName?.split(" ")[0] || "",
                     lastName: user.displayName?.split(" ").slice(1).join(" ") || "",
                     email: user.email,
                     createdAt: new Date(),
                 });
 
-                toast.success("User logged in successfully",{
+                toast.success("User logged in successfully", {
                     position: "top-center"
                 })
-                window.location.href = "/profile"
+                window.location.href = "/profile_t";
             }
         } catch (error) {
             console.error(error);
