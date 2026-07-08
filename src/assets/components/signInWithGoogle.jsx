@@ -1,5 +1,5 @@
 import google from "./google.png";
-import "./index.css"
+import "/index.css"
 function SignInWithGoogle() {
     return(
         <div>
