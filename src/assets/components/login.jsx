@@ -41,27 +41,24 @@ function Login() {
             setLoading(false);
         }
 
-        const handleForgotPassword = async () => {
-            const [email, setEmail] = useState("");
-            
-            if (!email) {
-                toast.error("Please enter your email.",{
-                    position: "bottom-center"
-                })
-            }
-            try {
-                await sendPasswordResetEmail(auth, email);
-                console.log("Password reset email sent.")
-            } catch (error) {
-                console.log(error);
+    };
+    const handleForgotPassword = async () => {
+        if (!email) {
+            toast.error("Please enter your email.", {
+                position: "bottom-center"
+            })
+        }
+        try {
+            await sendPasswordResetEmail(auth, email);
+            console.log("Password reset email sent.")
+        } catch (error) {
+            console.log(error);
 
             toast.error(error.message, {
                 position: "bottom-center",
             });
-            }
         }
-    };
-
+    }
     return (
         <div className="login-page">
             <Container>
