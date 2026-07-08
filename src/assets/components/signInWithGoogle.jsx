@@ -3,6 +3,8 @@ import "../../index.css";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "./firebase";
 import { toast } from "react-toastify";
+import Profile_t from './assets/components/profile2';
+
 
 function SignInWithGoogle() {
     function googleLogin() {
