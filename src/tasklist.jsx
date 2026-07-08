@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { auth } from "./assets/components/firebase";
+import { auth } from "./firebase"; // ✅ ADD
+import { useState, useEffect } from "react"; 
 
 import {
     Container,

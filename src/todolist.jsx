@@ -2,8 +2,8 @@ import { Link, useNavigate, useParams, } from "react-router-dom";
 import { useState } from "react";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { auth } from "./assets/components/firebase";
-
+import { auth } from "./firebase"; // ✅ ADD
+import { useState, useEffect } from "react"; 
 import {
     Container,
     Row,
@@ -13,7 +13,6 @@ import {
     Badge,
     Form as FForm
 } from "react-bootstrap";
-import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Field } from "formik";
 
