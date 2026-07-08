@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { auth } from "./assets/components/firebase";
-import { useState, useEffect } from "react"; 
-
+import { auth } from "./assets/components/firebase"; // ✅ Sahi path
+import { useState, useEffect } from "react";
 import {
     Container,
     Card,
@@ -12,44 +11,33 @@ import {
     Button,
     Form as FForm
 } from "react-bootstrap";
-import { Children } from "react";
 
 const SignupSchema = Yup.object().shape({
     title: Yup.string()
         .min(2, "Too Short!")
         .max(25, "Too Long!")
         .required("Please Enter Your Title."),
-
     location: Yup.string()
         .required("Please enter a location."),
-
     date: Yup.string()
         .required("Please select a date."),
-
     desc: Yup.string()
         .max(600, "Description cannot exceed 600 characters."),
-
     col: Yup.string()
         .required("Color is required."),
-
     rang: Yup.string()
         .required("Range is required."),
-
     count: Yup.string()
         .required("Please select a country."),
-
     num: Yup.number()
         .typeError("Must be a number.")
         .required("Number is required."),
-
     status: Yup.string()
         .required("Please select a status."),
     gender: Yup.string()
         .required("Please select a gender"),
-
     merital: Yup.string()
         .oneOf(["Single", "Married"]),
-
     Children: Yup
         .number()
         .when("merital", {
@@ -61,15 +49,30 @@ const SignupSchema = Yup.object().shape({
         })
 });
 
-
-
 export default function SignupForm() {
-      const navigate = useNavigate();
-    const [userId] = useAuth(); // ✅ GET current user ID
+    const navigate = useNavigate();
+    const [userId, setUserId] = useState(null); // ✅ State for userId
+
+    // ✅ GET current user ID - NO useAuth hook needed
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                setUserId(user.uid); // ✅ Set userId directly
+            } else {
+                navigate("/login");
+            }
+        });
+        return () => unsubscribe();
+    }, [navigate]);
 
     function handleSubmit(values) {
-        // ✅ localStorage key ko user ke UID se scope karo
-        const storageKey = `tasks_${userId}`;
+        if (!userId) {
+            console.error("User not authenticated");
+            return;
+        }
+
+        // ✅ User-specific storage key
+        const storageKey = `tasks_${userId}`; // ✅ Use userId state directly
         const tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
 
         const newarr = [
@@ -91,14 +94,13 @@ export default function SignupForm() {
             },
         ];
 
-        localStorage.setItem(storageKey, JSON.stringify(newarr)); // ✅ User-specific storage
+        localStorage.setItem(storageKey, JSON.stringify(newarr));
         const itemsPerPage = 5;
         const totalPages = Math.ceil(newarr.length / itemsPerPage);
         navigate("/profile", {
             state: { page: totalPages }
         });
     }
-
 
     return (
         <Formik
@@ -134,9 +136,9 @@ export default function SignupForm() {
                                 "linear-gradient(135deg,#0d6efd,#6610f2)",
                         }}
                     > <h2 className="mb-0">
-                            Task </h2>
+                            Task 
+                        </h2>
                     </Card.Header>
-
 
                     <Card.Body className="p-4">
                         <Form>
@@ -281,8 +283,6 @@ export default function SignupForm() {
                                                 height: "50px",
                                             }}
                                         />
-
-
                                     </div>
 
                                     <ErrorMessage
@@ -326,6 +326,7 @@ export default function SignupForm() {
                                         />
                                     </Col>
                                 </Col>
+
                                 <Col md={6}>
                                     <FForm.Label>
                                         Gender:
@@ -413,6 +414,7 @@ export default function SignupForm() {
                                         />
                                     </Col>
                                 </Col>
+
                                 <Col md={12}>
                                     <FForm.Label>
                                         Country
@@ -465,8 +467,5 @@ export default function SignupForm() {
             </Container>
             )}
         </Formik>
-
-
     );
 }
-
