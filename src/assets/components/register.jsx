@@ -43,7 +43,7 @@ function Register() {
                 createdAt: new Date()
             };
 
-            await setDoc(doc(db, "Users", uid), userData);
+            await setDoc(doc(db, "User", uid), userData);
 
             toast.success("Registration Successful!", {
                 position: "top-center"

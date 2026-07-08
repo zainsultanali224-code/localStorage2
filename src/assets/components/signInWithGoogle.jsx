@@ -14,7 +14,7 @@ function SignInWithGoogle() {
             const user = result.user;
             console.log(result.user);
 
-            const docRef = doc(db, "Users", user.uid);
+            const docRef = doc(db, "User", user.uid);
             const docSnap = await getDoc(docRef)
 
             if (!docSnap.exists()) {
