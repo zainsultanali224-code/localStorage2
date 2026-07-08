@@ -1,14 +1,7 @@
 import { useEffect, useState } from 'react';
 import { auth } from "./assets/components/firebase";
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './assets/components/login';
-import Register from './assets/components/register';
-import Profile from './assets/components/profile';
 import { ToastContainer } from 'react-toastify';
-import SignupForm from "./tasklist";
-import EditTask from "./todolist";
-import { Search } from "./todolist";
-import Profile_t from './assets/components/profile2';
 
 
 function Profile() {
