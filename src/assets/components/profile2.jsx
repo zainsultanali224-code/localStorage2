@@ -61,6 +61,7 @@ function Profile_t() {
   async function handleLogout() {
     try {
       console.log("Logging out...");
+      setUserDetails(null); // ✅ ADD - Pehle data clear karo
       await auth.signOut();
       console.log("Logged out successfully");
       navigate("/login");

@@ -1,8 +1,10 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate, Link } from "react-router-dom";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import { auth } from "./firebase";
 import "./Login.css";
 import SignInWithGoogle from "./signInWithGoogle";
@@ -10,21 +12,34 @@ import SignInWithGoogle from "./signInWithGoogle";
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        setLoading(true);
+
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = "/profile";
-            console.log("User Registered Successfully!!");
-            toast.success("User Registered Successfully!!", {
+
+            toast.success("Login Successful!", {
                 position: "top-center",
+                autoClose: 1500,
             });
+
+            setTimeout(() => {
+                navigate("/profile");
+            }, 1500);
         } catch (error) {
-            console.log(error.message);
+            console.log(error);
+
             toast.error(error.message, {
                 position: "bottom-center",
             });
+
+            setLoading(false);
         }
     };
 
@@ -52,6 +67,8 @@ function Login() {
                                             onChange={(e) =>
                                                 setEmail(e.target.value)
                                             }
+                                            disabled={loading}
+                                            required
                                         />
                                     </div>
 
@@ -67,6 +84,8 @@ function Login() {
                                             onChange={(e) =>
                                                 setPassword(e.target.value)
                                             }
+                                            disabled={loading}
+                                            required
                                         />
                                     </div>
 
@@ -74,20 +93,24 @@ function Login() {
                                         <button
                                             type="submit"
                                             className="btn btn-primary btn-lg"
+                                            disabled={loading}
                                         >
-                                            Login
+                                            {loading
+                                                ? "Logging in..."
+                                                : "Login"}
                                         </button>
                                     </div>
 
-                                    <p className="text-center mt-4 mb-0">
-                                        New user{" "}
-                                        <a
-                                            href="/register"
+                                    <p className="text-center mt-4 mb-3">
+                                        New user?{" "}
+                                        <Link
+                                            to="/register"
                                             className="fw-semibold text-decoration-none"
                                         >
                                             Register Here
-                                        </a>
+                                        </Link>
                                     </p>
+
                                     <SignInWithGoogle />
                                 </form>
                             </Card.Body>
