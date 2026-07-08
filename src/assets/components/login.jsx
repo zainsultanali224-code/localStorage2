@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "./firebase";
 import "./Login.css";
+import SignInWithGoogle from "./signInWithGoogle";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -87,6 +88,7 @@ function Login() {
                                             Register Here
                                         </a>
                                     </p>
+                                    <SignInWithGoogle />
                                 </form>
                             </Card.Body>
                         </Card>
