@@ -8,7 +8,6 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "./firebase";
 import "./Login.css";
 import SignInWithGoogle from "./signInWithGoogle";
-import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
 function Login() {
