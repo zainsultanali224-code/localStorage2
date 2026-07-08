@@ -1,7 +1,15 @@
 import google from "./google.png";
 import "../../index.css";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "./firebase";
 
 function SignInWithGoogle() {
+    function googleLogin() {
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider).then(async (result) => {
+            console.log(result)
+        })
+    }
     return(
         <div>
             <p className="continue-p">--Or continue with--</p>
