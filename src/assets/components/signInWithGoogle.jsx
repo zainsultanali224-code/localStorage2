@@ -1,8 +1,9 @@
 import google from "./google.png";
 import "../../index.css";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth, db } from "./firebase";
 import { toast } from "react-toastify";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 function SignInWithGoogle() {
     const googleLogin = async () => {
@@ -10,20 +11,27 @@ function SignInWithGoogle() {
             const provider = new GoogleAuthProvider();
 
             const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            console.log(result.user);
 
-            if (result.user) {
-                console.log(result.user);
+            const docRef = doc(db, "User", user.uid);
+            const docSnap = await getDoc(docRef)
 
-                toast.success("User logged in successfully!", {
-                    position: "top-center",
+            if (!docSnap.exists()) {
+                await setDoc(docRef,{
+                    firstName: user.displayName?.split(" ")[0] || "",
+                    lastName: user.displayName?.split(" ").slice(1).join(" ") || "",
+                    email: user.email,
+                    createdAt: new Date(),
                 });
 
-                // Redirect after login
-                window.location.href = "/profile_t";
+                toast.success("User logged in successfully",{
+                    position: "top-center"
+                })
+                window.location.href = "/profile"
             }
         } catch (error) {
             console.error(error);
-
             toast.error(error.message, {
                 position: "top-center",
             });
