@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { auth } from "./assets/components/firebase";
+import { auth } from './firebase';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
