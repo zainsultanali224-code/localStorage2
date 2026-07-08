@@ -50,7 +50,9 @@ function Login() {
         }
         try {
             await sendPasswordResetEmail(auth, email);
-            console.log("Password reset email sent.")
+           toast.success("Password reset email sent. Please check your email.", {
+        position: "top-center",
+    });
         } catch (error) {
             console.log(error);
 
