@@ -2,12 +2,19 @@ import google from "./google.png";
 import "../../index.css";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "./firebase";
+import { toast } from "react-toastify";
 
 function SignInWithGoogle() {
     function googleLogin() {
         const provider = new GoogleAuthProvider();
         signInWithPopup(auth, provider).then(async (result) => {
-            console.log(result)
+            console.log(result);
+            if (result.user) {
+                toast.success("User Logged in successfully", {
+                    position: "top-center"
+                });
+                window.location.href = "/profile"
+            }
         })
     }
     return(
