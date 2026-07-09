@@ -95,7 +95,7 @@ function Login() {
                                             required
                                         />
                                        <p
-                                        style={{ color: "blue", cursor: "pointer" }}
+                                        style={{ color: "#4185f3", cursor: "pointer" }}
                                         onClick={() => {
                                             navigate("/handleForgotPassword")
                                         }}
