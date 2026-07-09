@@ -207,14 +207,14 @@ function Login() {
                                             disabled={loading}
                                             required
                                         />
-                                        <div>
+                                        {/* <div>
                                             <p
                                                 onClick={() => setShowForgotModal(true)}
                                                 style={{ color: "blue", cursor: "pointer", marginTop: "10px" }}
                                             >
                                                 Forgot Password?
                                             </p>
-                                        </div>
+                                        </div> */}
                                     </div>
 
                                     <div className="d-grid">
