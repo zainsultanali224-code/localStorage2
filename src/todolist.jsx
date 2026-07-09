@@ -13,7 +13,7 @@ import {
     Form as FForm
 } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, getDoc } from "firebase/firestore";
 import {
     deleteDoc, doc,
     updateDoc
