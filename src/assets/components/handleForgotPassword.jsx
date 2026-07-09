@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { ToastContainer, toast } from "react-toastify";
 import { auth } from "./firebase";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function HandleForgotPassword() {
     const [email, setEmail] = useState("");
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const handleForgotPassword = async () => {
         if (!email) {
@@ -59,8 +59,11 @@ function HandleForgotPassword() {
                         <button
                             onClick={handleForgotPassword}
                             className="btn btn-primary btn-lg"
+                            disabled = {loading}
                         >
-                            Submit
+                            {loading
+                            ? "Submitting.."
+                        : "Submit"}
                         </button>
                     </div>
 

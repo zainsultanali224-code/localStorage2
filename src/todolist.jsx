@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams, } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { auth } from "./assets/components/firebase";
@@ -13,8 +13,6 @@ import {
     Form as FForm
 } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
-import { Field } from "formik";
-
 
 export default function EditTask() {
     const navigate = useNavigate();

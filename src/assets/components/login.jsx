@@ -1,13 +1,12 @@
-import React, { useState } from "react";
-import { signInWithEmailAndPassword, sendPasswordResetEmail, confirmPasswordReset } from "firebase/auth";
-import { useNavigate, Link, Navigate } from "react-router-dom";
-import { Container, Row, Col, Card, Modal, Button, Form } from "react-bootstrap";
+import  { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate, Link } from "react-router-dom";
+import { Container, Row, Col, Card } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "./firebase";
 import "./Login.css";
 import SignInWithGoogle from "./signInWithGoogle";
-import handleForgotPassword from "./handleForgotPassword";
 
 function Login() {
     const [email, setEmail] = useState("");
