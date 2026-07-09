@@ -9,7 +9,7 @@ import SignupForm from "./tasklist";
 import EditTask from "./todolist";
 import { Search } from "./todolist";
 import Profile_t from './assets/components/profile2';
-import handleForgotPassword from "./assets/components/handleForgotPassword";
+import HandleForgotPassword from "./assets/components/handleForgotPassword";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -60,7 +60,7 @@ export default function App() {
                   element={user ? <Navigate to="/profile" /> : <Login />}
                 />
 
-                <Route path="/handleForgotPassword" element={<handleForgotPassword />} />
+                <Route path="/handleForgotPassword" element={<HandleForgotPassword />} />
 
                 <Route
                   path='/register'

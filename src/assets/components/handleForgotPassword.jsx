@@ -5,7 +5,7 @@ import { auth } from "./firebase";
 import { useNavigate, Link } from "react-router-dom";
 
 
-function handleForgotPassword() {
+function HandleForgotPassword() {
     const [email, setEmail] = useState("");
     const navigate = useNavigate();
 
@@ -55,4 +55,4 @@ function handleForgotPassword() {
     )
 }
 
-export default handleForgotPassword;
+export default HandleForgotPassword;
