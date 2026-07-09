@@ -18,6 +18,7 @@ import {
     deleteDoc, doc,
     updateDoc
 } from "firebase/firestore";
+import { db } from "./assets/components/firebase";
 
 export default function EditTask() {
     const navigate = useNavigate();
