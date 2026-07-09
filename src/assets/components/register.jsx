@@ -62,7 +62,7 @@ function Register() {
         } catch (error) {
             console.error(error);
 
-            toast.error(error.message || "Registration failed", {
+            toast.error(error.message,{
                 position: "bottom-center"
             });
 
