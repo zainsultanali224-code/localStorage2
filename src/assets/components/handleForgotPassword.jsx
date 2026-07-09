@@ -47,7 +47,7 @@ function HandleForgotPassword() {
             </div>
 
             <div>
-                <button onClick={handleForgotPassword}>
+                <button onClick={HandleForgotPassword}>
                     Submit
                 </button>
             </div>
