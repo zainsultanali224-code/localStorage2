@@ -22,7 +22,7 @@ function Register() {
 
         if (!fname || !email || !password) {
             toast.error("Please fill all required fields", {
-                position: "bottom-center"
+                position: "bottom-center"              
             });
             return;
         }
@@ -44,7 +44,9 @@ function Register() {
                 createdAt: new Date()
             };
 
-            await setDoc(doc(db, "Users", uid), userData);
+            await setDoc(doc(db, "Users", uid), userData)
+
+            await setDoc(doc(db, "Todos", uid), userData)
 
             toast.success("Registration Successful!", {
                 position: "top-center"

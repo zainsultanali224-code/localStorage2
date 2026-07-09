@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { auth } from "./assets/components/firebase"; 
+import { auth } from "./assets/components/firebase";
 import { useState, useEffect } from "react";
 import {
     Container,
@@ -51,13 +51,12 @@ const SignupSchema = Yup.object().shape({
 
 export default function SignupForm() {
     const navigate = useNavigate();
-    const [userId, setUserId] = useState(null); 
+    const [userId, setUserId] = useState(null);
 
-    
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
-                setUserId(user.uid); 
+                setUserId(user.uid);
             } else {
                 navigate("/login");
             }
@@ -71,8 +70,8 @@ export default function SignupForm() {
             return;
         }
 
-        
-        const storageKey = `tasks_${userId}`; 
+
+        const storageKey = `tasks_${userId}`;
         const tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
 
         const newarr = [
@@ -136,7 +135,7 @@ export default function SignupForm() {
                                 "linear-gradient(135deg,#0d6efd,#6610f2)",
                         }}
                     > <h2 className="mb-0">
-                            Task 
+                            Task
                         </h2>
                     </Card.Header>
 
