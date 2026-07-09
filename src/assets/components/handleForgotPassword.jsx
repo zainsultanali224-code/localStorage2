@@ -15,7 +15,7 @@ function HandleForgotPassword() {
             });
             return;
         }
-
+        setLoading(true);
         try {
             await sendPasswordResetEmail(auth, email);
 
@@ -30,6 +30,9 @@ function HandleForgotPassword() {
             toast.error(error.message, {
                 position: "bottom-center"
             });
+        }
+        finally{
+            setLoading(false)
         }
     };
 
