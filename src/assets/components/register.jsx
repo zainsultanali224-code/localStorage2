@@ -36,6 +36,7 @@ function Register() {
             console.log("4. User created successfully, UID:", uid);
 
             console.log("5. Saving user data to Firestore...");
+            
             const userData = {
                 email: email,
                 firstName: fname,
