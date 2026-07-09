@@ -207,7 +207,7 @@ function Login() {
                                             disabled={loading}
                                             required
                                         />
-                                        <p
+                                       <p
                                         style={{ color: "blue", cursor: "pointer" }}
                                         onClick={() => {
                                             navigate("/handleForgotPassword")
@@ -239,6 +239,7 @@ function Login() {
                                             Register Here
                                         </Link>
                                     </p>
+
 
                                     <SignInWithGoogle />
                                 </form>

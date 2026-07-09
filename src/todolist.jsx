@@ -2,7 +2,7 @@ import { Link, useNavigate, useParams, } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { auth } from "./assets/components/firebase";
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
 import {
     Container,
     Row,
@@ -19,7 +19,7 @@ import { Field } from "formik";
 export default function EditTask() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const [userId, setUserId] = useState(null); 
+    const [userId, setUserId] = useState(null);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -72,7 +72,7 @@ export default function EditTask() {
     };
 
     if (!userId || !task) {
-        return <p>Loading...</p>; 
+        return <p>Loading...</p>;
     }
 
     return (<Container fluid className="bg-light min-vh-100 py-5"> <Container>
@@ -381,7 +381,7 @@ export default function EditTask() {
 }
 
 export function Search({ userId }) {
-       const navigate = useNavigate();
+    const navigate = useNavigate();
     const location = useLocation();
 
     const initialPage = location.state?.page || 1;
@@ -484,7 +484,7 @@ export function Search({ userId }) {
                                 >
                                     <strong>{task.title}</strong>
 
-                                    <div/>
+                                    <div />
                                 </Card.Header>
 
                                 <Card.Body>
