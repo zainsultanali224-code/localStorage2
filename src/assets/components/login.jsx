@@ -207,14 +207,15 @@ function Login() {
                                             disabled={loading}
                                             required
                                         />
-                                        {/* <div>
-                                            <p
-                                                onClick={() => setShowForgotModal(true)}
-                                                style={{ color: "blue", cursor: "pointer", marginTop: "10px" }}
-                                            >
-                                                Forgot Password?
-                                            </p>
-                                        </div> */}
+                                        <p
+                                        style={{ color: "blue", cursor: "pointer" }}
+                                        onClick={() => {
+                                            navigate("/handleForgotPassword")
+                                        }}
+                                    >
+                                        Forgot Password?
+
+                                    </p>
                                     </div>
 
                                     <div className="d-grid">
@@ -237,16 +238,6 @@ function Login() {
                                         >
                                             Register Here
                                         </Link>
-                                    </p>
-
-                                    <p
-                                        style={{ color: "blue", cursor: "pointer" }}
-                                        onClick={() => {
-                                            navigate("/handleForgotPassword")
-                                        }}
-                                    >
-                                        Forgot Password?
-
                                     </p>
 
                                     <SignInWithGoogle />
