@@ -41,12 +41,10 @@ function Register() {
                 email: email,
                 firstName: fname,
                 lastName: lname || "",
-                createdAt: new Date()
+                createdAt: new Date(),
             };
-
+            
             await setDoc(doc(db, "Users", uid), userData)
-
-            await setDoc(doc(db, "Todos", uid), userData)
 
             toast.success("Registration Successful!", {
                 position: "top-center"
