@@ -6,6 +6,7 @@ import { auth, db } from "./firebase";
 import { setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
 import "./Register.css";
+import { serverTimestamp } from "firebase/firestore";
 
 function Register() {
     const [email, setEmail] = useState("");
@@ -41,7 +42,7 @@ function Register() {
                 email: email,
                 firstName: fname,
                 lastName: lname || "",
-                createdAt: new Date(),
+                createdAt:serverTimestamp(),
             };
             
             await setDoc(doc(db, "Users", uid), userData)

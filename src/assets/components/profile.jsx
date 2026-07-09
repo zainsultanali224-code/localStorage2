@@ -4,11 +4,13 @@ import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { Search } from "../../todolist";
+import { collection, getDocs } from "firebase/firestore";
 
 function Profile() {
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
+  const [todos, setTodos] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {

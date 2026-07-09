@@ -11,6 +11,8 @@ import {
     Button,
     Form as FForm
 } from "react-bootstrap";
+import { db } from "./assets/components/firebase";
+import { addDoc, collection, doc, serverTimestamp } from "firebase/firestore";
 
 const SignupSchema = Yup.object().shape({
     title: Yup.string()
@@ -64,41 +66,34 @@ export default function SignupForm() {
         return () => unsubscribe();
     }, [navigate]);
 
-    function handleSubmit(values) {
+    async function handleSubmit(values) {
         if (!userId) {
             console.error("User not authenticated");
             return;
         }
 
+        await addDoc(collection(db, "Users", userId, "Todos"), {
+            title: values.title,
+            location: values.location,
+            date: values.date,
+            desc: values.desc,
+            rang: values.rang,
+            col: values.col,
+            count: values.count,
+            num: values.num,
+            status: values.status,
+            gender: values.gender,
+            merital: values.merital,
+            Children: values.Children || 0,
+            createdAt:serverTimestamp(),
+        })
 
-        const storageKey = `tasks_${userId}`;
-        const tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
-
-        const newarr = [
-            ...tasks,
-            {
-                id: crypto.randomUUID(),
-                title: values.title,
-                location: values.location,
-                date: values.date,
-                desc: values.desc,
-                rang: values.rang,
-                col: values.col,
-                count: values.count,
-                num: values.num,
-                status: values.status,
-                gender: values.gender,
-                merital: values.merital,
-                Children: values.Children
-            },
-        ];
-
-        localStorage.setItem(storageKey, JSON.stringify(newarr));
-        const itemsPerPage = 5;
-        const totalPages = Math.ceil(newarr.length / itemsPerPage);
-        navigate("/profile", {
-            state: { page: totalPages }
-        });
+        navigate("/profile");
+        // const itemsPerPage = 5;
+        // const totalPages = Math.ceil(newarr.length / itemsPerPage);
+        // navigate("/profile", {
+        //     state: { page: totalPages }
+        // });
     }
 
     return (
@@ -115,7 +110,7 @@ export default function SignupForm() {
                 status: "Pending",
                 gender: "",
                 merital: "",
-                child: "0"
+                Children: "0"
             }}
             validationSchema={SignupSchema}
             onSubmit={handleSubmit}

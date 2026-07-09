@@ -13,11 +13,17 @@ import {
     Form as FForm
 } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
+import { collection, getDocs } from "firebase/firestore";
+import {
+    deleteDoc, doc,
+    updateDoc
+} from "firebase/firestore";
 
 export default function EditTask() {
     const navigate = useNavigate();
     const { id } = useParams();
     const [userId, setUserId] = useState(null);
+    const [task, setTask] = useState(null);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -29,6 +35,24 @@ export default function EditTask() {
         });
         return () => unsubscribe();
     }, [navigate]);
+
+    useEffect(() => {
+        async function fetchTask() {
+            if (!userId) return;
+
+            const docRef = doc(db, "Users", userId, "Todos", id);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                setTask({
+                    id: docSnap.id,
+                    ...docSnap.data(),
+                });
+            }
+        }
+
+        fetchTask();
+    }, [userId, id]);
 
     const SignupSchema = Yup.object().shape({
         title: Yup.string().required("Required"),
@@ -53,20 +77,22 @@ export default function EditTask() {
             })
     });
 
-    const storageKey = `tasks_${userId}`;
-    const tasks = userId ? JSON.parse(localStorage.getItem(storageKey)) || [] : [];
-    const task = tasks.find((t) => t.id === id);
 
-    const handleUpdate = (values) => {
-        const updated = tasks.map((t) =>
-            t.id === task.id ? { ...t, ...values } : t
-        );
 
-        localStorage.setItem(storageKey, JSON.stringify(updated));
-        const currentPage = localStorage.getItem("currentPage") || 1;
-        navigate("/profile", {
-            state: { page: parseInt(currentPage) }
-        });
+    const handleUpdate = async (values) => {
+        try {
+            await updateDoc(
+                doc(db, "Users", userId, "Todos", id),
+                {
+                    ...values,
+                }
+            );
+
+            navigate("/profile");
+
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     if (!userId || !task) {
@@ -381,45 +407,63 @@ export default function EditTask() {
 export function Search({ userId }) {
     const navigate = useNavigate();
     const location = useLocation();
-
+    const [searchValue, setSearchValue] = useState("");
+    const [allTasks, setAllTasks] = useState([]);
     const initialPage = location.state?.page || 1;
     const [currentPage, setCurrentPage] = useState(initialPage);
 
-    useEffect(() => {
-        localStorage.setItem("currentPage", currentPage.toString());
-    }, [currentPage]);
 
-    const storageKey = `tasks_${userId}`;
-    const [isSet, setIsSet] = useState(
-        JSON.parse(localStorage.getItem(storageKey)) || []
-    );
+    const [isSet, setIsSet] = useState([]);
+
+    useEffect(() => {
+        async function fetchTodos() {
+            const snapshot = await getDocs(
+                collection(db, "Users", userId, "Todos")
+            );
+
+            const todos = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            setIsSet(todos);
+        }
+
+        if (userId) {
+            fetchTodos();
+        }
+    }, [userId]);
 
     function handleSearch(e) {
-        const searchValue = e.target.value.toLowerCase();
+        const value = e.target.value.toLowerCase();
+        setSearchValue(value);
 
-        const tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
-
-        const filtered = tasks.filter(task =>
-            (task.title || "")
-                .toLowerCase()
-                .includes(searchValue)
+        const filtered = allTasks.filter(task =>
+            task.title.toLowerCase().includes(value)
         );
 
         setIsSet(filtered);
     }
 
-    const handleDelete = (id) => {
-        const updatedTasks = isSet.filter(
-            task => task.id !== id
-        );
+    const handleDelete = async (id) => {
+        try {
+            await deleteDoc(
+                doc(db, "Users", userId, "Todos", id)
+            );
 
-        setIsSet(updatedTasks);
+            setIsSet(prev => {
+                const updated = prev.filter(task => task.id !== id);
 
-        if (currentPage > Math.ceil(updatedTasks.length / 5)) {
-            setCurrentPage(1);
+                if (currentPage > Math.ceil(updated.length / 5)) {
+                    setCurrentPage(1);
+                }
+
+                return updated;
+            });
+
+        } catch (error) {
+            console.error("Delete Error:", error);
         }
-
-        localStorage.setItem(storageKey, JSON.stringify(updatedTasks));
     };
 
     function pagination() {
@@ -427,7 +471,7 @@ export function Search({ userId }) {
         const indexOfLastItem = currentPage * itemsPerPage;
         const indexOfFirstItem = indexOfLastItem - itemsPerPage;
         const currentItem = isSet.slice(indexOfFirstItem, indexOfLastItem);
-        const totalPages = Math.max(0, Math.ceil(isSet.length / itemsPerPage));
+        const totalPages = Math.max(1, Math.ceil(isSet.length / itemsPerPage)); 
         return { currentItem, totalPages };
     }
 
