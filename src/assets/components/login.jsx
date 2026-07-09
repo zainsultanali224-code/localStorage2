@@ -1,19 +1,18 @@
 import React, { useState } from "react";
 import { signInWithEmailAndPassword, sendPasswordResetEmail, confirmPasswordReset } from "firebase/auth";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { Container, Row, Col, Card, Modal, Button, Form } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "./firebase";
 import "./Login.css";
 import SignInWithGoogle from "./signInWithGoogle";
+import handleForgotPassword from "./handleForgotPassword";
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-
-    // 🔹 Forgot Password Modal States
     const [showForgotModal, setShowForgotModal] = useState(false);
     const [forgotStep, setForgotStep] = useState(1);
     const [resetEmail, setResetEmail] = useState("");
@@ -38,7 +37,7 @@ function Login() {
 
             setTimeout(() => {
                 navigate("/profile");
-            }, 1500);
+            }, 1000);
         } catch (error) {
             console.log(error);
 
@@ -50,99 +49,118 @@ function Login() {
         }
     };
 
-    // 🔹 Step 1: Email bhejne ke liye
-    const handleForgotPasswordStep1 = async () => {
-        if (!resetEmail) {
-            toast.error("Please enter your email");
-            return;
-        }
+    // const handleForgotPassword = async () => {
+    //     if (!email) {
+    //         toast.error("Please enter your email first.",{
+    //             position: "bottom-center"
+    //         })
+    //         return
+    //     }
 
-        setResetLoading(true);
+    //     try {
+    //         await sendPasswordResetEmail(auth, email);
 
-        const actionCodeSettings = {
-            url: window.location.origin + "/reset-password",
-            handleCodeInApp: true,
-        };
+    //         toast.success("Password reset email sent. Please check your inbox.", {
+    //             position: "top-center"
+    //         })
+    //     } catch (error) {
+    //         console.log(error.message)
 
-        try {
-            await sendPasswordResetEmail(auth, resetEmail, actionCodeSettings);
-            console.log("✅ Email sent to:", resetEmail);
-            
-            toast.success("Verification code sent to your email!", {
-                position: "top-center",
-            });
-            
-            setForgotStep(2); // Next step
-            setResetLoading(false);
-        } catch (error) {
-            console.error("❌ Error sending email:", error);
-            toast.error(error.message, {
-                position: "bottom-center",
-            });
-            setResetLoading(false);
-        }
-    };
+    //         toast.error(error.message,{
+    //             position: "bottom-center"
+    //         })
+    //     }
+    // }
 
-    // 🔹 Step 2: Code enter karne ke liye
-    const handleForgotPasswordStep2 = () => {
-        if (!resetCode) {
-            toast.error("Please enter verification code");
-            return;
-        }
-        setForgotStep(3); // Password change step
-    };
+    // const handleForgotPasswordStep1 = async () => {
+    //     if (!resetEmail) {
+    //         toast.error("Please enter your email");
+    //         return;
+    //     }
 
-    // 🔹 Step 3: Password change karne ke liye
-    const handleForgotPasswordStep3 = async () => {
-        if (newPassword !== confirmPassword) {
-            toast.error("Passwords do not match");
-            return;
-        }
-        if (newPassword.length < 6) {
-            toast.error("Password must be at least 6 characters");
-            return;
-        }
+    //     setResetLoading(true);
 
-        setResetLoading(true);
+    //     const actionCodeSettings = {
+    //         url: window.location.origin + "/reset-password",
+    //         handleCodeInApp: true,
+    //     };
 
-        try {
-            console.log("🔄 Resetting password with code:", resetCode);
-            
-            await confirmPasswordReset(auth, resetCode, newPassword);
-            
-            console.log("✅ Password changed successfully!");
-            
-            toast.success("Password changed successfully! Login with new password.", {
-                position: "top-center",
-                autoClose: 2000,
-            });
+    //     try {
+    //         await sendPasswordResetEmail(auth, resetEmail, actionCodeSettings);
+    //         console.log("✅ Email sent to:", resetEmail);
 
-            // Modal close aur reset
-            setShowForgotModal(false);
-            setForgotStep(1);
-            setResetEmail("");
-            setResetCode("");
-            setNewPassword("");
-            setConfirmPassword("");
-            setResetLoading(false);
-        } catch (error) {
-            console.error("❌ Error resetting password:", error);
-            toast.error("Invalid code or error: " + error.message, {
-                position: "bottom-center",
-            });
-            setResetLoading(false);
-        }
-    };
+    //         toast.success("Verification code sent to your email!", {
+    //             position: "top-center",
+    //         });
 
-    const closeForgotModal = () => {
-        setShowForgotModal(false);
-        setForgotStep(1);
-        setResetEmail("");
-        setResetCode("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setResetLoading(false);
-    };
+    //         setForgotStep(2);
+    //         setResetLoading(false);
+    //     } catch (error) {
+    //         console.error("❌ Error sending email:", error);
+    //         toast.error(error.message, {
+    //             position: "bottom-center",
+    //         });
+    //         setResetLoading(false);
+    //     }
+    // };
+
+    // const handleForgotPasswordStep2 = () => {
+    //     if (!resetCode) {
+    //         toast.error("Please enter verification code");
+    //         return;
+    //     }
+    //     setForgotStep(3); 
+    // };
+
+    // const handleForgotPasswordStep3 = async () => {
+    //     if (newPassword !== confirmPassword) {
+    //         toast.error("Passwords do not match");
+    //         return;
+    //     }
+    //     if (newPassword.length < 6) {
+    //         toast.error("Password must be at least 6 characters");
+    //         return;
+    //     }
+
+    //     setResetLoading(true);
+
+    //     try {
+    //         console.log("🔄 Resetting password with code:", resetCode);
+
+    //         await confirmPasswordReset(auth, resetCode, newPassword);
+
+    //         console.log("✅ Password changed successfully!");
+
+    //         toast.success("Password changed successfully! Login with new password.", {
+    //             position: "top-center",
+    //             autoClose: 2000,
+    //         });
+
+    //         setShowForgotModal(false);
+    //         setForgotStep(1);
+    //         setResetEmail("");
+    //         setResetCode("");
+    //         setNewPassword("");
+    //         setConfirmPassword("");
+    //         setResetLoading(false);
+    //     } catch (error) {
+    //         console.error("❌ Error resetting password:", error);
+    //         toast.error("Invalid code or error: " + error.message, {
+    //             position: "bottom-center",
+    //         });
+    //         setResetLoading(false);
+    //     }
+    // };
+
+    // const closeForgotModal = () => {
+    //     setShowForgotModal(false);
+    //     setForgotStep(1);
+    //     setResetEmail("");
+    //     setResetCode("");
+    //     setNewPassword("");
+    //     setConfirmPassword("");
+    //     setResetLoading(false);
+    // };
 
     return (
         <div className="login-page">
@@ -220,6 +238,16 @@ function Login() {
                                         </Link>
                                     </p>
 
+                                    <p
+                                        style={{ color: "blue", cursor: "pointer" }}
+                                        onClick={() => {
+                                            navigate("/handleForgotPassword")
+                                        }}
+                                    >
+                                        Forgot Password?
+                                        
+                                    </p>
+
                                     <SignInWithGoogle />
                                 </form>
                             </Card.Body>
@@ -228,13 +256,13 @@ function Login() {
                 </Row>
             </Container>
 
-            {/* 🔹 FORGOT PASSWORD MODAL */}
+            {/* 🔹 FORGOT PASSWORD MODAL
             <Modal show={showForgotModal} onHide={closeForgotModal} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Reset Password</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {/* 📧 STEP 1: Email enter */}
+                    📧 STEP 1: Email enter
                     {forgotStep === 1 && (
                         <>
                             <p>Enter your email address and we'll send you a code.</p>
@@ -251,7 +279,7 @@ function Login() {
                         </>
                     )}
 
-                    {/* 🔐 STEP 2: Verification code enter */}
+                    🔐 STEP 2: Verification code enter
                     {forgotStep === 2 && (
                         <>
                             <p>Check your email for a verification code and enter it below.</p>
@@ -268,7 +296,7 @@ function Login() {
                         </>
                     )}
 
-                    {/* 🔑 STEP 3: New password set */}
+                    🔑 STEP 3: New password set
                     {forgotStep === 3 && (
                         <>
                             <p>Enter your new password.</p>
@@ -316,7 +344,7 @@ function Login() {
                         {!resetLoading && forgotStep === 3 && "Change Password"}
                     </Button>
                 </Modal.Footer>
-            </Modal>
+            </Modal> */}
 
             <ToastContainer />
         </div>

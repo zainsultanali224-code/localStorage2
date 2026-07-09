@@ -9,7 +9,7 @@ import SignupForm from "./tasklist";
 import EditTask from "./todolist";
 import { Search } from "./todolist";
 import Profile_t from './assets/components/profile2';
-import ResetPassword from "./assets/components/ResetPassword";
+import handleForgotPassword from "./assets/components/handleForgotPassword";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -60,7 +60,7 @@ export default function App() {
                   element={user ? <Navigate to="/profile" /> : <Login />}
                 />
 
-                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/handleForgotPassword" element={<handleForgotPassword />} />
 
                 <Route
                   path='/register'
