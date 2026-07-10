@@ -84,7 +84,7 @@ export default function SignupForm() {
             status: values.status,
             gender: values.gender,
             merital: values.merital,
-            Children: values.Children || 0,
+            Children: values.Children,
             createdAt:serverTimestamp(),
         })
 
