@@ -42,6 +42,7 @@ function Register() {
                 email: email,
                 firstName: fname,
                 lastName: lname || "",
+                role: "user",
                 createdAt:serverTimestamp(),
             };
             

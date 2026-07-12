@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { Container, Row, Col, Card } from "react-bootstrap";
@@ -7,6 +7,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { auth } from "./firebase";
 import "./Login.css";
 import SignInWithGoogle from "./signInWithGoogle";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "./firebase";
+
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -27,16 +30,31 @@ function Login() {
         setLoading(true);
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const uid = userCredential.user.uid;
+            console.log("User logged in:", uid);
+
+            const docRef = doc(db, "Users", uid);
+            const docSnap = await getDoc(docRef, { source: 'server' });
+
+           setTimeout(() => {
+             if (docSnap.exists()) {
+                const userData = docSnap.data();
+                console.log("User data:", userData);
+                if (userData.role === "admin") {
+                    navigate("/admin");
+                } else {
+                    navigate("/profile");
+                }
+            }
+           }, 1000);
+
 
             toast.success("Login Successful!", {
                 position: "top-center",
                 autoClose: 1500,
             });
 
-            setTimeout(() => {
-                navigate("/profile");
-            }, 1000);
         } catch (error) {
             console.log(error);
             console.log("Code:", error.code);
@@ -93,15 +111,15 @@ function Login() {
                                             disabled={loading}
                                             required
                                         />
-                                       <p
-                                        style={{ color: "#4185f3", cursor: "pointer" }}
-                                        onClick={() => {
-                                            navigate("/handleForgotPassword")
-                                        }}
-                                    >
-                                        Forgot Password?
+                                        <p
+                                            style={{ color: "#4185f3", cursor: "pointer" }}
+                                            onClick={() => {
+                                                navigate("/handleForgotPassword")
+                                            }}
+                                        >
+                                            Forgot Password?
 
-                                    </p>
+                                        </p>
                                     </div>
 
                                     <div className="d-grid">

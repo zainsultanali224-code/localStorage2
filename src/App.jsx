@@ -9,6 +9,8 @@ import SignupForm from "./tasklist";
 import EditTask from "./todolist";
 import Profile_t from './assets/components/profile2';
 import HandleForgotPassword from "./assets/components/handleForgotPassword";
+import Admin from './assets/components/admin';
+
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -70,7 +72,13 @@ export default function App() {
                   path="/"
                   element={user ? <Navigate to="/profile" /> : <Navigate to="/login" />}
                 />
+              
+                <Route
+                  path="/admin"
+                  element={user ? <Admin /> : <Navigate to="/login" />}
+                />
 
+                
               </Routes>
               <ToastContainer />
             </div>
