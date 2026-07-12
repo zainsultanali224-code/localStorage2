@@ -10,7 +10,7 @@ import EditTask from "./todolist";
 import Profile_t from './assets/components/profile2';
 import HandleForgotPassword from "./assets/components/handleForgotPassword";
 import Admin from './assets/components/admin';
-
+import AdminRoute from './assets/components/AdminRoute';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -75,10 +75,11 @@ export default function App() {
               
                 <Route
                   path="/admin"
-                  element={user ? <Admin /> : <Navigate to="/login" />}
-                />
+                  element={ user ? (<AdminRoute>
+                    <Admin />
+                  </AdminRoute>) : <Navigate to="/login" /> } />
 
-                
+
               </Routes>
               <ToastContainer />
             </div>
