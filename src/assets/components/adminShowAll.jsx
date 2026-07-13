@@ -42,7 +42,7 @@ function UsersTodos() {
                         <tr key={todo.id}>
                             <td>{index + 1}</td>
                             <td>{todo.title}</td>
-                            <td>{todo.description}</td>
+                            <td>{todo.desc}</td>
                             <td>{todo.status}</td>
                         </tr>
                     ))}
