@@ -1,0 +1,32 @@
+body {
+    background: #f4f6f9;
+}
+
+.dashboard-card {
+    border: none;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.table-header {
+    background: white;
+    border-bottom: 2px solid #0d6efd;
+}
+
+.table tbody tr:hover {
+    background: #f1f5ff;
+}
+
+.badge {
+    font-size: 14px;
+    padding: 8px 12px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 24px;
+}

@@ -1,72 +1,153 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, doc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
-import UsersTodos from "./adminShowAll";
-import { useNavigate, } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Table,
+  Button,
+  Navbar,
+  Nav,
+} from "react-bootstrap";
+
+import "./Admin.css";
 
 function Admin() {
-    const [users, setUsers] = useState([]);
-    const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
 
-    useEffect(() => {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const docSnap = await getDocs(collection(db, "Users"));
 
-        const fetchUsers = async () => {
-            try {
-                
-                const docSnap = await getDocs(collection(db, "Users"))
+        const userList = docSnap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-                const userList = docSnap.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+        setUsers(userList);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
 
-                setUsers(userList);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
-        };
+    fetchUsers();
+  }, []);
 
-        fetchUsers();
-    }, []);
+  return (
+    <>
+      {/* Navbar */}
 
+      <Navbar bg="dark" variant="dark" expand="lg" className="shadow">
+        <Container>
+          <Navbar.Brand>Admin Dashboard</Navbar.Brand>
 
-    return (
-        <>
-            <p
-              style={{ color: "#4185f3", cursor: "pointer" }}
-             onClick={() => {
-                navigate("/adminShowAll");
-            }}> todos</p>
+          <Nav className="ms-auto">
+            <Button
+              variant="outline-light"
+              onClick={() => navigate("/adminShowAll")}
+            >
+              View Todos
+            </Button>
+          </Nav>
+        </Container>
+      </Navbar>
 
-            <div className="container mt-4">
-                <h2>Users</h2>
-                <table className="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                        </tr>
-                    </thead>
+      <Container className="mt-4">
 
-                    <tbody>
-                        {users.map((user, index) => (
-                            <tr key={user.id}>
-                                <td>{index + 1}</td>
-                                <td>{user.firstName}</td>
-                                <td>{user.lastName}</td>
-                                <td>{user.email}</td>
-                                <td>{user.role}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </>
-    );
+        {/* Cards */}
+
+        <Row className="mb-4">
+
+          <Col md={4}>
+            <Card className="dashboard-card bg-primary text-white shadow">
+              <Card.Body>
+                <h5>Total Users</h5>
+                <h2>{users.length}</h2>
+              </Card.Body>
+            </Card>
+          </Col>
+
+          <Col md={4}>
+            <Card className="dashboard-card bg-success text-white shadow">
+              <Card.Body>
+                <h5>Admins</h5>
+                <h2>
+                  {users.filter((user) => user.role === "admin").length}
+                </h2>
+              </Card.Body>
+            </Card>
+          </Col>
+
+          <Col md={4}>
+            <Card className="dashboard-card bg-warning text-dark shadow">
+              <Card.Body>
+                <h5>Users</h5>
+                <h2>
+                  {users.filter((user) => user.role === "user").length}
+                </h2>
+              </Card.Body>
+            </Card>
+          </Col>
+
+        </Row>
+
+        {/* Users Table */}
+
+        <Card className="shadow border-0">
+
+          <Card.Header className="table-header">
+            <h4 className="mb-0">Registered Users</h4>
+          </Card.Header>
+
+          <Card.Body>
+
+            <Table striped hover responsive className="align-middle">
+
+              <thead className="table-dark">
+                <tr>
+                  <th>#</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {users.map((user, index) => (
+                  <tr key={user.id}>
+                    <td>{index + 1}</td>
+                    <td>{user.firstName}</td>
+                    <td>{user.lastName}</td>
+                    <td>{user.email}</td>
+                    <td>
+                      <span
+                        className={
+                          user.role === "admin"
+                            ? "badge bg-success"
+                            : "badge bg-secondary"
+                        }
+                      >
+                        {user.role}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+
+            </Table>
+
+          </Card.Body>
+        </Card>
+      </Container>
+    </>
+  );
 }
 
 export default Admin;

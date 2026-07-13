@@ -1,98 +1,166 @@
-import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from './firebase';
-import { auth } from './firebase';
+import React, { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "./firebase";
+import {
+  Container,
+  Navbar,
+  Card,
+  Table,
+  Badge,
+  Placeholder,
+} from "react-bootstrap";
+
+import "./UsersTodos.css";
 
 function UsersTodos() {
-    const [userTodos, setUserTodos] = useState([]);
+  const [userTodos, setUserTodos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        console.log("UsersTodos component mounted, fetching todos...");
+  useEffect(() => {
+    const fetchUserTodos = async () => {
+      try {
+        setLoading(true);
 
-        const fetchUserTodos = async () => {
+        const users = await getDocs(collection(db, "Users"));
 
-            try {
+        const allTodos = [];
 
-                const users = await getDocs(collection(db, "Users"));
-                
-                const   allTodos = [];
+        for (const user of users.docs) {
+          const todos = await getDocs(
+            collection(db, "Users", user.id, "Todos")
+          );
 
-                for (const user of users.docs) {
-                    const todos = await getDocs(collection(db, "Users", user.id, "Todos"));
+          const todosList = todos.docs.map((doc) => ({
+            id: doc.id,
+            userId: user.id,
+            userEmail: user.data().email,
+            ...doc.data(),
+          }));
 
-                    const todosList = todos.docs.map((doc) => ({
-                        id: doc.id,
-                        userId: user.id,
-                        userEmail: user.data().email,
-                        ...doc.data(),
-                    }));
+          allTodos.push(...todosList);
+        }
 
-                    console.log(`Fetched todos for user ${user.id}:`, todosList);
+        setUserTodos(allTodos);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-                    allTodos.push(...todosList);
+    fetchUserTodos();
+  }, []);
 
-                    console.log(`User todos state updated for user ${user.id}:`, todosList);
-                }
+  return (
+    <>
+      <Navbar bg="dark" variant="dark" className="shadow">
+        <Container>
+          <Navbar.Brand>All Users Todos</Navbar.Brand>
+        </Container>
+      </Navbar>
 
-                setUserTodos(allTodos);
-            } catch (error) {
-                console.error("Error fetching user todos:", error);
-            }
-        };
+      <Container className="mt-4">
+        {/* Summary Card */}
+        <Card className="shadow border-0 mb-4">
+          <Card.Body className="text-center">
+            <h5>Total Todos</h5>
 
-        fetchUserTodos();
-    }, []);
+            {loading ? (
+              <Placeholder animation="glow">
+                <Placeholder xs={2} />
+              </Placeholder>
+            ) : (
+              <h2 className="text-primary">{userTodos.length}</h2>
+            )}
+          </Card.Body>
+        </Card>
 
+        {/* Table */}
+        <Card className="shadow border-0">
+          <Card.Header className="table-title">
+            <h4 className="mb-0">Users Todo List</h4>
+          </Card.Header>
 
-    return (
-        <>
-            <div>
-                <h2>User Todos</h2>
-                <table className="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Email</th>
-                            <th>Title</th>
-                            <th>Location</th>
-                            <th>date</th>
-                            <th>Color</th>
-                            <th>Range</th>
-                            <th>Description</th>
-                            <th>Gender</th>
-                            <th>Status</th>
-                            <th>Country</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {userTodos.map((todo, index) => (
-                            <tr key={todo.id}>
-                                <td>{index + 1}</td>
-                                <td>{todo.userEmail}</td>
-                                <td>{todo.title}</td>
-                                <td>{todo.location}</td>
-                                <td>{todo.date}</td>
-                                <td><div
-                                    style={{
-                                        width: "25px",
-                                        height: "25px",
-                                        backgroundColor: todo.col,
-                                        border: "1px solid #000",
-                                        margin: "auto",
-                                    }}
-                                ></div></td>
-                                <td>{todo.rang}</td>
-                                <td>{todo.desc}</td>
-                                <td>{todo.gender}</td>
-                                <td>{todo.status}</td>
-                                <td>{todo.count}</td>
-                            </tr>
+          <Card.Body>
+            <Table responsive hover striped className="align-middle">
+              <thead className="table-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Email</th>
+                  <th>Title</th>
+                  <th>Location</th>
+                  <th>Date</th>
+                  <th>Color</th>
+                  <th>Range</th>
+                  <th>Description</th>
+                  <th>Gender</th>
+                  <th>Status</th>
+                  <th>Country</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {loading
+                  ? [...Array(8)].map((_, row) => (
+                      <tr key={row}>
+                        {[...Array(11)].map((_, col) => (
+                          <td key={col}>
+                            <Placeholder animation="glow">
+                              <Placeholder xs={12} />
+                            </Placeholder>
+                          </td>
                         ))}
-                    </tbody>
-                </table>
-            </div>
-        </>
-    );
+                      </tr>
+                    ))
+                  : userTodos.map((todo, index) => (
+                      <tr key={todo.id}>
+                        <td>{index + 1}</td>
+
+                        <td>{todo.userEmail}</td>
+
+                        <td>{todo.title}</td>
+
+                        <td>{todo.location}</td>
+
+                        <td>{todo.date}</td>
+
+                        <td>
+                          <div
+                            className="color-box"
+                            style={{
+                              backgroundColor: todo.col,
+                            }}
+                          ></div>
+                        </td>
+
+                        <td>{todo.rang}</td>
+
+                        <td>{todo.desc}</td>
+
+                        <td>{todo.gender}</td>
+
+                        <td>
+                          <Badge
+                            bg={
+                              todo.status === "Completed"
+                                ? "success"
+                                : "warning"
+                            }
+                          >
+                            {todo.status}
+                          </Badge>
+                        </td>
+
+                        <td>{todo.count}</td>
+                      </tr>
+                    ))}
+              </tbody>
+            </Table>
+          </Card.Body>
+        </Card>
+      </Container>
+    </>
+  );
 }
 
 export default UsersTodos;
