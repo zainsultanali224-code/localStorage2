@@ -22,7 +22,7 @@ function UsersTodos() {
                 // console.log("User todos state updated:", todosList);
 
                 const users = await getDocs(collection(db, "Users"));
-
+                
                 for (const user of users.docs) {
                     const todos = await getDocs(collection(db, "Users", user.id, "Todos")); 
 
@@ -31,8 +31,14 @@ function UsersTodos() {
                         userId: user.id,
                         ...doc.data()
                     }));
-                }
-                setUserTodos(todosList);
+
+                    console.log(`Fetched todos for user ${user.id}:`, todosList);
+
+                    setUserTodos(todosList);
+
+                    console.log(`User todos state updated for user ${user.id}:`, todosList);
+                    }
+                
             } catch (error) {
                 console.error("Error fetching user todos:", error);
             }
