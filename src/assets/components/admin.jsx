@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { collection, getDocs, doc } from "firebase/firestore";
 import { db } from "./firebase";
 import UsersTodos from "./adminShowAll";
-import { navigate } from "react-router-dom";
+import { useNavigate, } from "react-router-dom";
 
 
 function Admin() {
     const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUsers = async () => {
