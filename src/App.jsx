@@ -11,6 +11,7 @@ import Profile_t from './assets/components/profile2';
 import HandleForgotPassword from "./assets/components/handleForgotPassword";
 import Admin from './assets/components/admin';
 import AdminRoute from './assets/components/AdminRoute';
+import adminShowAll from './assets/components/adminShowAll';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -77,6 +78,12 @@ export default function App() {
                   path="/admin"
                   element={ user ? (<AdminRoute>
                     <Admin />
+                  </AdminRoute>) : <Navigate to="/login" /> } />
+
+                <Route
+                  path="/adminShowAll"
+                  element={ user ? (<AdminRoute>
+                    <adminShowAll />
                   </AdminRoute>) : <Navigate to="/login" /> } />
 
 
