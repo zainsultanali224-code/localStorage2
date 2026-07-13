@@ -8,30 +8,14 @@ function UsersTodos() {
 
     useEffect(() => {
         console.log("UsersTodos component mounted, fetching todos...");
+
         const fetchUserTodos = async () => {
+                
             try {
-                // console.log("Fetching user todos from Firestore...");
-                // const docSnap = await getDocs(collection(db, "Todos"));
-
-                // const todosList = docSnap.docs.map((doc) => ({
-                //     id: doc.id,
-                //     ...doc.data()
-                // }));
-                // console.log("Fetched user todos:", todosList);
-                // setUserTodos(todosList);
-                // console.log("User todos state updated:", todosList);
-
+               
                 const users = await getDocs(collection(db, "Users"));
 
                 for (const user of users.docs) {
-                    // const todos = await getDocs(collection(db, "Users", user.id, "Todos")); 
-
-                    // const todosList = todos.map ((doc) => ({
-                    //     id: doc.id,
-                    //     userId: user.id,
-                    //     ...doc.data()
-                    // }));
-
                     const todos = await getDocs(collection(db, "Users", user.id, "Todos"));
 
                     const todosList = todos.docs.map((doc) => ({
@@ -43,7 +27,7 @@ function UsersTodos() {
 
                     console.log(`Fetched todos for user ${user.id}:`, todosList);
 
-                    setUserTodos(todosList);
+                    setUserTodos((prevTodos) => [...prevTodos, ...todosList]);
 
                     console.log(`User todos state updated for user ${user.id}:`, todosList);
                 }
@@ -65,6 +49,7 @@ function UsersTodos() {
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Email</th>
                             <th>Title</th>
                             <th>Description</th>
                             <th>Status</th>

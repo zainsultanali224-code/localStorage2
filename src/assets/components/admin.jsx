@@ -10,8 +10,10 @@ function Admin() {
     const navigate = useNavigate();
 
     useEffect(() => {
+
         const fetchUsers = async () => {
             try {
+                
                 const docSnap = await getDocs(collection(db, "Users"))
 
                 const userList = docSnap.docs.map((doc) => ({
