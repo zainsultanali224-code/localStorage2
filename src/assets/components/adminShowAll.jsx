@@ -22,14 +22,22 @@ function UsersTodos() {
                 // console.log("User todos state updated:", todosList);
 
                 const users = await getDocs(collection(db, "Users"));
-                
-                for (const user of users.docs) {
-                    const todos = await getDocs(collection(db, "Users", user.id, "Todos")); 
 
-                    const todosList = todos.map ((doc) => ({
+                for (const user of users.docs) {
+                    // const todos = await getDocs(collection(db, "Users", user.id, "Todos")); 
+
+                    // const todosList = todos.map ((doc) => ({
+                    //     id: doc.id,
+                    //     userId: user.id,
+                    //     ...doc.data()
+                    // }));
+
+                    const todos = await getDocs(collection(db, "Users", user.id, "Todos"));
+
+                    const todosList = todos.docs.map((doc) => ({
                         id: doc.id,
                         userId: user.id,
-                        ...doc.data()
+                        ...doc.data(),
                     }));
 
                     console.log(`Fetched todos for user ${user.id}:`, todosList);
@@ -37,8 +45,8 @@ function UsersTodos() {
                     setUserTodos(todosList);
 
                     console.log(`User todos state updated for user ${user.id}:`, todosList);
-                    }
-                
+                }
+
             } catch (error) {
                 console.error("Error fetching user todos:", error);
             }
@@ -49,31 +57,31 @@ function UsersTodos() {
 
 
     return (
-       <>
-       <div>
-            <h2>User Todos</h2>
-            <table className="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {userTodos.map((todo, index) => (
-                        <tr key={todo.id}>
-                            <td>{index + 1}</td>
-                            <td>{todo.title}</td>
-                            <td>{todo.desc}</td>
-                            <td>{todo.status}</td>
+        <>
+            <div>
+                <h2>User Todos</h2>
+                <table className="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Status</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-       </div>
-       </>
+                    </thead>
+                    <tbody>
+                        {userTodos.map((todo, index) => (
+                            <tr key={todo.id}>
+                                <td>{index + 1}</td>
+                                <td>{todo.title}</td>
+                                <td>{todo.desc}</td>
+                                <td>{todo.status}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </>
     );
 }
 
