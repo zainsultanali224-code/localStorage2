@@ -7,8 +7,8 @@ function Admin() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    try {
-        const fetchUsers = async () => {
+      const fetchUsers = async () => {
+            try {
         const docSnap = await getDocs(collection(db, "Users"))
 
         const userList = docSnap.docs.map((doc) => ({
@@ -16,11 +16,11 @@ function Admin() {
              ...doc.data()
                }));
 
-    }
-    setUsers(userList);
-    } catch (error) {
-        console.log(error.message);
-    }
+               setUsers(userList);
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            }
+        };
 
     fetchUsers();
   }, []);
