@@ -28,6 +28,8 @@ function Admin() {
 
     return (
         <div  className="container mt-4">
+            <h2>Users</h2>
+             <table className="table table-bordered">
           <thead>
             <tr>
                 <th>#</th>
@@ -49,7 +51,8 @@ function Admin() {
                 </tr>
             ))}
           </tbody>
-        </div>
+        </table>
+      </div>
     );
 }
 
