@@ -11,7 +11,7 @@ import Profile_t from './assets/components/profile2';
 import HandleForgotPassword from "./assets/components/handleForgotPassword";
 import Admin from './assets/components/admin';
 import AdminRoute from './assets/components/AdminRoute';
-import adminShowAll from './assets/components/adminShowAll';
+import UsersTodos from './assets/components/adminShowAll';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -83,9 +83,8 @@ export default function App() {
                 <Route
                   path="/adminShowAll"
                   element={ user ? (<AdminRoute>
-                    <adminShowAll />
+                    <UsersTodos />
                   </AdminRoute>) : <Navigate to="/login" /> } />
-
 
               </Routes>
               <ToastContainer />
