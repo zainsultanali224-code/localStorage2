@@ -37,6 +37,7 @@ function UsersTodos() {
                     const todosList = todos.docs.map((doc) => ({
                         id: doc.id,
                         userId: user.id,
+                          userEmail: user.data().email,
                         ...doc.data(),
                     }));
 
@@ -73,6 +74,7 @@ function UsersTodos() {
                         {userTodos.map((todo, index) => (
                             <tr key={todo.id}>
                                 <td>{index + 1}</td>
+                                <td>{todo.userEmail}</td>
                                 <td>{todo.title}</td>
                                 <td>{todo.desc}</td>
                                 <td>{todo.status}</td>
