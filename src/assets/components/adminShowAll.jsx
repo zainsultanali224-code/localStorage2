@@ -10,7 +10,7 @@ function UsersTodos() {
         const fetchUserTodos = async () => {
             try {
                 console.log("Fetching user todos from Firestore...");
-                const docSnap = await getDocs(collection(db, "Users", "Todos"));
+                const docSnap = await getDocs(collection(db, "Todos"));
 
                 const todosList = docSnap.docs.map((doc) => ({
                     id: doc.id,
