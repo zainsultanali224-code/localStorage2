@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
+import { auth } from './firebase';
 
 function UsersTodos() {
     const [userTodos, setUserTodos] = useState([]);
@@ -9,16 +10,29 @@ function UsersTodos() {
         console.log("UsersTodos component mounted, fetching todos...");
         const fetchUserTodos = async () => {
             try {
-                console.log("Fetching user todos from Firestore...");
-                const docSnap = await getDocs(collection(db, "Todos"));
+                // console.log("Fetching user todos from Firestore...");
+                // const docSnap = await getDocs(collection(db, "Todos"));
 
-                const todosList = docSnap.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                console.log("Fetched user todos:", todosList);
+                // const todosList = docSnap.docs.map((doc) => ({
+                //     id: doc.id,
+                //     ...doc.data()
+                // }));
+                // console.log("Fetched user todos:", todosList);
+                // setUserTodos(todosList);
+                // console.log("User todos state updated:", todosList);
+
+                const users = await getDocs(collection(db, "Users"));
+
+                for (const user of users.docs) {
+                    const todos = await getDocs(collection(db, "Users", user.id, "Todos")); 
+
+                    const todosList = todos.map ((doc) => ({
+                        id: doc.id,
+                        userId: user.id,
+                        ...doc.data()
+                    }));
+                }
                 setUserTodos(todosList);
-                console.log("User todos state updated:", todosList);
             } catch (error) {
                 console.error("Error fetching user todos:", error);
             }
