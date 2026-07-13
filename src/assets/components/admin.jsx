@@ -31,7 +31,9 @@ function Admin() {
 
     return (
         <>
-            <p onClick={() => {
+            <p
+              style={{ color: "#4185f3", cursor: "pointer" }}
+             onClick={() => {
                 navigate("/adminShowAll");
             }}> todos</p>
 
