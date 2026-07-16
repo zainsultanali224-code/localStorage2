@@ -12,6 +12,8 @@ import HandleForgotPassword from "./assets/components/handleForgotPassword";
 import Admin from './assets/components/admin';
 import AdminRoute from './assets/components/AdminRoute';
 import UsersTodos from './assets/components/adminShowAll';
+import UserAnalytics from './assets/components/UserAnalytics';
+import TotalUsers from './assets/components/TotalUsers';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -86,6 +88,18 @@ export default function App() {
                     <UsersTodos />
                   </AdminRoute>) : <Navigate to="/login" /> } />
 
+                  <Route
+                  path="/userAnalytics"
+                  element={ user ? (<AdminRoute>
+                    <UserAnalytics />
+                  </AdminRoute>) : <Navigate to="/login" /> } />
+
+                  <Route
+                  path="/totalUsers"
+                  element={ user ? (<AdminRoute>
+                    <TotalUsers />
+                  </AdminRoute>) : <Navigate to="/login" /> } />
+
               </Routes>
               <ToastContainer />
             </div>
@@ -95,3 +109,4 @@ export default function App() {
     </>
   )
 }
+

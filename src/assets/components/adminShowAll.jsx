@@ -3,18 +3,31 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 import {
   Container,
-  Navbar,
+  Row,
+  Col,
   Card,
   Table,
+  Button,
+  Navbar,
+  Nav,
   Badge,
-  Placeholder,
+  Spinner,
 } from "react-bootstrap";
-
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./UsersTodos.css";
+import Offcanvas from 'react-bootstrap/Offcanvas';
+
 
 function UsersTodos() {
   const [userTodos, setUserTodos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserTodos = async () => {
@@ -51,39 +64,162 @@ function UsersTodos() {
     fetchUserTodos();
   }, []);
 
+
+  if (loading) {
+    return (
+
+
+      <Container
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "80vh" }}
+      >
+        <Spinner animation="border" variant="primary" />
+      </Container>
+    );
+  }
+
   return (
     <>
-      <Navbar bg="dark" variant="dark" className="shadow">
-        <Container>
-          <Navbar.Brand>All Users Todos</Navbar.Brand>
+
+      <Navbar
+        bg="dark"
+        variant="dark"
+        expand="lg"
+        sticky="top"
+        className="shadow"
+      >
+        <Container fluid="lg" className="py-3">
+          <span style={{ color: "white", fontSize: "30px", cursor: "pointer" }} onClick={handleShow}>
+            &#9776;
+          </span>
+
+          <Offcanvas
+            show={show}
+            onHide={handleClose}
+            style={{ width: "280px" }}
+          >
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title>Offcanvas</Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
+              <Nav className="flex-column">
+
+                <Nav.Link
+                  className="py-3 px-4 border-bottom fw-semibold"
+                  onClick={() => {
+                    navigate("/admin");
+                    handleClose();
+                  }}
+                >
+                  📊 Admin Dashboard
+                </Nav.Link>
+
+                <Nav.Link
+                  className="py-3 px-4 border-bottom fw-semibold"
+                  onClick={() => {
+                    navigate("/userAnalytics");
+                    handleClose();
+                  }}
+                >
+                  📈 User Analytics
+                </Nav.Link>
+
+                <Nav.Link
+                  className="py-3 px-4 border-bottom fw-semibold"
+                  onClick={() => {
+                    navigate("/totalUsers");
+                    handleClose();
+                  }}
+                >
+                  👥 Total Users
+                </Nav.Link>
+
+                <Nav.Link
+                  active
+                  className="py-3 px-4 fw-semibold"
+                  onClick={() => {
+                    navigate("/adminShowAll");
+                    handleClose();
+                  }}
+                >
+                  📝 View Todos
+                </Nav.Link>
+
+              </Nav>
+            </Offcanvas.Body>
+          </Offcanvas>
+
+
+          <Navbar.Brand className="fw-bold fs-4">
+            Admin Dashboard
+          </Navbar.Brand>
+
+          <Nav className="ms-auto">
+            <Button
+              variant="outline-light"
+              onClick={() => navigate("/adminShowAll")}
+            >
+              View Todos
+            </Button>
+          </Nav>
         </Container>
       </Navbar>
 
-      <Container className="mt-4">
-        {/* Summary Card */}
-        <Card className="shadow border-0 mb-4">
-          <Card.Body className="text-center">
-            <h5>Total Todos</h5>
+      <Container fluid="lg" className="py-4">
+        <Row className="mb-4">
 
-            {loading ? (
-              <Placeholder animation="glow">
-                <Placeholder xs={2} />
-              </Placeholder>
-            ) : (
-              <h2 className="text-primary">{userTodos.length}</h2>
-            )}
+          <Col>
+
+            <h2 className="fw-bold">
+              All Users Todos
+            </h2>
+
+            <p className="text-muted mb-0">
+              View and manage all todos created by registered users
+            </p>
+
+          </Col>
+
+        </Row>
+        {/* Summary Card */}
+        <Card className="shadow-lg border-0 rounded-4 mb-4">
+          <Card.Body className="text-center py-4">
+
+            <h5 className="fw-semibold">
+
+              📝 Total Todos
+
+            </h5>
+
+            <h1 className="display-4 fw-bold text-primary">
+
+              {userTodos.length}
+
+            </h1>
+
           </Card.Body>
         </Card>
 
         {/* Table */}
-        <Card className="shadow border-0">
-          <Card.Header className="table-title">
-            <h4 className="mb-0">Users Todo List</h4>
+        <Card className="shadow-lg border-0 rounded-4">
+          <Card.Header className="bg-white border-0 py-3">
+
+            <h5 className="fw-bold mb-0">
+
+              🗂 Users Todo List
+
+            </h5>
+
           </Card.Header>
 
           <Card.Body>
-            <Table responsive hover striped className="align-middle">
-              <thead className="table-dark">
+            <Table
+              responsive
+              hover
+              bordered
+              className="align-middle text-center mb-0"
+            >
+              <thead className="table-light">
                 <tr>
                   <th>#</th>
                   <th>Email</th>
@@ -102,58 +238,92 @@ function UsersTodos() {
               <tbody>
                 {loading
                   ? [...Array(8)].map((_, row) => (
-                      <tr key={row}>
-                        {[...Array(11)].map((_, col) => (
-                          <td key={col}>
-                            <Placeholder animation="glow">
-                              <Placeholder xs={12} />
-                            </Placeholder>
-                          </td>
-                        ))}
-                      </tr>
-                    ))
+                    <tr key={row}>
+                      {[...Array(11)].map((_, col) => (
+                        <td key={col}>
+                          <Placeholder animation="glow">
+                            <Placeholder xs={12} />
+                          </Placeholder>
+                        </td>
+                      ))}
+                    </tr>
+                  ))
                   : userTodos.map((todo, index) => (
-                      <tr key={todo.id}>
-                        <td>{index + 1}</td>
+                    <tr key={todo.id}>
+                     <td className="fw-semibold">
 
-                        <td>{todo.userEmail}</td>
+{index+1}
 
-                        <td>{todo.title}</td>
+</td>
 
-                        <td>{todo.location}</td>
+                      <td className="text-primary fw-semibold">
 
-                        <td>{todo.date}</td>
+                        {todo.userEmail}
 
-                        <td>
-                          <div
-                            className="color-box"
-                            style={{
-                              backgroundColor: todo.col,
-                            }}
-                          ></div>
-                        </td>
+                      </td>
 
-                        <td>{todo.rang}</td>
+                      <td>{todo.title}</td>
 
-                        <td>{todo.desc}</td>
+                      <td>{todo.location}</td>
 
-                        <td>{todo.gender}</td>
+                      <td>{todo.date}</td>
 
-                        <td>
-                          <Badge
-                            bg={
-                              todo.status === "Completed"
-                                ? "success"
-                                : "warning"
-                            }
-                          >
-                            {todo.status}
-                          </Badge>
-                        </td>
+                      <td>
+                        <div
 
-                        <td>{todo.count}</td>
-                      </tr>
-                    ))}
+                          style={{
+                            width: "28px",
+                            height: "28px",
+                            backgroundColor: todo.col,
+                            borderRadius: "50%",
+                            margin: "auto",
+                            border: "1px solid #ccc"
+                          }}
+
+                        ></div>
+                      </td>
+
+                      <td>{todo.rang}</td>
+
+                      <td style={{ maxWidth: "250px" }}>
+
+                        <div className="text-truncate">
+
+                          {todo.desc}
+
+                        </div>
+
+                      </td>
+
+                      <td>{todo.gender}</td>
+
+                      <td>
+                        <Badge
+
+                          pill
+
+                          bg={
+                            todo.status === "Completed"
+                              ?
+                              "success"
+                              :
+                              "warning"
+                          }
+
+                        >
+
+                          {todo.status}
+
+                        </Badge>
+                      </td>
+
+                     <td className="fw-semibold">
+
+{todo.count}
+
+</td>
+                    </tr>
+                  ))}
               </tbody>
             </Table>
           </Card.Body>
