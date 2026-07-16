@@ -10,7 +10,6 @@ function AdminRoute({ children }) {
     useEffect(() => {
         const checkAdmin = async () => {
             const user = auth.currentUser;
-
             if (!user) {
                 setLoading(false);
                 return;
@@ -28,7 +27,6 @@ function AdminRoute({ children }) {
             }
             setLoading(false);
         };
-
         checkAdmin();
     }, []);
 
@@ -38,5 +36,4 @@ function AdminRoute({ children }) {
 
   return isAdmin ? children : <Navigate to = "/login" />;
 }
-
 export default AdminRoute;

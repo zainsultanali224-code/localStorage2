@@ -27,15 +27,14 @@ function Register() {
             });
             return;
         }
-
         setLoading(true);
 
         try {
             console.log("3. Creating user in Firebase Auth...");
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
-            console.log("4. User created successfully, UID:", uid);
 
+            console.log("4. User created successfully, UID:", uid);
             console.log("5. Saving user data to Firestore...");
 
             const userData = {
@@ -64,11 +63,9 @@ function Register() {
 
         } catch (error) {
             console.error(error);
-
             toast.error(error.message, {
                 position: "bottom-center"
             });
-
             setLoading(false);
         }
     };
@@ -80,7 +77,6 @@ function Register() {
                     <Col xs={12} sm={10} md={8} lg={5}>
                         <Card className="register-card shadow-lg border-0">
                             <Card.Body className="p-5">
-
                                 <form onSubmit={handleRegister}>
                                     <h3 className="text-center fw-bold mb-4">
                                         Create Account
@@ -150,7 +146,6 @@ function Register() {
                                     </p>
 
                                 </form>
-
                             </Card.Body>
                         </Card>
                     </Col>
@@ -159,5 +154,4 @@ function Register() {
         </div>
     );
 }
-
 export default Register;

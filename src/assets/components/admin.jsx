@@ -13,7 +13,6 @@ import {
   Nav,
   Spinner,
 } from "react-bootstrap";
-
 import {
   BarChart,
   Bar,
@@ -46,21 +45,17 @@ function Admin() {
           id: doc.id,
           ...doc.data(),
         }));
-
         setUsers(userList);
 
         const allTodos = [];
-
         for (const user of docSnap.docs) {
           const todoSnap = await getDocs(
             collection(db, "Users", user.id, "Todos")
           );
-
           const todoList = todoSnap.docs.map((todo) => ({
             id: todo.id,
             ...todo.data(),
           }));
-
           allTodos.push(...todoList);
         }
 
@@ -113,7 +108,6 @@ function Admin() {
             <Offcanvas.Body>
 
               <Nav className="flex-column">
-
                 <Nav.Link
                   active
                   className="py-3 px-4 border-bottom fw-semibold"
@@ -176,11 +170,8 @@ function Admin() {
       </Navbar>
 
       <Container className="mt-4">
-
         <Card className="shadow-lg border-0 rounded-4">
-
           <Card.Header className="bg-white border-0 py-3">
-
             <h5 className="fw-bold mb-0">
               👥 Registered Users
             </h5>
@@ -190,7 +181,6 @@ function Admin() {
           <Card.Body>
             <Row className="mb-4">
               <Col>
-
                 <h2 className="fw-bold">
                   Registered Users
                 </h2>
@@ -198,7 +188,6 @@ function Admin() {
                 <p className="text-muted mb-0">
                   View all registered users and their roles
                 </p>
-
               </Col>
             </Row>
 
@@ -251,16 +240,11 @@ function Admin() {
                   </tr>
                 ))}
               </tbody>
-
             </Table>
-
           </Card.Body>
-
         </Card>
-
       </Container>
     </>
   );
 }
-
 export default Admin;

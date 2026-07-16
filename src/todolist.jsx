@@ -38,7 +38,6 @@ export default function EditTask() {
     useEffect(() => {
         async function fetchTask() {
             if (!userId) return;
-
             const docRef = doc(db, "Users", userId, "Todos", id);
             const docSnap = await getDoc(docRef);
 
@@ -49,7 +48,6 @@ export default function EditTask() {
                 });
             }
         }
-
         fetchTask();
     }, [userId, id]);
 
@@ -85,9 +83,7 @@ export default function EditTask() {
                     ...values,
                 }
             );
-
             navigate("/profile");
-
         } catch (error) {
             setUpdateError(error.message);
         }
@@ -134,7 +130,6 @@ export default function EditTask() {
                     {(formik) => (
                         <Form>
                             <Row className="g-4">
-
                                 <Col md={6}>
                                     <FForm.Label>Title</FForm.Label>
                                     <FForm.Control
@@ -278,7 +273,6 @@ export default function EditTask() {
                                     <FForm.Label>
                                         Gender:
                                     </FForm.Label>
-
                                     <Col>
                                         <div className="mb-3">
                                             <FForm.Check
@@ -391,7 +385,6 @@ export default function EditTask() {
                                         Update Task
                                     </Button>
                                 </Col>
-
                             </Row>
                         </Form>
                     )}
@@ -424,7 +417,6 @@ export function Search({ userId }) {
                 searchValue: search,
                 lastVisible: cursor,
             });
-
             setTasks(result.data);
             setLastVisible(result.lastVisible);
             setHasNextPage(result.hasNextPage);
@@ -458,7 +450,6 @@ export function Search({ userId }) {
     const handleNext = async () => {
         if (!hasNextPage || isLoading || currentPage >= totalPages) return;
         setIsLoading(true);
-
         try {
             setPreviousCursors(prev => [...prev, lastVisible]);
             await fetchTasks(searchValue, lastVisible);
@@ -470,7 +461,6 @@ export function Search({ userId }) {
 
     const handlePrevious = () => {
         if (previousCursors.length === 0) return;
-
         const history = [...previousCursors];
         history.pop();
 
@@ -486,7 +476,6 @@ export function Search({ userId }) {
     const handleDelete = async (id) => {
         try {
             await deleteDoc(doc(db, "Users", userId, "Todos", id));
-
             fetchTasks(searchValue, null);
         } catch (error) {
             console.log(error);
@@ -646,10 +635,8 @@ export function Search({ userId }) {
                     )}
                 </Row>
 
-
                 {tasks.length > 0 && (
                     <div className="text-center mt-4">
-
                         <Button
                             variant="outline-secondary"
                             onClick={handlePrevious}
@@ -668,7 +655,6 @@ export function Search({ userId }) {
                         >
                             {isLoading ? "Loading..." : "Next →"}
                         </Button>
-
                     </div>
                 )}
             </Container>

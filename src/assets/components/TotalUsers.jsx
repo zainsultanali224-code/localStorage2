@@ -35,7 +35,6 @@ function TotalUsers() {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -47,7 +46,6 @@ function TotalUsers() {
                     id: doc.id,
                     ...doc.data(),
                 }));
-
                 setUsers(userList);
 
                 const allTodos = [];
@@ -55,15 +53,12 @@ function TotalUsers() {
                     const todoSnap = await getDocs(
                         collection(db, "Users", user.id, "Todos")
                     );
-
                     const todoList = todoSnap.docs.map((todo) => ({
                         id: todo.id,
                         ...todo.data(),
                     }));
-
                     allTodos.push(...todoList);
                 }
-
                 setTodos(allTodos);
             } catch (error) {
                 console.error("Error fetching users:", error);
@@ -71,7 +66,6 @@ function TotalUsers() {
                 setLoading(false);
             }
         };
-
         fetchUsers();
     }, []);
 
@@ -88,7 +82,6 @@ function TotalUsers() {
 
     const todoChartData = todos.reduce((acc, todo) => {
         const date = todo.date || "No Date";
-
         const existing = acc.find((item) => item.date === date);
 
         if (existing) {
@@ -99,7 +92,6 @@ function TotalUsers() {
                 total: 1,
             });
         }
-
         return acc;
     }, []);
 
@@ -113,7 +105,6 @@ function TotalUsers() {
             </Container>
         );
     }
-
     return (
         <>
             <Navbar
@@ -141,7 +132,6 @@ function TotalUsers() {
 
                         <Offcanvas.Body className="p-0">
                             <Nav className="flex-column">
-
                                 <Nav.Link
                                     className="py-3 px-4 border-bottom fw-semibold text-dark"
                                     onClick={() => {
@@ -184,7 +174,6 @@ function TotalUsers() {
                                 >
                                     📝 View Todos
                                 </Nav.Link>
-
                             </Nav>
                         </Offcanvas.Body>
                     </Offcanvas>
@@ -219,7 +208,6 @@ function TotalUsers() {
                 </Row>
 
                 <Row className="g-4 mb-4">
-
                     <Col md={6} lg={6}>
                         <Card className="dashboard-card bg-success text-white shadow">
                             <Card.Body className="d-flex flex-column justify-content-center align-items-center py-4">
@@ -239,7 +227,6 @@ function TotalUsers() {
                 </Row>
 
                 <Row className="g-4 mb-4">
-
                     <Col md={6} lg={6}>
                         <Card className="dashboard-card bg-success text-white shadow">
                             <Card.Body className="text-center">
@@ -251,7 +238,6 @@ function TotalUsers() {
                                 <h1>
                                     {users.filter((user) => user.role === "admin").length}
                                 </h1>
-
                             </Card.Body>
                         </Card>
                     </Col>
@@ -271,12 +257,10 @@ function TotalUsers() {
                             </Card.Body>
                         </Card>
                     </Col>
-
                 </Row>
             </Container>
         </>
     )
 
 }
-
 export default TotalUsers;

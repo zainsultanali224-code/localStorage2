@@ -10,7 +10,6 @@ import SignInWithGoogle from "./signInWithGoogle";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
-
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -22,13 +21,11 @@ function Login() {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [resetLoading, setResetLoading] = useState(false);
-
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
@@ -48,7 +45,6 @@ function Login() {
                 }
             }
            }, 1000);
-
             toast.success("Login Successful!", {
                 position: "top-center",
                 autoClose: 1500,
@@ -61,7 +57,6 @@ function Login() {
             toast.error(error.message, {
                 position: "bottom-center",
             });
-
             setLoading(false);
         }
     };
@@ -154,5 +149,4 @@ function Login() {
         </div>
     );
 }
-
 export default Login;

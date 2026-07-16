@@ -24,16 +24,13 @@ function UsersTodos() {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserTodos = async () => {
       try {
         setLoading(true);
-
         const users = await getDocs(collection(db, "Users"));
-
         const allTodos = [];
 
         for (const user of users.docs) {
@@ -47,10 +44,8 @@ function UsersTodos() {
             userEmail: user.data().email,
             ...doc.data(),
           }));
-
           allTodos.push(...todosList);
         }
-
         setUserTodos(allTodos);
       } catch (error) {
         console.log(error);
@@ -58,10 +53,8 @@ function UsersTodos() {
         setLoading(false);
       }
     };
-
     fetchUserTodos();
   }, []);
-
 
   if (loading) {
     return (
@@ -99,8 +92,8 @@ function UsersTodos() {
               </Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
-              <Nav className="flex-column">
 
+              <Nav className="flex-column">
                 <Nav.Link
                   className="py-3 px-4 border-bottom fw-semibold"
                   onClick={() => {
@@ -173,12 +166,10 @@ function UsersTodos() {
             </p>
 
           </Col>
-
         </Row>
 
         <Card className="shadow-lg border-0 rounded-4 mb-4">
           <Card.Body className="text-center py-4">
-
             <h5 className="fw-semibold">
               📝 Total Todos
             </h5>
@@ -192,7 +183,6 @@ function UsersTodos() {
 
         <Card className="shadow-lg border-0 rounded-4">
           <Card.Header className="bg-white border-0 py-3">
-
             <h5 className="fw-bold mb-0">
               🗂 Users Todo List
             </h5>
@@ -243,11 +233,8 @@ function UsersTodos() {
                       <td className="text-primary fw-semibold">
                         {todo.userEmail}
                       </td>
-
                       <td>{todo.title}</td>
-
                       <td>{todo.location}</td>
-
                       <td>{todo.date}</td>
 
                       <td>
@@ -268,13 +255,9 @@ function UsersTodos() {
                       <td>{todo.rang}</td>
 
                       <td style={{ maxWidth: "250px" }}>
-
                         <div className="text-truncate">
-
                           {todo.desc}
-
                         </div>
-
                       </td>
 
                       <td>{todo.gender}</td>
@@ -307,5 +290,4 @@ function UsersTodos() {
     </>
   );
 }
-
 export default UsersTodos;

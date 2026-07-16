@@ -71,7 +71,6 @@ export default function SignupForm() {
             console.error("User not authenticated");
             return;
         }
-
         await addDoc(collection(db, "Users", userId, "Todos"), {
             title: values.title,
             location: values.location,
@@ -85,15 +84,9 @@ export default function SignupForm() {
             gender: values.gender,
             merital: values.merital,
             Children: values.Children,
-            createdAt:serverTimestamp(),
+            createdAt: serverTimestamp(),
         })
-
         navigate("/profile");
-        // const itemsPerPage = 5;
-        // const totalPages = Math.ceil(newarr.length / itemsPerPage);
-        // navigate("/profile", {
-        //     state: { page: totalPages }
-        // });
     }
 
     return (
@@ -137,7 +130,6 @@ export default function SignupForm() {
                     <Card.Body className="p-4">
                         <Form>
                             <Row className="g-4">
-
                                 <Col md={6}>
                                     <FForm.Label>
                                         Title
@@ -150,7 +142,6 @@ export default function SignupForm() {
                                         onChange={formik.handleChange}
                                         onBlur={formik.handleBlur}
                                     />
-
                                     <ErrorMessage
                                         name="title"
                                         component="div"
@@ -170,7 +161,6 @@ export default function SignupForm() {
                                         onChange={formik.handleChange}
                                         onBlur={formik.handleBlur}
                                     />
-
                                     <ErrorMessage
                                         name="location"
                                         component="div"
@@ -190,7 +180,6 @@ export default function SignupForm() {
                                         onChange={formik.handleChange}
                                         onBlur={formik.handleBlur}
                                     />
-
                                     <ErrorMessage
                                         name="date"
                                         component="div"
@@ -211,7 +200,6 @@ export default function SignupForm() {
                                         onChange={formik.handleChange}
                                         onBlur={formik.handleBlur}
                                     />
-
                                     <ErrorMessage
                                         name="num"
                                         component="div"
@@ -233,7 +221,6 @@ export default function SignupForm() {
                                         onChange={formik.handleChange}
                                         onBlur={formik.handleBlur}
                                     />
-
                                     <ErrorMessage
                                         name="desc"
                                         component="div"
@@ -253,7 +240,6 @@ export default function SignupForm() {
                                         value={formik.values.rang}
                                         onChange={formik.handleChange}
                                     />
-
                                     <ErrorMessage
                                         name="rang"
                                         component="div"
@@ -278,7 +264,6 @@ export default function SignupForm() {
                                             }}
                                         />
                                     </div>
-
                                     <ErrorMessage
                                         name="col"
                                         component="div"

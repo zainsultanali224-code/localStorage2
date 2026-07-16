@@ -31,7 +31,6 @@ function Profile() {
           navigate("/login");
           return;
         }
-
         setCurrentUser(user);
 
         try {
@@ -58,7 +57,6 @@ function Profile() {
         }
       });
     };
-
     setupListener();
 
     return () => {
@@ -106,7 +104,4 @@ function Profile() {
     </div>
   );
 }
-
 export default Profile;
-
-

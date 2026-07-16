@@ -27,7 +27,6 @@ async function getPaginationUsersTodos({
             where("title", "<", searchValue + "\uf8ff")
         );
     }
-
     const countQuery = query(todosCollection, ...countConstraints);
     const countSnapshot = await getCountFromServer(countQuery);
     const totalItems = countSnapshot.data().count;
@@ -38,26 +37,22 @@ async function getPaginationUsersTodos({
             orderBy("title", "asc"),
             limit(pageSize + 1)
         ];
-
         if (searchValue?.trim()) {
             constraints.push(
                 where("title", ">=", searchValue),
                 where("title", "<", searchValue + "\uf8ff")
             );
         }
-
         if (lastVisible) {
             constraints.push(startAfter(lastVisible));
         }
 
         const todosQuery = query(todosCollection, ...constraints);
         const todosSnapshot = await getDocs(todosQuery);
-
         const docs = todosSnapshot.docs;
         const hasNextPage = docs.length > pageSize;
 
         if (hasNextPage) docs.pop();
-
         const todos = docs.map(doc => ({
             id: doc.id,
             ...doc.data()
@@ -75,5 +70,4 @@ async function getPaginationUsersTodos({
         throw error;
     }
 }
-
 export default getPaginationUsersTodos;
