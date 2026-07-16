@@ -23,7 +23,7 @@ function Register() {
 
         if (!fname || !email || !password) {
             toast.error("Please fill all required fields", {
-                position: "bottom-center"              
+                position: "bottom-center"
             });
             return;
         }
@@ -37,15 +37,15 @@ function Register() {
             console.log("4. User created successfully, UID:", uid);
 
             console.log("5. Saving user data to Firestore...");
-            
+
             const userData = {
                 email: email,
                 firstName: fname,
                 lastName: lname || "",
                 role: "user",
-                createdAt:serverTimestamp(),
+                createdAt: serverTimestamp(),
             };
-            
+
             await setDoc(doc(db, "Users", uid), userData)
 
             toast.success("Registration Successful!", {
@@ -57,7 +57,7 @@ function Register() {
             setFname("");
             setLname("");
             setLoading(false);
-            
+
             setTimeout(() => {
                 navigate("/profile");
             }, 1000);
@@ -65,7 +65,7 @@ function Register() {
         } catch (error) {
             console.error(error);
 
-            toast.error(error.message,{
+            toast.error(error.message, {
                 position: "bottom-center"
             });
 

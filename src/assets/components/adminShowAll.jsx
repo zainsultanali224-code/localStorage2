@@ -18,12 +18,10 @@ import { Link } from "react-router-dom";
 import "./UsersTodos.css";
 import Offcanvas from 'react-bootstrap/Offcanvas';
 
-
 function UsersTodos() {
   const [userTodos, setUserTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -67,8 +65,6 @@ function UsersTodos() {
 
   if (loading) {
     return (
-
-
       <Container
         className="d-flex justify-content-center align-items-center"
         style={{ height: "80vh" }}
@@ -80,7 +76,6 @@ function UsersTodos() {
 
   return (
     <>
-
       <Navbar
         bg="dark"
         variant="dark"
@@ -99,7 +94,9 @@ function UsersTodos() {
             style={{ width: "280px" }}
           >
             <Offcanvas.Header closeButton>
-              <Offcanvas.Title>Offcanvas</Offcanvas.Title>
+              <Offcanvas.Title className="fw-bold">
+                Dashboard Menu
+              </Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
               <Nav className="flex-column">
@@ -149,7 +146,6 @@ function UsersTodos() {
             </Offcanvas.Body>
           </Offcanvas>
 
-
           <Navbar.Brand className="fw-bold fs-4">
             Admin Dashboard
           </Navbar.Brand>
@@ -167,9 +163,7 @@ function UsersTodos() {
 
       <Container fluid="lg" className="py-4">
         <Row className="mb-4">
-
           <Col>
-
             <h2 className="fw-bold">
               All Users Todos
             </h2>
@@ -181,35 +175,27 @@ function UsersTodos() {
           </Col>
 
         </Row>
-        {/* Summary Card */}
+
         <Card className="shadow-lg border-0 rounded-4 mb-4">
           <Card.Body className="text-center py-4">
 
             <h5 className="fw-semibold">
-
               📝 Total Todos
-
             </h5>
 
             <h1 className="display-4 fw-bold text-primary">
-
               {userTodos.length}
-
             </h1>
 
           </Card.Body>
         </Card>
 
-        {/* Table */}
         <Card className="shadow-lg border-0 rounded-4">
           <Card.Header className="bg-white border-0 py-3">
 
             <h5 className="fw-bold mb-0">
-
               🗂 Users Todo List
-
             </h5>
-
           </Card.Header>
 
           <Card.Body>
@@ -250,16 +236,12 @@ function UsersTodos() {
                   ))
                   : userTodos.map((todo, index) => (
                     <tr key={todo.id}>
-                     <td className="fw-semibold">
-
-{index+1}
-
-</td>
+                      <td className="fw-semibold">
+                        {index + 1}
+                      </td>
 
                       <td className="text-primary fw-semibold">
-
                         {todo.userEmail}
-
                       </td>
 
                       <td>{todo.title}</td>
@@ -299,9 +281,7 @@ function UsersTodos() {
 
                       <td>
                         <Badge
-
                           pill
-
                           bg={
                             todo.status === "Completed"
                               ?
@@ -309,19 +289,14 @@ function UsersTodos() {
                               :
                               "warning"
                           }
-
                         >
-
                           {todo.status}
-
                         </Badge>
                       </td>
 
-                     <td className="fw-semibold">
-
-{todo.count}
-
-</td>
+                      <td className="fw-semibold">
+                        {todo.count}
+                      </td>
                     </tr>
                   ))}
               </tbody>

@@ -32,9 +32,7 @@ function UserAnalytics() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [todos, setTodos] = useState([]);
-
     const [show, setShow] = useState(false);
-
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
@@ -46,7 +44,6 @@ function UserAnalytics() {
                 setLoading(true);
 
                 const docSnap = await getDocs(collection(db, "Users"));
-
                 const userList = docSnap.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
@@ -54,9 +51,7 @@ function UserAnalytics() {
 
                 setUsers(userList);
 
-
                 const allTodos = [];
-
                 for (const user of docSnap.docs) {
                     const todoSnap = await getDocs(
                         collection(db, "Users", user.id, "Todos")
@@ -77,10 +72,8 @@ function UserAnalytics() {
                 setLoading(false);
             }
         };
-
         fetchUsers();
     }, []);
-
 
     const chartData = [
         {
@@ -111,15 +104,15 @@ function UserAnalytics() {
     }, []);
 
     if (loading) {
-    return (
-        <Container
-            className="d-flex justify-content-center align-items-center"
-            style={{ height: "80vh" }}
-        >
-            <Spinner animation="border" variant="primary" />
-        </Container>
-    );
-}
+        return (
+            <Container
+                className="d-flex justify-content-center align-items-center"
+                style={{ height: "80vh" }}
+            >
+                <Spinner animation="border" variant="primary" />
+            </Container>
+        );
+    }
 
     return (
         <>
@@ -141,7 +134,9 @@ function UserAnalytics() {
                         style={{ width: "280px" }}
                     >
                         <Offcanvas.Header closeButton>
-                            <Offcanvas.Title>Offcanvas</Offcanvas.Title>
+                            <Offcanvas.Title className="fw-bold">
+                                Dashboard Menu
+                            </Offcanvas.Title>
                         </Offcanvas.Header>
                         <Offcanvas.Body>
                             <Nav className="flex-column">
@@ -177,25 +172,24 @@ function UserAnalytics() {
                                     👥 Total Users
                                 </Nav.Link>
 
-                                 <Nav.Link
-                                                  active
-                                                  className="py-3 px-4 fw-semibold"
-                                                  onClick={() => {
-                                                    navigate("/adminShowAll");
-                                                    handleClose();
-                                                  }}
-                                                >
-                                                  📝 View Todos
-                                                </Nav.Link>
+                                <Nav.Link
+                                    active
+                                    className="py-3 px-4 fw-semibold"
+                                    onClick={() => {
+                                        navigate("/adminShowAll");
+                                        handleClose();
+                                    }}
+                                >
+                                    📝 View Todos
+                                </Nav.Link>
 
                             </Nav>
                         </Offcanvas.Body>
                     </Offcanvas>
 
-
-                   <Navbar.Brand className="fw-bold fs-4">
-    Admin Dashboard
-</Navbar.Brand>
+                    <Navbar.Brand className="fw-bold fs-4">
+                        Admin Dashboard
+                    </Navbar.Brand>
 
                     <Nav className="ms-auto">
                         <Button
@@ -264,12 +258,9 @@ function UserAnalytics() {
                     </Col>
                 </Row>
 
-               <Row className="g-4 mb-4">
-
+                <Row className="g-4 mb-4">
                     <Col lg={12}>
-
                         <Card className="shadow-lg border-0 rounded-4">
-
                             <Card.Header className="bg-white border-0 py-3">
 
                                 <h5 className="fw-bold mb-0">
@@ -279,7 +270,6 @@ function UserAnalytics() {
                             </Card.Header>
 
                             <Card.Body style={{ height: "350px" }}>
-
                                 {loading ? (
                                     <div className="h-100 d-flex justify-content-center align-items-center">
                                         <Spinner animation="border" variant="primary" />
@@ -288,15 +278,10 @@ function UserAnalytics() {
                                     <ResponsiveContainer width="100%" height="100%">
 
                                         <LineChart data={todoChartData}>
-
                                             <CartesianGrid strokeDasharray="3 3" />
-
                                             <XAxis dataKey="date" />
-
                                             <YAxis />
-
                                             <Tooltip />
-
                                             <Line
                                                 type="monotone"
                                                 dataKey="total"
@@ -307,21 +292,16 @@ function UserAnalytics() {
                                             />
 
                                         </LineChart>
-
                                     </ResponsiveContainer>
                                 )}
 
                             </Card.Body>
-
                         </Card>
-
                     </Col>
-
                 </Row>
             </Container>
         </>
     )
-
 }
 
 export default UserAnalytics;

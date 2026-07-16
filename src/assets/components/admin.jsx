@@ -32,28 +32,22 @@ function Admin() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [todos, setTodos] = useState([]);
-
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-
         const docSnap = await getDocs(collection(db, "Users"));
-
         const userList = docSnap.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
 
         setUsers(userList);
-
 
         const allTodos = [];
 
@@ -94,8 +88,6 @@ function Admin() {
 
   return (
     <>
-      {/* Navbar */}
-
       <Navbar
         bg="dark"
         variant="dark"
@@ -104,7 +96,6 @@ function Admin() {
         className="shadow"
       >
         <Container fluid="lg" className="py-3">
-
           <span style={{ color: "white", fontSize: "30px", cursor: "pointer" }} onClick={handleShow}>
             &#9776;
           </span>
@@ -115,9 +106,12 @@ function Admin() {
             style={{ width: "280px" }}
           >
             <Offcanvas.Header closeButton>
-              <Offcanvas.Title>Offcanvas</Offcanvas.Title>
+              <Offcanvas.Title className="fw-bold">
+                Dashboard Menu
+              </Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
+
               <Nav className="flex-column">
 
                 <Nav.Link
@@ -151,27 +145,24 @@ function Admin() {
                   👥 Total Users
                 </Nav.Link>
 
-                 <Nav.Link
-                                  active
-                                  className="py-3 px-4 fw-semibold"
-                                  onClick={() => {
-                                    navigate("/adminShowAll");
-                                    handleClose();
-                                  }}
-                                >
-                                  📝 View Todos
-                                </Nav.Link>
+                <Nav.Link
+                  active
+                  className="py-3 px-4 fw-semibold"
+                  onClick={() => {
+                    navigate("/adminShowAll");
+                    handleClose();
+                  }}
+                >
+                  📝 View Todos
+                </Nav.Link>
 
               </Nav>
             </Offcanvas.Body>
           </Offcanvas>
 
-
-
-
           <Navbar.Brand className="fw-bold fs-4">
-    Admin Dashboard
-</Navbar.Brand>
+            Admin Dashboard
+          </Navbar.Brand>
 
           <Nav className="ms-auto">
             <Button
@@ -185,8 +176,6 @@ function Admin() {
       </Navbar>
 
       <Container className="mt-4">
-
-        {/* Users Table */}
 
         <Card className="shadow-lg border-0 rounded-4">
 

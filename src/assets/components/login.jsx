@@ -49,7 +49,6 @@ function Login() {
             }
            }, 1000);
 
-
             toast.success("Login Successful!", {
                 position: "top-center",
                 autoClose: 1500,
@@ -143,7 +142,6 @@ function Login() {
                                             Register Here
                                         </Link>
                                     </p>
-
 
                                     <SignInWithGoogle />
                                 </form>

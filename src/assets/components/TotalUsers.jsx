@@ -32,9 +32,7 @@ function TotalUsers() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [todos, setTodos] = useState([]);
-
     const [show, setShow] = useState(false);
-
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
@@ -44,9 +42,7 @@ function TotalUsers() {
         const fetchUsers = async () => {
             try {
                 setLoading(true);
-
                 const docSnap = await getDocs(collection(db, "Users"));
-
                 const userList = docSnap.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
@@ -54,9 +50,7 @@ function TotalUsers() {
 
                 setUsers(userList);
 
-
                 const allTodos = [];
-
                 for (const user of docSnap.docs) {
                     const todoSnap = await getDocs(
                         collection(db, "Users", user.id, "Todos")
@@ -80,7 +74,6 @@ function TotalUsers() {
 
         fetchUsers();
     }, []);
-
 
     const chartData = [
         {
@@ -181,25 +174,24 @@ function TotalUsers() {
                                     👥 Total Users
                                 </Nav.Link>
 
-                                 <Nav.Link
-                                                  active
-                                                  className="py-3 px-4 fw-semibold"
-                                                  onClick={() => {
-                                                    navigate("/adminShowAll");
-                                                    handleClose();
-                                                  }}
-                                                >
-                                                  📝 View Todos
-                                                </Nav.Link>
+                                <Nav.Link
+                                    active
+                                    className="py-3 px-4 fw-semibold"
+                                    onClick={() => {
+                                        navigate("/adminShowAll");
+                                        handleClose();
+                                    }}
+                                >
+                                    📝 View Todos
+                                </Nav.Link>
 
                             </Nav>
                         </Offcanvas.Body>
                     </Offcanvas>
 
-
-                   <Navbar.Brand className="fw-bold fs-4">
-    Admin Dashboard
-</Navbar.Brand>
+                    <Navbar.Brand className="fw-bold fs-4">
+                        Admin Dashboard
+                    </Navbar.Brand>
 
                     <Nav className="ms-auto">
                         <Button
@@ -247,7 +239,6 @@ function TotalUsers() {
                 </Row>
 
                 <Row className="g-4 mb-4">
-
 
                     <Col md={6} lg={6}>
                         <Card className="dashboard-card bg-success text-white shadow">
