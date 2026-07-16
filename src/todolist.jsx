@@ -2,7 +2,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { auth } from "./assets/components/firebase";
-import { useState, useEffect } from "react";
 import {
     Container,
     Row,
@@ -13,18 +12,17 @@ import {
     Form as FForm
 } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
-import { collection, getDocs, getDoc } from "firebase/firestore";
-import {
-    deleteDoc, doc,
-    updateDoc
-} from "firebase/firestore";
+import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "./assets/components/firebase";
+import getPaginationUsersTodos from "./assets/components/pagination";
+import { useState, useEffect } from "react";
 
 export default function EditTask() {
     const navigate = useNavigate();
     const { id } = useParams();
     const [userId, setUserId] = useState(null);
     const [task, setTask] = useState(null);
+    const [updateError, setUpdateError] = useState("");
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -78,10 +76,9 @@ export default function EditTask() {
             })
     });
 
-
-
     const handleUpdate = async (values) => {
         try {
+            setUpdateError("");
             await updateDoc(
                 doc(db, "Users", userId, "Todos", id),
                 {
@@ -92,7 +89,7 @@ export default function EditTask() {
             navigate("/profile");
 
         } catch (error) {
-            console.error(error);
+            setUpdateError(error.message);
         }
     };
 
@@ -128,7 +125,7 @@ export default function EditTask() {
                         status: task?.status || "Pending",
                         gender: task?.gender || "",
                         merital: task?.merital || "",
-                        Children: task?.Children || "0",
+                        Children: task?.Children || 0,
                     }}
                     validationSchema={SignupSchema}
                     onSubmit={handleUpdate}
@@ -144,6 +141,7 @@ export default function EditTask() {
                                         name="title"
                                         value={formik.values.title}
                                         onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
                                     />
                                     <ErrorMessage
                                         name="title"
@@ -406,272 +404,274 @@ export default function EditTask() {
 }
 
 export function Search({ userId }) {
-    const navigate = useNavigate();
-    const location = useLocation();
+    const [tasks, setTasks] = useState([]);
     const [searchValue, setSearchValue] = useState("");
-    const [allTasks, setAllTasks] = useState([]);
-    const initialPage = location.state?.page || 1;
-    const [currentPage, setCurrentPage] = useState(initialPage);
+    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [lastVisible, setLastVisible] = useState(null);
+    const [hasNextPage, setHasNextPage] = useState(false);
+    const [previousCursors, setPreviousCursors] = useState([]);
+    const [totalItems, setTotalItems] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
 
-
-    const [isSet, setIsSet] = useState([]);
-
-    useEffect(() => {
-        async function fetchTodos() {
-            const snapshot = await getDocs(
-                collection(db, "Users", userId, "Todos")
-            );
-
-            const todos = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-
-            setIsSet(todos);
-        }
-
-        if (userId) {
-            fetchTodos();
-        }
-    }, [userId]);
-
-    function handleSearch(e) {
-        const value = e.target.value.toLowerCase();
-        setSearchValue(value);
-
-        const filtered = allTasks.filter(task =>
-            task.title.toLowerCase().includes(value)
-        );
-
-        setIsSet(filtered);
-    }
-
-    const handleDelete = async (id) => {
+    const fetchTasks = async (search = "", cursor = null) => {
+        if (!userId) return;
+        setLoading(true);
         try {
-            await deleteDoc(
-                doc(db, "Users", userId, "Todos", id)
-            );
-
-            setIsSet(prev => {
-                const updated = prev.filter(task => task.id !== id);
-
-                if (currentPage > Math.ceil(updated.length / 5)) {
-                    setCurrentPage(1);
-                }
-
-                return updated;
+            const result = await getPaginationUsersTodos({
+                userId,
+                pageSize: 5,
+                searchValue: search,
+                lastVisible: cursor,
             });
 
+            setTasks(result.data);
+            setLastVisible(result.lastVisible);
+            setHasNextPage(result.hasNextPage);
+
+            if (result.totalItems !== undefined) {
+                setTotalItems(result.totalItems);
+            }
         } catch (error) {
-            console.error("Delete Error:", error);
+            console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    function pagination() {
-        const itemsPerPage = 5;
-        const indexOfLastItem = currentPage * itemsPerPage;
-        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-        const currentItem = isSet.slice(indexOfFirstItem, indexOfLastItem);
-        const totalPages = Math.max(1, Math.ceil(isSet.length / itemsPerPage)); 
-        return { currentItem, totalPages };
-    }
+    useEffect(() => {
+        fetchTasks();
+    }, [userId]);
 
-    const { currentItem, totalPages } = pagination();
+    const pageSize = 5;
+    const totalPages = Math.ceil(totalItems / pageSize);
 
+    const handleSearch = (e) => {
+        const value = e.target.value;
+        setSearchValue(value);
+        setPreviousCursors([]);
+        setLastVisible(null);
+        setCurrentPage(1);
+        fetchTasks(value, null);
+    };
 
-    return (<Container fluid className="bg-light min-vh-100 py-5"> <Container> <div className="text-center mb-5"> <h1 className="fw-bold">Task Manager</h1>  </div>
+    const handleNext = async () => {
+        if (!hasNextPage || isLoading || currentPage >= totalPages) return;
+        setIsLoading(true);
 
-        <Row className="mb-4">
-            <Col md={8}>
-                <FForm.Control
-                    size="lg"
-                    type="text"
-                    placeholder="Search Task..."
-                    onChange={handleSearch}
-                />
-            </Col>
+        try {
+            setPreviousCursors(prev => [...prev, lastVisible]);
+            await fetchTasks(searchValue, lastVisible);
+            setCurrentPage(prev => prev + 1);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-            <Col md={4} className="text-md-end mt-3 mt-md-0">
-                <Link to="/add-task">
-                    <Button size="lg" variant="outline-primary">
-                        Add New Task
-                    </Button>
-                </Link>
-            </Col>
-        </Row>
+    const handlePrevious = () => {
+        if (previousCursors.length === 0) return;
 
-        <Row>
-            <>
+        const history = [...previousCursors];
+        history.pop();
 
-                {currentItem.length > 0 ? (
-                    currentItem.map(task => (
+        const previousCursor =
+            history.length === 0 ? null : history[history.length - 1];
 
-                        <Col
-                            md={6}
-                            lg={4}
-                            className="mb-4"
-                            key={task.id}
-                        >
-                            <Card
-                                className="shadow border-0 h-100"
-                                style={{
-                                    borderRadius: "20px"
-                                }}
-                            >
-                                <Card.Header
-                                    className="d-flex justify-content-between align-items-center text-white"
-                                    style={{
-                                        background:
-                                            "linear-gradient(135deg,#0d6efd,#6610f2)"
-                                    }}
-                                >
-                                    <strong>{task.title}</strong>
+        setPreviousCursors(history);
+        setCurrentPage((prev) => prev - 1);
 
-                                    <div />
-                                </Card.Header>
+        fetchTasks(searchValue, previousCursor);
+    };
 
-                                <Card.Body>
-                                    <p>
-                                        <strong> Location:</strong>{" "}
-                                        {task.location}
-                                    </p>
+    const handleDelete = async (id) => {
+        try {
+            await deleteDoc(doc(db, "Users", userId, "Todos", id));
 
-                                    <p>
-                                        <strong> Date:</strong>{" "}
-                                        {task.date}
-                                    </p>
+            fetchTasks(searchValue, null);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    return (
+        <Container fluid className="bg-light min-vh-100 py-5">
+            <Container>
+                <div className="text-center mb-5">
+                    <h1 className="fw-bold">Task Manager</h1>
+                    <p className="text-muted">
+                        {tasks.length > 0 ? `Showing ${tasks.length} tasks` : "No tasks found"}
+                    </p>
+                </div>
 
-                                    <p>
-                                        <strong> Description:</strong>
-                                        <br />
-                                        {task.desc}
-                                    </p>
-
-                                    <p>
-                                        <strong> Range:</strong>
-
-                                        <Badge
-                                            bg="info"
-                                            className="ms-2"
-                                        >
-                                            {task.rang}
-                                        </Badge>
-                                    </p>
-
-                                    <p>
-                                        <strong> Color:</strong>{" "}
-                                        <span
-                                            style={{
-                                                display: "inline-block",
-                                                width: "35px",
-                                                height: "20px",
-                                                borderRadius: "2px",
-                                                backgroundColor: task.col,
-                                                marginLeft: "8px",
-                                                marginTop: "6px",
-                                            }}
-                                        />
-                                    </p>
-                                    <p>
-                                        <strong> Country:</strong>{" "}
-                                        {task.count}
-                                    </p>
-
-                                    <p>
-                                        <strong> Number:</strong>{" "}
-                                        {task.num}
-                                    </p>
-
-                                    <p>
-                                        <strong> Status:</strong>{" "}
-                                        {task.status}
-                                    </p>
-
-                                    <p>
-                                        <strong> Gender:</strong>{" "}
-                                        {task.gender}
-                                    </p>
-
-                                    <p>
-                                        <strong>Marital Status:</strong>{" "}
-                                        {task.merital}
-                                    </p>
-                                    {task.merital === "Married" && (
-                                        <p>
-                                            <strong>Children: </strong> {task.Children}
-                                        </p>
-                                    )}
-
-                                </Card.Body>
-
-                                <Card.Footer className="bg-white border-0">
-                                    <div className="d-flex justify-content-between">
-                                        <Button
-                                            variant="outline-danger"
-                                            onClick={() =>
-                                                handleDelete(task.id)
-                                            }
-                                        >
-                                            Delete
-                                        </Button>
-
-                                        <Button
-                                            variant="outline-success"
-                                            onClick={() =>
-                                                navigate(
-                                                    `/edit-Task/${task.id}`
-                                                )
-                                            }
-                                        >
-                                            Edit
-                                        </Button>
-                                    </div>
-                                </Card.Footer>
-                            </Card>
-                        </Col>
-                    ))
-                ) : (
-                    <Col>
-                        <Card className="shadow border-0 text-center p-5"
-                            style={{
-                                minHeight: "50vh"
-                            }}>
-                            <h3
-                                style={{
-                                    marginTop: "74px",
-                                    alignItems: "center"
-                                }}
-                            >No Tasks Found</h3>
-
-                        </Card>
+                <Row className="mb-4">
+                    <Col md={8}>
+                        <FForm.Control
+                            size="lg"
+                            type="text"
+                            placeholder="Search Task..."
+                            value={searchValue}
+                            onChange={handleSearch}
+                        />
                     </Col>
 
+                    <Col md={4} className="text-md-end mt-3 mt-md-0">
+                        <Link to="/add-task">
+                            <Button size="lg" variant="outline-primary">
+                                Add New Task
+                            </Button>
+                        </Link>
+                    </Col>
+                </Row>
 
+                <Row>
+                    {loading ? (
+                        <Col>
+                            <Card
+                                className="shadow border-0 text-center p-5"
+                                style={{ minHeight: "50vh" }}
+                            >
+                                <h3 style={{ marginTop: "74px" }}>
+                                    Loading tasks...
+                                </h3>
+                            </Card>
+                        </Col>
+                    ) : tasks.length > 0 ? (
+                        tasks.map((task) => (
+                            <Col
+                                md={6}
+                                lg={4}
+                                className="mb-4"
+                                key={task.id}
+                            >
+                                <Card
+                                    className="shadow border-0 h-100"
+                                    style={{ borderRadius: "20px" }}
+                                >
+                                    <Card.Header
+                                        className="d-flex justify-content-between align-items-center text-white"
+                                        style={{
+                                            background:
+                                                "linear-gradient(135deg,#0d6efd,#6610f2)",
+                                        }}
+                                    >
+                                        <strong>{task.title}</strong>
+                                    </Card.Header>
+
+                                    <Card.Body>
+                                        <p>
+                                            <strong>Location:</strong> {task.location}
+                                        </p>
+                                        <p>
+                                            <strong>Date:</strong> {task.date}
+                                        </p>
+                                        <p>
+                                            <strong>Description:</strong>
+                                            <br />
+                                            {task.desc}
+                                        </p>
+                                        <p>
+                                            <strong>Range:</strong>
+                                            <Badge bg="info" className="ms-2">
+                                                {task.rang}
+                                            </Badge>
+                                        </p>
+                                        <p>
+                                            <strong>Color:</strong>{" "}
+                                            <span
+                                                style={{
+                                                    display: "inline-block",
+                                                    width: "35px",
+                                                    height: "20px",
+                                                    borderRadius: "2px",
+                                                    backgroundColor: task.col,
+                                                    marginLeft: "8px",
+                                                    marginTop: "6px",
+                                                }}
+                                            />
+                                        </p>
+                                        <p>
+                                            <strong>Country:</strong> {task.count}
+                                        </p>
+                                        <p>
+                                            <strong>Number:</strong> {task.num}
+                                        </p>
+                                        <p>
+                                            <strong>Status:</strong> {task.status}
+                                        </p>
+                                        <p>
+                                            <strong>Gender:</strong> {task.gender}
+                                        </p>
+                                        <p>
+                                            <strong>Marital Status:</strong> {task.merital}
+                                        </p>
+                                        {task.merital === "Married" && (
+                                            <p>
+                                                <strong>Children:</strong> {task.Children}
+                                            </p>
+                                        )}
+                                    </Card.Body>
+
+                                    <Card.Footer className="bg-white border-0">
+                                        <div className="d-flex justify-content-between">
+                                            <Button
+                                                variant="outline-danger"
+                                                onClick={() => handleDelete(task.id)}
+                                            >
+                                                Delete
+                                            </Button>
+
+                                            <Button
+                                                variant="outline-success"
+                                                onClick={() =>
+                                                    navigate(`/edit-Task/${task.id}`)
+                                                }
+                                            >
+                                                Edit
+                                            </Button>
+                                        </div>
+                                    </Card.Footer>
+                                </Card>
+                            </Col>
+                        ))
+                    ) : (
+                        <Col>
+                            <Card
+                                className="shadow border-0 text-center p-5"
+                                style={{ minHeight: "50vh" }}
+                            >
+                                <h3 style={{ marginTop: "74px" }}>
+                                    {searchValue ? "No Tasks Found" : "No Tasks Yet"}
+                                </h3>
+                            </Card>
+                        </Col>
+                    )}
+                </Row>
+
+
+                {tasks.length > 0 && (
+                    <div className="text-center mt-4">
+
+                        <Button
+                            variant="outline-secondary"
+                            onClick={handlePrevious}
+                            disabled={previousCursors.length === 0}
+                            className="me-3"
+                        >
+                            ← Previous
+                        </Button>
+                        <span className="mx-3 fw-semibold">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <Button
+                            variant="outline-primary"
+                            onClick={handleNext}
+                            disabled={!hasNextPage || isLoading || currentPage >= totalPages}
+                        >
+                            {isLoading ? "Loading..." : "Next →"}
+                        </Button>
+
+                    </div>
                 )}
-            </>
-        </Row>
-
-        <div style={{ marginTop: "10px" }}>
-            <Button variant="outline-secondary"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-
-            >
-                Prev
-            </Button>
-
-            <span style={{ margin: "0 10px" }}>
-                Page {currentPage} of {totalPages}
-            </span>
-
-            <Button variant="outline-primary"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-            >
-                Next
-            </Button>
-        </div>
-    </Container>
-    </Container>
+            </Container>
+        </Container>
     );
 }
