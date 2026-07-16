@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { auth } from "./assets/components/firebase";
@@ -16,13 +16,14 @@ import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "./assets/components/firebase";
 import getPaginationUsersTodos from "./assets/components/pagination";
 import { useState, useEffect } from "react";
+import { useNavigate  } from "react-router-dom";
 
 export default function EditTask() {
-    const navigate = useNavigate();
     const { id } = useParams();
     const [userId, setUserId] = useState(null);
     const [task, setTask] = useState(null);
     const [updateError, setUpdateError] = useState("");
+    const navigate = useNavigate()
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -397,6 +398,7 @@ export default function EditTask() {
 }
 
 export function Search({ userId }) {
+    const navigate = useNavigate();
     const [tasks, setTasks] = useState([]);
     const [searchValue, setSearchValue] = useState("");
     const [loading, setLoading] = useState(false);
