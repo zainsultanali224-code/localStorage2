@@ -1,64 +1,58 @@
-import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { auth } from "./firebase";
 import "./Login.css";
 import SignInWithGoogle from "./signInWithGoogle";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "./firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, clearError } from "../../features/auth/authSlice";
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [showForgotModal, setShowForgotModal] = useState(false);
-    const [forgotStep, setForgotStep] = useState(1);
-    const [resetEmail, setResetEmail] = useState("");
-    const [resetCode, setResetCode] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [resetLoading, setResetLoading] = useState(false);
     const navigate = useNavigate();
+    
+    const dispatch = useDispatch();
+    const { isLoading, error, isAuthenticated, user } = useSelector(state => state.auth);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const uid = userCredential.user.uid;
-            console.log("User logged in:", uid);
-
-            const docRef = doc(db, "Users", uid);
-            const docSnap = await getDoc(docRef, { source: 'server' });
-
-           setTimeout(() => {
-             if (docSnap.exists()) {
-                const userData = docSnap.data();
-                console.log("User data:", userData);
-                if (userData.role === "admin") {
-                    navigate("/admin");
-                } else {
-                    navigate("/profile");
-                }
-            }
-           }, 1000);
+    useEffect(() => {
+        if (isAuthenticated && user) {
             toast.success("Login Successful!", {
                 position: "top-center",
                 autoClose: 1500,
             });
+            setTimeout(() => {
+                if (user.role === "admin") {
+                    navigate("/admin");
+                    console.log(user);
+                } else {
+                    navigate("/profile");
+                }
+            }, 500);
+        }
+    }, [isAuthenticated, user, navigate]);
 
-        } catch (error) {
-            console.log(error);
-            console.log("Code:", error.code);
-            console.log("Message:", error.message);
-            toast.error(error.message, {
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
                 position: "bottom-center",
             });
-            setLoading(false);
+            dispatch(clearError());
         }
+    }, [error, dispatch]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        if (!email || !password) {
+            toast.error("Please fill all fields", {
+                position: "bottom-center",
+            });
+            return;
+        }
+
+        dispatch(loginUser({ email, password }));
     };
 
     return (
@@ -82,10 +76,8 @@ function Login() {
                                             className="form-control"
                                             placeholder="Enter Email"
                                             value={email}
-                                            onChange={(e) =>
-                                                setEmail(e.target.value)
-                                            }
-                                            disabled={loading}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            disabled={isLoading}
                                             required
                                         />
                                     </div>
@@ -99,20 +91,17 @@ function Login() {
                                             className="form-control"
                                             placeholder="Enter Password"
                                             value={password}
-                                            onChange={(e) =>
-                                                setPassword(e.target.value)
-                                            }
-                                            disabled={loading}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            disabled={isLoading}
                                             required
                                         />
                                         <p
                                             style={{ color: "#4185f3", cursor: "pointer" }}
                                             onClick={() => {
-                                                navigate("/handleForgotPassword")
+                                                navigate("/handleForgotPassword");
                                             }}
                                         >
                                             Forgot Password?
-
                                         </p>
                                     </div>
 
@@ -120,11 +109,9 @@ function Login() {
                                         <button
                                             type="submit"
                                             className="btn btn-primary btn-lg"
-                                            disabled={loading}
+                                            disabled={isLoading}
                                         >
-                                            {loading
-                                                ? "Logging in..."
-                                                : "Login"}
+                                            {isLoading ? "Logging in..." : "Login"}
                                         </button>
                                     </div>
 

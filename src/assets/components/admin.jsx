@@ -26,6 +26,10 @@ import {
 } from "recharts";
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import "./Admin.css";
+import { logoutUser } from "../../features/auth/authSlice";
+import { fetchAllUsersTodos } from "../../features/todo/todoSlice";
+import { useDispatch, useSelector } from "react-redux";
+import "./Sidebar.css"
 
 function Admin() {
   const [users, setUsers] = useState([]);
@@ -34,6 +38,7 @@ function Admin() {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+    const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,6 +75,17 @@ function Admin() {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+              dispatch(fetchAllUsersTodos());
+          }, [dispatch]);
+      
+          const handleLogout = async () => {
+              const resultAction = await dispatch(logoutUser());
+              if (logoutUser.fulfilled.match(resultAction)) {
+                  navigate("/login");
+              }
+          };
+
   if (loading) {
     return (
       <Container
@@ -105,12 +121,14 @@ function Admin() {
                 Dashboard Menu
               </Offcanvas.Title>
             </Offcanvas.Header>
-            <Offcanvas.Body>
+
+            <Offcanvas.Body className="d-flex flex-column sidebar-body">
 
               <Nav className="flex-column">
+
                 <Nav.Link
                   active
-                  className="py-3 px-4 border-bottom fw-semibold"
+                  className="sidebar-link"
                   onClick={() => {
                     navigate("/admin");
                     handleClose();
@@ -120,7 +138,7 @@ function Admin() {
                 </Nav.Link>
 
                 <Nav.Link
-                  className="py-3 px-4 border-bottom fw-semibold"
+                  className="sidebar-link"
                   onClick={() => {
                     navigate("/userAnalytics");
                     handleClose();
@@ -130,7 +148,7 @@ function Admin() {
                 </Nav.Link>
 
                 <Nav.Link
-                  className="py-3 px-4 fw-semibold"
+                  className="sidebar-link"
                   onClick={() => {
                     navigate("/totalUsers");
                     handleClose();
@@ -140,8 +158,7 @@ function Admin() {
                 </Nav.Link>
 
                 <Nav.Link
-                  active
-                  className="py-3 px-4 fw-semibold"
+                  className="sidebar-link"
                   onClick={() => {
                     navigate("/adminShowAll");
                     handleClose();
@@ -151,8 +168,19 @@ function Admin() {
                 </Nav.Link>
 
               </Nav>
+
+              <div className="mt-auto pt-3 border-top">
+                <button
+                  className="btn btn-danger w-100"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+
             </Offcanvas.Body>
           </Offcanvas>
+
 
           <Navbar.Brand className="fw-bold fs-4">
             Admin Dashboard

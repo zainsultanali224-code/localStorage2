@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { auth } from "./assets/components/firebase";
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { checkAuth } from './features/auth/authSlice';
 import Login from './assets/components/login';
 import Register from './assets/components/register';
 import Profile from './assets/components/profile';
@@ -16,20 +17,20 @@ import UserAnalytics from './assets/components/UserAnalytics';
 import TotalUsers from './assets/components/TotalUsers';
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { isAuthenticated, isLoading, user } = useSelector(state => state.auth);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      console.log("App.jsx - Auth state changed, user:", currentUser?.uid);
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+    // Check authentication on app load
+    dispatch(checkAuth());
+  }, [dispatch]);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <div>Loading...</div>
+      </div>
+    );
   }
 
   return (
@@ -41,64 +42,95 @@ export default function App() {
               <Routes>
                 <Route
                   path='/profile'
-                  element={user ? <Profile key={user.uid} /> : <Navigate to="/login" />}
+                  element={isAuthenticated ? <Profile key={user?.uid} /> : <Navigate to="/login" />}
                 />
-                
+
                 <Route
                   path='/profile_t'
-                  element={user ? <Profile_t key={user.uid} /> : <Navigate to="/login" />}
+                  element={isAuthenticated ? <Profile_t key={user?.uid} /> : <Navigate to="/login" />}
                 />
 
                 <Route
                   path='/add-task'
-                  element={user ? <SignupForm /> : <Navigate to="/login" />}
+                  element={isAuthenticated ? <SignupForm /> : <Navigate to="/login" />}
                 />
 
                 <Route
                   path='/edit-Task/:id'
-                  element={user ? <EditTask /> : <Navigate to="/login" />}
+                  element={isAuthenticated ? <EditTask /> : <Navigate to="/login" />}
                 />
 
                 <Route
-                  path='/login'
-                  element={user ? <Navigate to="/profile" /> : <Login />}
+                  path="/login"
+                  element={
+                    isAuthenticated ? (
+                      user?.role === "admin" ? (
+                        <Navigate to="/admin" replace />
+                      ) : (
+                        <Navigate to="/profile" replace />
+                      )
+                    ) : (
+                      <Login />
+                    )
+                  }
                 />
 
                 <Route path="/handleForgotPassword" element={<HandleForgotPassword />} />
 
                 <Route
                   path='/register'
-                  element={user ? <Navigate to="/profile" /> : <Register />}
+                  element={isAuthenticated ? <Navigate to="/profile" /> : <Register />}
                 />
 
                 <Route
                   path="/"
-                  element={user ? <Navigate to="/profile" /> : <Navigate to="/login" />}
+                  element={
+                    isAuthenticated ? (
+                      user?.role === "admin" ? (
+                        <Navigate to="/admin" replace />
+                      ) : (
+                        <Navigate to="/profile" replace />
+                      )
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  }
                 />
-              
                 <Route
                   path="/admin"
-                  element={ user ? (<AdminRoute>
-                    <Admin />
-                  </AdminRoute>) : <Navigate to="/login" /> } />
+                  element={isAuthenticated ? (
+                    <AdminRoute>
+                      <Admin />
+                    </AdminRoute>
+                  ) : <Navigate to="/login" />}
+                />
 
                 <Route
                   path="/adminShowAll"
-                  element={ user ? (<AdminRoute>
-                    <UsersTodos />
-                  </AdminRoute>) : <Navigate to="/login" /> } />
+                  element={isAuthenticated ? (
+                    <AdminRoute>
+                      <UsersTodos />
+                    </AdminRoute>
+                  ) : <Navigate to="/login" />}
+                />
 
-                  <Route
+                <Route
                   path="/userAnalytics"
-                  element={ user ? (<AdminRoute>
-                    <UserAnalytics />
-                  </AdminRoute>) : <Navigate to="/login" /> } />
+                  element={isAuthenticated ? (
+                    <AdminRoute>
+                      <UserAnalytics />
+                    </AdminRoute>
+                  ) : <Navigate to="/login" />}
+                />
 
-                  <Route
+                <Route
                   path="/totalUsers"
-                  element={ user ? (<AdminRoute>
-                    <TotalUsers />
-                  </AdminRoute>) : <Navigate to="/login" /> } />
+                  element={isAuthenticated ? (
+                    <AdminRoute>
+                      <TotalUsers />
+                    </AdminRoute>
+                  ) : <Navigate to="/login" />}
+                />
 
               </Routes>
               <ToastContainer />
@@ -107,6 +139,5 @@ export default function App() {
         </div>
       </BrowserRouter>
     </>
-  )
+  );
 }
-

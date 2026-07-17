@@ -26,6 +26,10 @@ import {
 } from "recharts";
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import "./Admin.css";
+import { logoutUser } from "../../features/auth/authSlice";
+import { fetchAllUsersTodos } from "../../features/todo/todoSlice";
+import { useDispatch, useSelector } from "react-redux";
+import "./Sidebar.css"
 
 function UserAnalytics() {
     const [users, setUsers] = useState([]);
@@ -35,6 +39,8 @@ function UserAnalytics() {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -92,6 +98,18 @@ function UserAnalytics() {
         }
         return acc;
     }, []);
+
+    useEffect(() => {
+        dispatch(fetchAllUsersTodos());
+    }, [dispatch]);
+
+    const handleLogout = async () => {
+        const resultAction = await dispatch(logoutUser());
+        if (logoutUser.fulfilled.match(resultAction)) {
+            navigate("/login");
+        }
+    };
+
     if (loading) {
         return (
             <Container
@@ -126,10 +144,13 @@ function UserAnalytics() {
                                 Dashboard Menu
                             </Offcanvas.Title>
                         </Offcanvas.Header>
-                        <Offcanvas.Body>
+
+                        <Offcanvas.Body className="d-flex flex-column sidebar-body">
+
                             <Nav className="flex-column">
+
                                 <Nav.Link
-                                    className="py-3 px-4 border-bottom fw-semibold"
+                                    className="sidebar-link"
                                     onClick={() => {
                                         navigate("/admin");
                                         handleClose();
@@ -139,8 +160,8 @@ function UserAnalytics() {
                                 </Nav.Link>
 
                                 <Nav.Link
-                                    active
-                                    className="py-3 px-4 border-bottom fw-semibold"
+                                active
+                                    className="sidebar-link"
                                     onClick={() => {
                                         navigate("/userAnalytics");
                                         handleClose();
@@ -150,7 +171,7 @@ function UserAnalytics() {
                                 </Nav.Link>
 
                                 <Nav.Link
-                                    className="py-3 px-4 fw-semibold"
+                                    className="sidebar-link"
                                     onClick={() => {
                                         navigate("/totalUsers");
                                         handleClose();
@@ -160,8 +181,7 @@ function UserAnalytics() {
                                 </Nav.Link>
 
                                 <Nav.Link
-                                    active
-                                    className="py-3 px-4 fw-semibold"
+                                    className="sidebar-link"
                                     onClick={() => {
                                         navigate("/adminShowAll");
                                         handleClose();
@@ -171,6 +191,16 @@ function UserAnalytics() {
                                 </Nav.Link>
 
                             </Nav>
+
+                            <div className="mt-auto pt-3 border-top">
+                                <button
+                                    className="btn btn-danger w-100"
+                                    onClick={handleLogout}
+                                >
+                                    Logout
+                                </button>
+                            </div>
+
                         </Offcanvas.Body>
                     </Offcanvas>
 
@@ -220,15 +250,15 @@ function UserAnalytics() {
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={chartData}>
                                             <CartesianGrid strokeDasharray="3 3" />
-                                                <XAxis dataKey="name" />
-                                                <YAxis />
-                                                <Tooltip />
-                                                <Bar
+                                            <XAxis dataKey="name" />
+                                            <YAxis />
+                                            <Tooltip />
+                                            <Bar
                                                 dataKey="total"
                                                 fill="#0d6efd"
                                                 radius={[12, 12, 0, 0]}
                                                 barSize={70}
-                                                    />
+                                            />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 )}
@@ -255,17 +285,17 @@ function UserAnalytics() {
                                     <ResponsiveContainer width="100%" height="100%">
                                         <LineChart data={todoChartData}>
                                             <CartesianGrid strokeDasharray="3 3" />
-                                                <XAxis dataKey="date" />
-                                                <YAxis />
-                                                <Tooltip />
-                                                <Line
+                                            <XAxis dataKey="date" />
+                                            <YAxis />
+                                            <Tooltip />
+                                            <Line
                                                 type="monotone"
                                                 dataKey="total"
                                                 stroke="#198754"
                                                 strokeWidth={4}
                                                 dot={{ r: 5 }}
                                                 activeDot={{ r: 8 }}
-                                                    />
+                                            />
 
                                         </LineChart>
                                     </ResponsiveContainer>

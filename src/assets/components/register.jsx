@@ -1,25 +1,48 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card } from "react-bootstrap";
-import { auth, db } from "./firebase";
-import { setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
 import "./Register.css";
-import { serverTimestamp } from "firebase/firestore";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser, clearError } from "../../features/auth/authSlice";
 
 function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [fname, setFname] = useState("");
     const [lname, setLname] = useState("");
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    const dispatch = useDispatch();
+    const { isLoading, error, isAuthenticated } = useSelector(state => state.auth);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                position: "bottom-center"
+            });
+            dispatch(clearError());
+        }
+    }, [error, dispatch]);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            toast.success("Registration Successful!", {
+                position: "top-center"
+            });
+            setEmail("");
+            setPassword("");
+            setFname("");
+            setLname("");
+            
+            setTimeout(() => {
+                navigate("/profile");
+            }, 1000);
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        console.log("1. Register button clicked");
-        console.log("2. Email:", email, "Password:", password, "Name:", fname);
 
         if (!fname || !email || !password) {
             toast.error("Please fill all required fields", {
@@ -27,47 +50,13 @@ function Register() {
             });
             return;
         }
-        setLoading(true);
 
-        try {
-            console.log("3. Creating user in Firebase Auth...");
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const uid = userCredential.user.uid;
-
-            console.log("4. User created successfully, UID:", uid);
-            console.log("5. Saving user data to Firestore...");
-
-            const userData = {
-                email: email,
-                firstName: fname,
-                lastName: lname || "",
-                role: "user",
-                createdAt: serverTimestamp(),
-            };
-
-            await setDoc(doc(db, "Users", uid), userData)
-
-            toast.success("Registration Successful!", {
-                position: "top-center"
-            });
-
-            setEmail("");
-            setPassword("");
-            setFname("");
-            setLname("");
-            setLoading(false);
-
-            setTimeout(() => {
-                navigate("/profile");
-            }, 1000);
-
-        } catch (error) {
-            console.error(error);
-            toast.error(error.message, {
-                position: "bottom-center"
-            });
-            setLoading(false);
-        }
+        dispatch(registerUser({ 
+            email, 
+            password, 
+            firstName: fname, 
+            lastName: lname 
+        }));
     };
 
     return (
@@ -89,6 +78,7 @@ function Register() {
                                             placeholder="First Name"
                                             value={fname}
                                             onChange={(e) => setFname(e.target.value)}
+                                            disabled={isLoading}
                                             required
                                         />
                                     </div>
@@ -100,6 +90,7 @@ function Register() {
                                             placeholder="Last Name"
                                             value={lname}
                                             onChange={(e) => setLname(e.target.value)}
+                                            disabled={isLoading}
                                         />
                                     </div>
 
@@ -110,6 +101,7 @@ function Register() {
                                             placeholder="Enter Email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
+                                            disabled={isLoading}
                                             required
                                         />
                                     </div>
@@ -121,6 +113,7 @@ function Register() {
                                             placeholder="Enter Password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
+                                            disabled={isLoading}
                                             required
                                         />
                                     </div>
@@ -129,9 +122,9 @@ function Register() {
                                         <button
                                             type="submit"
                                             className="btn btn-primary btn-lg"
-                                            disabled={loading}
+                                            disabled={isLoading}
                                         >
-                                            {loading ? "Creating account..." : "Create Account"}
+                                            {isLoading ? "Creating account..." : "Create Account"}
                                         </button>
                                     </div>
 

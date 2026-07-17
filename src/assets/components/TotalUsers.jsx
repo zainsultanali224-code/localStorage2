@@ -27,6 +27,10 @@ import {
 } from "recharts";
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { logoutUser } from "../../features/auth/authSlice";
+import { fetchAllUsersTodos } from "../../features/todo/todoSlice";
+import { useDispatch, useSelector } from "react-redux";
+import "./Sidebar.css"
 
 function TotalUsers() {
     const [users, setUsers] = useState([]);
@@ -35,6 +39,7 @@ function TotalUsers() {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -95,6 +100,17 @@ function TotalUsers() {
         return acc;
     }, []);
 
+     useEffect(() => {
+            dispatch(fetchAllUsersTodos());
+        }, [dispatch]);
+    
+        const handleLogout = async () => {
+            const resultAction = await dispatch(logoutUser());
+            if (logoutUser.fulfilled.match(resultAction)) {
+                navigate("/login");
+            }
+        };
+
     if (loading) {
         return (
             <Container
@@ -130,21 +146,22 @@ function TotalUsers() {
                             </Offcanvas.Title>
                         </Offcanvas.Header>
 
-                        <Offcanvas.Body className="p-0">
+                        <Offcanvas.Body className="d-flex flex-column sidebar-body">
+
                             <Nav className="flex-column">
+
                                 <Nav.Link
-                                    className="py-3 px-4 border-bottom fw-semibold text-dark"
+                                    className="sidebar-link"
                                     onClick={() => {
                                         navigate("/admin");
                                         handleClose();
                                     }}
                                 >
                                     📊 Admin Dashboard
-
                                 </Nav.Link>
 
                                 <Nav.Link
-                                    className="py-3 px-4 border-bottom fw-semibold text-dark"
+                                    className="sidebar-link"
                                     onClick={() => {
                                         navigate("/userAnalytics");
                                         handleClose();
@@ -154,8 +171,8 @@ function TotalUsers() {
                                 </Nav.Link>
 
                                 <Nav.Link
-                                    active
-                                    className="py-3 px-4 border-bottom fw-semibold text-dark"
+                                active
+                                    className="sidebar-link"
                                     onClick={() => {
                                         navigate("/totalUsers");
                                         handleClose();
@@ -165,8 +182,7 @@ function TotalUsers() {
                                 </Nav.Link>
 
                                 <Nav.Link
-                                    active
-                                    className="py-3 px-4 fw-semibold"
+                                    className="sidebar-link"
                                     onClick={() => {
                                         navigate("/adminShowAll");
                                         handleClose();
@@ -174,7 +190,18 @@ function TotalUsers() {
                                 >
                                     📝 View Todos
                                 </Nav.Link>
+
                             </Nav>
+
+                            <div className="mt-auto pt-3 border-top">
+                                <button
+                                    className="btn btn-danger w-100"
+                                    onClick={handleLogout}
+                                >
+                                    Logout
+                                </button>
+                            </div>
+
                         </Offcanvas.Body>
                     </Offcanvas>
 

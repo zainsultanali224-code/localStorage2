@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "./firebase";
 import {
   Container,
   Row,
@@ -13,50 +11,50 @@ import {
   Badge,
   Spinner,
 } from "react-bootstrap";
+import { Form as FForm } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 import "./UsersTodos.css";
-import Offcanvas from 'react-bootstrap/Offcanvas';
+import Offcanvas from "react-bootstrap/Offcanvas";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllUsersTodos } from "../../features/todo/todoSlice";
+import { logoutUser } from "../../features/auth/authSlice";
+import "./Sidebar.css";
 
 function UsersTodos() {
-  const [userTodos, setUserTodos] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { allUsersTodos = [], isLoading } = useSelector(
+    (state) => state.todo
+  );
 
   useEffect(() => {
-    const fetchUserTodos = async () => {
-      try {
-        setLoading(true);
-        const users = await getDocs(collection(db, "Users"));
-        const allTodos = [];
+    dispatch(fetchAllUsersTodos());
+  }, [dispatch]);
 
-        for (const user of users.docs) {
-          const todos = await getDocs(
-            collection(db, "Users", user.id, "Todos")
-          );
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
-          const todosList = todos.docs.map((doc) => ({
-            id: doc.id,
-            userId: user.id,
-            userEmail: user.data().email,
-            ...doc.data(),
-          }));
-          allTodos.push(...todosList);
-        }
-        setUserTodos(allTodos);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUserTodos();
-  }, []);
+  const handleLogout = async () => {
+    const resultAction = await dispatch(logoutUser());
 
-  if (loading) {
+    if (logoutUser.fulfilled.match(resultAction)) {
+      navigate("/login");
+    }
+  };
+
+  const filteredTodos = allUsersTodos.filter((todo) => {
+    const search = searchValue.toLowerCase();
+    return (
+      todo.title?.toLowerCase().includes(search) ||
+      todo.userEmail?.toLowerCase().includes(search) || 
+      todo.count?.toLowerCase().includes(search)
+    );
+  });
+
+  if (isLoading) {
     return (
       <Container
         className="d-flex justify-content-center align-items-center"
@@ -77,7 +75,14 @@ function UsersTodos() {
         className="shadow"
       >
         <Container fluid="lg" className="py-3">
-          <span style={{ color: "white", fontSize: "30px", cursor: "pointer" }} onClick={handleShow}>
+          <span
+            style={{
+              color: "white",
+              fontSize: "30px",
+              cursor: "pointer",
+            }}
+            onClick={handleShow}
+          >
             &#9776;
           </span>
 
@@ -91,11 +96,11 @@ function UsersTodos() {
                 Dashboard Menu
               </Offcanvas.Title>
             </Offcanvas.Header>
-            <Offcanvas.Body>
 
+            <Offcanvas.Body className="d-flex flex-column sidebar-body">
               <Nav className="flex-column">
                 <Nav.Link
-                  className="py-3 px-4 border-bottom fw-semibold"
+                  className="sidebar-link"
                   onClick={() => {
                     navigate("/admin");
                     handleClose();
@@ -105,7 +110,7 @@ function UsersTodos() {
                 </Nav.Link>
 
                 <Nav.Link
-                  className="py-3 px-4 border-bottom fw-semibold"
+                  className="sidebar-link"
                   onClick={() => {
                     navigate("/userAnalytics");
                     handleClose();
@@ -115,7 +120,7 @@ function UsersTodos() {
                 </Nav.Link>
 
                 <Nav.Link
-                  className="py-3 px-4 border-bottom fw-semibold"
+                  className="sidebar-link"
                   onClick={() => {
                     navigate("/totalUsers");
                     handleClose();
@@ -126,7 +131,7 @@ function UsersTodos() {
 
                 <Nav.Link
                   active
-                  className="py-3 px-4 fw-semibold"
+                  className="sidebar-link"
                   onClick={() => {
                     navigate("/adminShowAll");
                     handleClose();
@@ -134,8 +139,16 @@ function UsersTodos() {
                 >
                   📝 View Todos
                 </Nav.Link>
-
               </Nav>
+
+              <div className="mt-auto pt-3 border-top">
+                <button
+                  className="btn btn-danger w-100"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
             </Offcanvas.Body>
           </Offcanvas>
 
@@ -157,35 +170,37 @@ function UsersTodos() {
       <Container fluid="lg" className="py-4">
         <Row className="mb-4">
           <Col>
-            <h2 className="fw-bold">
-              All Users Todos
-            </h2>
+            <h2 className="fw-bold">All Users Todos</h2>
 
             <p className="text-muted mb-0">
               View and manage all todos created by registered users
             </p>
-
           </Col>
         </Row>
 
         <Card className="shadow-lg border-0 rounded-4 mb-4">
           <Card.Body className="text-center py-4">
-            <h5 className="fw-semibold">
-              📝 Total Todos
-            </h5>
+            <h5 className="fw-semibold">📝 Total Todos</h5>
 
             <h1 className="display-4 fw-bold text-primary">
-              {userTodos.length}
+              {filteredTodos.length}
             </h1>
-
           </Card.Body>
         </Card>
 
         <Card className="shadow-lg border-0 rounded-4">
           <Card.Header className="bg-white border-0 py-3">
-            <h5 className="fw-bold mb-0">
-              🗂 Users Todo List
-            </h5>
+            <h5 className="fw-bold mb-3">🗂 Users Todo List</h5>
+
+            <Col md={8}>
+              <FForm.Control
+                size="lg"
+                type="text"
+                placeholder="Search Task..."
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+            </Col>
           </Card.Header>
 
           <Card.Body>
@@ -212,44 +227,32 @@ function UsersTodos() {
               </thead>
 
               <tbody>
-                {loading
-                  ? [...Array(8)].map((_, row) => (
-                    <tr key={row}>
-                      {[...Array(11)].map((_, col) => (
-                        <td key={col}>
-                          <Placeholder animation="glow">
-                            <Placeholder xs={12} />
-                          </Placeholder>
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                  : userTodos.map((todo, index) => (
+                {filteredTodos.length > 0 ? (
+                  filteredTodos.map((todo, index) => (
                     <tr key={todo.id}>
-                      <td className="fw-semibold">
-                        {index + 1}
-                      </td>
+                      <td>{index + 1}</td>
 
                       <td className="text-primary fw-semibold">
                         {todo.userEmail}
                       </td>
+
                       <td>{todo.title}</td>
+
                       <td>{todo.location}</td>
+
                       <td>{todo.date}</td>
 
                       <td>
                         <div
-
                           style={{
                             width: "28px",
                             height: "28px",
                             backgroundColor: todo.col,
                             borderRadius: "50%",
                             margin: "auto",
-                            border: "1px solid #ccc"
+                            border: "1px solid #ccc",
                           }}
-
-                        ></div>
+                        />
                       </td>
 
                       <td>{todo.rang}</td>
@@ -267,21 +270,24 @@ function UsersTodos() {
                           pill
                           bg={
                             todo.status === "Completed"
-                              ?
-                              "success"
-                              :
-                              "warning"
+                              ? "success"
+                              : "warning"
                           }
                         >
                           {todo.status}
                         </Badge>
                       </td>
 
-                      <td className="fw-semibold">
-                        {todo.count}
-                      </td>
+                      <td>{todo.count}</td>
                     </tr>
-                  ))}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="11" className="text-center py-4">
+                      No Todos Found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </Table>
           </Card.Body>
@@ -290,4 +296,5 @@ function UsersTodos() {
     </>
   );
 }
+
 export default UsersTodos;
