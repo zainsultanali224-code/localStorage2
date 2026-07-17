@@ -10,7 +10,6 @@ import {
 } from "firebase/firestore";
 import { db } from "../../assets/components/firebase";
 
-// Async Thunks
 export const fetchUserTodos = createAsyncThunk(
     'todo/fetchUserTodos',
     async (userId, { rejectWithValue }) => {
@@ -118,7 +117,6 @@ const todoSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        // Fetch User Todos
         builder
             .addCase(fetchUserTodos.pending, (state) => {
                 state.isLoading = true;
@@ -134,7 +132,6 @@ const todoSlice = createSlice({
                 state.error = action.payload;
             });
 
-        // Add Todo
         builder
             .addCase(addNewTodo.pending, (state) => {
                 state.isLoading = true;
@@ -150,7 +147,6 @@ const todoSlice = createSlice({
                 state.error = action.payload;
             });
 
-        // Update Todo
         builder
             .addCase(updateTodo.pending, (state) => {
                 state.isLoading = true;
@@ -169,7 +165,6 @@ const todoSlice = createSlice({
                 state.error = action.payload;
             });
 
-        // Delete Todo
         builder
             .addCase(deleteTodo.pending, (state) => {
                 state.isLoading = true;
@@ -185,7 +180,6 @@ const todoSlice = createSlice({
                 state.error = action.payload;
             });
 
-        // Fetch All Users Todos
         builder
             .addCase(fetchAllUsersTodos.pending, (state) => {
                 state.isLoading = true;
