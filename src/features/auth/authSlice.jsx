@@ -163,16 +163,14 @@ export const updateProfile = createAsyncThunk(
         try {
             let imageUrl = "";
 
-            // Agar user ne nayi image select ki hai
             if (image) {
                 imageUrl = await uploadImage(image);
             } else {
-                // Purani image Firestore se le lo
+
                 const snap = await getDoc(doc(db, "Users", auth.currentUser.uid));
                 imageUrl = snap.data().image || "";
             }
 
-            // Firestore update
             await updateDoc(doc(db, "Users", auth.currentUser.uid), {
                 firstName,
                 lastName,
