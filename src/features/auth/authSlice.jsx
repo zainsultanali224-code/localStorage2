@@ -11,9 +11,11 @@ import {
     getDoc,
     getDocs,
     collection,
+    updateDoc,
 } from "firebase/firestore";
 import { auth, db } from "../../assets/components/firebase";
 import { serverTimestamp } from "firebase/firestore";
+import { uploadImage } from "../../assets/components/cloudinary";
 
 export const registerUser = createAsyncThunk(
     'auth/registerUser',
@@ -155,6 +157,38 @@ export const fetchUsers = createAsyncThunk(
         }
     }
 );
+export const updateProfile = createAsyncThunk(
+    "auth/updateProfile",
+    async ({ firstName, lastName, image }, { rejectWithValue }) => {
+        try {
+            let imageUrl = "";
+
+            // Agar user ne nayi image select ki hai
+            if (image) {
+                imageUrl = await uploadImage(image);
+            } else {
+                // Purani image Firestore se le lo
+                const snap = await getDoc(doc(db, "Users", auth.currentUser.uid));
+                imageUrl = snap.data().image || "";
+            }
+
+            // Firestore update
+            await updateDoc(doc(db, "Users", auth.currentUser.uid), {
+                firstName,
+                lastName,
+                image: imageUrl,
+            });
+
+            return {
+                firstName,
+                lastName,
+                image: imageUrl,
+            };
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
 
 const initialState = {
     authLoading: false,
@@ -173,7 +207,7 @@ const initialState = {
     fname: "",
     lname: "",
 
-    loadings:{},
+    loadings: {},
     errors: {},
     params: {},
 };
@@ -282,6 +316,17 @@ const authSlice = createSlice({
                 state.usersLoading = false;
                 state.error = action.payload;
             });
+
+        builder
+        .addCase(updateProfile.fulfilled, (state, action) => {
+            state.user = {
+                ...state.user,
+                firstName: action.payload.firstName,
+                lastName: action.payload.lastName,
+                image: action.payload.image
+            };
+
+        });
     }
 });
 

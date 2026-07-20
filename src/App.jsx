@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from './features/auth/authSlice';
@@ -16,33 +17,37 @@ import UsersTodos from './assets/components/adminShowAll';
 import UserAnalytics from './assets/components/UserAnalytics';
 import TotalUsers from './assets/components/TotalUsers';
 import { Container, Spinner } from "react-bootstrap";
+import ProfileDetail from './PfDetail';
 
 export default function App() {
+
+
   const dispatch = useDispatch();
   const {
-  isAuthenticated,
-  authLoading,
-  checkingAuth,
-  user,
-} = useSelector((state) => state.auth);
+    isAuthenticated,
+    authLoading,
+    checkingAuth,
+    user,
+  } = useSelector((state) => state.auth);
 
- useEffect(() => {
-  dispatch(checkAuth());
-}, [dispatch]);
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
 
- if (checkingAuth) {
-  return (
-    <Container
-      className="d-flex justify-content-center align-items-center"
-      style={{ height: "80vh" }}
-    >
-      <Spinner animation="border" />
-    </Container>
-  );
-}
+  if (checkingAuth) {
+    return (
+      <Container
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "80vh" }}
+      >
+        <Spinner animation="border" />
+      </Container>
+    );
+  }
 
   return (
     <>
+
       <BrowserRouter>
         <div className='App'>
           <div className='auth-wrapper'>
@@ -144,6 +149,8 @@ export default function App() {
                     </AdminRoute>
                   ) : <Navigate to="/login" />}
                 />
+
+
 
               </Routes>
               <ToastContainer />

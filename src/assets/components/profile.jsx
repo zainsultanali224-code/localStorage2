@@ -34,14 +34,6 @@ function Profile() {
       navigate("/login");
     }
   };
-  const handleSave = () => {
-    dispatch(updateUserProfile({
-      uid: user.uid,
-      firstName,
-      lastName,
-      image
-    }));
-  }
 
   if (!isAuthenticated || !user) {
     return (

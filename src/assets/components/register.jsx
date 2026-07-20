@@ -108,6 +108,7 @@ function Register() {
                                             className="form-control"
                                             placeholder="Enter Email"
                                             value={email}
+                                            
                                             onChange={(e) => {
                                                 dispatch(updateField({name: "email",
                                                 value: e.target.value
@@ -143,6 +144,7 @@ function Register() {
 
                                     <p className="text-center mt-4 mb-0">
                                         Already have an account?{" "}
+                                        
                                         <a
                                             href="/login"
                                             className="text-decoration-none fw-semibold"

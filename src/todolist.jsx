@@ -25,6 +25,9 @@ import {
     fetchPaginationTodos,
     deleteTodo,
 } from "./features/todo/todoSlice";
+import account from "./account.png";
+import { Modal } from "react-bootstrap";
+import ProfileDetail from "./PfDetail";
 
 
 export default function EditTask() {
@@ -404,9 +407,9 @@ export function Search({ userId }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+    const [showProfile, setShowProfile] = useState(false);
+    const handleClose = () => setShowProfile(false);
+    const handleShow = () => setShowProfile(true);
 
     const [searchValue, setSearchValue] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -420,6 +423,10 @@ export function Search({ userId }) {
         hasNextPage,
         totalItems,
     } = useSelector((state) => state.todo);
+
+    const { user, isAuthenticated } = useSelector(
+        (state) => state.auth
+    );
 
     const fetchTasks = async (search = "", cursor = null) => {
         if (!userId) return;
@@ -498,182 +505,223 @@ export function Search({ userId }) {
     };
 
     return (
-        <Container fluid className="bg-light min-vh-100 py-5">
-            <Container>
-                <div className="text-center mb-5">
-                    <h1 className="fw-bold">Task Manager</h1>
-                    <p className="text-muted">
-                        {tasks.length > 0 ? `Showing ${tasks.length} tasks` : "No tasks found"}
-                    </p>
-                </div>
+        <>
+            <Navbar className="bg-body-tertiary">
+                <Container>
+                    <Navbar.Brand >TODO</Navbar.Brand>
+                    <Navbar.Toggle />
+                    <Navbar.Collapse className="justify-content-end">
+                        <Navbar.Text>
+                            Profile: <img
+                                src={
+                                    user?.image ||
+                                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                                }
+                                alt="Logo"
+                                width="40"
+                                height="40"
+                                className="rounded-circle"
 
-                <Row className="mb-4">
-                    <Col md={8}>
-                        <FForm.Control
-                            size="lg"
-                            type="text"
-                            placeholder="Search Task..."
-                            value={searchValue}
-                            onChange={handleSearch}
-                        />
-                    </Col>
+                                onClick={() => setShowProfile(true)}
+                            />
 
-                    <Col md={4} className="text-md-end mt-3 mt-md-0">
-                        <Link to="/add-task">
-                            <Button size="lg" variant="outline-primary">
-                                Add New Task
-                            </Button>
-                        </Link>
-                    </Col>
-                </Row>
-
-                <Row>
-                    {isLoading ? (
-                        <Col>
-                            <Card
-                                className="shadow border-0 text-center p-5"
-                                style={{ minHeight: "50vh" }}
+                            <Modal
+                                show={showProfile}
+                                onHide={() => setShowProfile(false)}
+                                size="lg"
+                                centered
                             >
-                                <h3 style={{ marginTop: "74px" }}>
-                                    Loading tasks...
-                                </h3>
-                            </Card>
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Profile</Modal.Title>
+                                </Modal.Header>
+
+                                <Modal.Body>
+                                    <ProfileDetail />
+                                </Modal.Body>
+                            </Modal>
+
+                        </Navbar.Text>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+
+            <Container fluid className="bg-light min-vh-100 py-5">
+                <Container>
+                    <div className="text-center mb-5">
+                        <h1 className="fw-bold">Task Manager</h1>
+                        <p className="text-muted">
+                            {tasks.length > 0 ? `Showing ${tasks.length} tasks` : "No tasks found"}
+                        </p>
+                    </div>
+
+                    <Row className="mb-4">
+                        <Col md={8}>
+                            <FForm.Control
+                                size="lg"
+                                type="text"
+                                placeholder="Search Task..."
+                                value={searchValue}
+                                onChange={handleSearch}
+                            />
                         </Col>
-                    ) : tasks.length > 0 ? (
-                        tasks.map((selectedTask) => (
-                            <Col
-                                md={6}
-                                lg={4}
-                                className="mb-4"
-                                key={selectedTask.id}
-                            >
+
+                        <Col md={4} className="text-md-end mt-3 mt-md-0">
+                            <Link to="/add-task">
+                                <Button size="lg" variant="outline-primary">
+                                    Add New Task
+                                </Button>
+                            </Link>
+                        </Col>
+                    </Row>
+
+                    <Row>
+                        {isLoading ? (
+                            <Col>
                                 <Card
-                                    className="shadow border-0 h-100"
-                                    style={{ borderRadius: "20px" }}
+                                    className="shadow border-0 text-center p-5"
+                                    style={{ minHeight: "50vh" }}
                                 >
-                                    <Card.Header
-                                        className="d-flex justify-content-between align-items-center text-white"
-                                        style={{
-                                            background:
-                                                "linear-gradient(135deg,#0d6efd,#6610f2)",
-                                        }}
-                                    >
-                                        <strong>{selectedTask.title}</strong>
-                                    </Card.Header>
-
-                                    <Card.Body>
-                                        <p>
-                                            <strong>Location:</strong> {selectedTask.location}
-                                        </p>
-                                        <p>
-                                            <strong>Date:</strong> {selectedTask.date}
-                                        </p>
-                                        <p>
-                                            <strong>Description:</strong>
-                                            <br />
-                                            {selectedTask.desc}
-                                        </p>
-                                        <p>
-                                            <strong>Range:</strong>
-                                            <Badge bg="info" className="ms-2">
-                                                {selectedTask.rang}
-                                            </Badge>
-                                        </p>
-                                        <p>
-                                            <strong>Color:</strong>{" "}
-                                            <span
-                                                style={{
-                                                    display: "inline-block",
-                                                    width: "35px",
-                                                    height: "20px",
-                                                    borderRadius: "2px",
-                                                    backgroundColor: selectedTask.col,
-                                                    marginLeft: "8px",
-                                                    marginTop: "6px",
-                                                }}
-                                            />
-                                        </p>
-                                        <p>
-                                            <strong>Country:</strong> {selectedTask.count}
-                                        </p>
-                                        <p>
-                                            <strong>Number:</strong> {selectedTask.num}
-                                        </p>
-                                        <p>
-                                            <strong>Status:</strong> {selectedTask.status}
-                                        </p>
-                                        <p>
-                                            <strong>Gender:</strong> {selectedTask.gender}
-                                        </p>
-                                        <p>
-                                            <strong>Marital Status:</strong> {selectedTask.merital}
-                                        </p>
-                                        {selectedTask.merital === "Married" && (
-                                            <p>
-                                                <strong>Children:</strong> {selectedTask.Children}
-                                            </p>
-                                        )}
-                                    </Card.Body>
-
-                                    <Card.Footer className="bg-white border-0">
-                                        <div className="d-flex justify-content-between">
-                                            <Button
-                                                variant="outline-danger"
-                                                onClick={() => handleDelete(selectedTask.id)}
-                                            >
-                                                Delete
-                                            </Button>
-
-                                            <Button
-                                                variant="outline-success"
-                                                onClick={() =>
-                                                    navigate(`/edit-Task/${selectedTask.id}`)
-                                                }
-                                            >
-                                                Edit
-                                            </Button>
-                                        </div>
-                                    </Card.Footer>
+                                    <h3 style={{ marginTop: "74px" }}>
+                                        Loading tasks...
+                                    </h3>
                                 </Card>
                             </Col>
-                        ))
-                    ) : (
-                        <Col>
-                            <Card
-                                className="shadow border-0 text-center p-5"
-                                style={{ minHeight: "50vh" }}
-                            >
-                                <h3 style={{ marginTop: "74px" }}>
-                                    {searchValue ? "No Tasks Found" : "No Tasks Yet"}
-                                </h3>
-                            </Card>
-                        </Col>
-                    )}
-                </Row>
+                        ) : tasks.length > 0 ? (
+                            tasks.map((selectedTask) => (
+                                <Col
+                                    md={6}
+                                    lg={4}
+                                    className="mb-4"
+                                    key={selectedTask.id}
+                                >
+                                    <Card
+                                        className="shadow border-0 h-100"
+                                        style={{ borderRadius: "20px" }}
+                                    >
+                                        <Card.Header
+                                            className="d-flex justify-content-between align-items-center text-white"
+                                            style={{
+                                                background:
+                                                    "linear-gradient(135deg,#0d6efd,#6610f2)",
+                                            }}
+                                        >
+                                            <strong>{selectedTask.title}</strong>
+                                        </Card.Header>
 
-                {tasks.length > 0 && (
-                    <div className="text-center mt-4">
-                        <Button
-                            variant="outline-secondary"
-                            onClick={handlePrevious}
-                            disabled={previousCursors.length === 0}
-                            className="me-3"
-                        >
-                            ← Previous
-                        </Button>
-                        <span className="mx-3 fw-semibold">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        <Button
-                            variant="outline-primary"
-                            onClick={handleNext}
-                            disabled={!hasNextPage || nextLoading || currentPage >= totalPages}
-                        >
-                            {nextLoading ? "Loading..." : "Next →"}
-                        </Button>
-                    </div>
-                )}
+                                        <Card.Body>
+                                            <p>
+                                                <strong>Location:</strong> {selectedTask.location}
+                                            </p>
+                                            <p>
+                                                <strong>Date:</strong> {selectedTask.date}
+                                            </p>
+                                            <p>
+                                                <strong>Description:</strong>
+                                                <br />
+                                                {selectedTask.desc}
+                                            </p>
+                                            <p>
+                                                <strong>Range:</strong>
+                                                <Badge bg="info" className="ms-2">
+                                                    {selectedTask.rang}
+                                                </Badge>
+                                            </p>
+                                            <p>
+                                                <strong>Color:</strong>{" "}
+                                                <span
+                                                    style={{
+                                                        display: "inline-block",
+                                                        width: "35px",
+                                                        height: "20px",
+                                                        borderRadius: "2px",
+                                                        backgroundColor: selectedTask.col,
+                                                        marginLeft: "8px",
+                                                        marginTop: "6px",
+                                                    }}
+                                                />
+                                            </p>
+                                            <p>
+                                                <strong>Country:</strong> {selectedTask.count}
+                                            </p>
+                                            <p>
+                                                <strong>Number:</strong> {selectedTask.num}
+                                            </p>
+                                            <p>
+                                                <strong>Status:</strong> {selectedTask.status}
+                                            </p>
+                                            <p>
+                                                <strong>Gender:</strong> {selectedTask.gender}
+                                            </p>
+                                            <p>
+                                                <strong>Marital Status:</strong> {selectedTask.merital}
+                                            </p>
+                                            {selectedTask.merital === "Married" && (
+                                                <p>
+                                                    <strong>Children:</strong> {selectedTask.Children}
+                                                </p>
+                                            )}
+                                        </Card.Body>
+
+                                        <Card.Footer className="bg-white border-0">
+                                            <div className="d-flex justify-content-between">
+                                                <Button
+                                                    variant="outline-danger"
+                                                    onClick={() => handleDelete(selectedTask.id)}
+                                                >
+                                                    Delete
+                                                </Button>
+
+                                                <Button
+                                                    variant="outline-success"
+                                                    onClick={() =>
+                                                        navigate(`/edit-Task/${selectedTask.id}`)
+                                                    }
+                                                >
+                                                    Edit
+                                                </Button>
+                                            </div>
+                                        </Card.Footer>
+                                    </Card>
+                                </Col>
+                            ))
+                        ) : (
+                            <Col>
+                                <Card
+                                    className="shadow border-0 text-center p-5"
+                                    style={{ minHeight: "50vh" }}
+                                >
+                                    <h3 style={{ marginTop: "74px" }}>
+                                        {searchValue ? "No Tasks Found" : "No Tasks Yet"}
+                                    </h3>
+                                </Card>
+                            </Col>
+                        )}
+                    </Row>
+
+                    {tasks.length > 0 && (
+                        <div className="text-center mt-4">
+                            <Button
+                                variant="outline-secondary"
+                                onClick={handlePrevious}
+                                disabled={previousCursors.length === 0}
+                                className="me-3"
+                            >
+                                ← Previous
+                            </Button>
+                            <span className="mx-3 fw-semibold">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <Button
+                                variant="outline-primary"
+                                onClick={handleNext}
+                                disabled={!hasNextPage || nextLoading || currentPage >= totalPages}
+                            >
+                                {nextLoading ? "Loading..." : "Next →"}
+                            </Button>
+                        </div>
+                    )}
+                </Container>
             </Container>
-        </Container>
+        </>
     );
 }
