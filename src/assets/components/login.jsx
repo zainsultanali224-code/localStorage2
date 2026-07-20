@@ -6,15 +6,18 @@ import "react-toastify/dist/ReactToastify.css";
 import "./Login.css";
 import SignInWithGoogle from "./signInWithGoogle";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser, clearError } from "../../features/auth/authSlice";
+import {
+  loginUser,
+  clearError,
+  updateField,
+  cleanForm,
+} from "../../features/auth/authSlice";
 
 function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+
     const navigate = useNavigate();
-    
     const dispatch = useDispatch();
-    const { isLoading, error, isAuthenticated, user } = useSelector(state => state.auth);
+    const { authLoading, error, isAuthenticated, user, email, password } = useSelector(state => state.auth);
 
     useEffect(() => {
         if (isAuthenticated && user) {
@@ -22,6 +25,8 @@ function Login() {
                 position: "top-center",
                 autoClose: 1500,
             });
+
+             dispatch(cleanForm());
             setTimeout(() => {
                 if (user.role === "admin") {
                     navigate("/admin");
@@ -31,7 +36,7 @@ function Login() {
                 }
             }, 500);
         }
-    }, [isAuthenticated, user, navigate]);
+    }, [isAuthenticated, user, navigate, dispatch]);
 
     useEffect(() => {
         if (error) {
@@ -44,7 +49,7 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!email || !password) {
             toast.error("Please fill all fields", {
                 position: "bottom-center",
@@ -76,8 +81,13 @@ function Login() {
                                             className="form-control"
                                             placeholder="Enter Email"
                                             value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            disabled={isLoading}
+                                            onChange={(e) => {
+                                                dispatch(updateField({
+                                                    name: "email",
+                                                    value: e.target.value
+                                                }))
+                                            }}
+                                            disabled={authLoading}
                                             required
                                         />
                                     </div>
@@ -91,8 +101,13 @@ function Login() {
                                             className="form-control"
                                             placeholder="Enter Password"
                                             value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            disabled={isLoading}
+                                            onChange={(e) => {
+                                                dispatch(updateField({
+                                                    name: "password",
+                                                    value: e.target.value
+                                                }))
+                                            }}
+                                            disabled={authLoading}
                                             required
                                         />
                                         <p
@@ -109,9 +124,9 @@ function Login() {
                                         <button
                                             type="submit"
                                             className="btn btn-primary btn-lg"
-                                            disabled={isLoading}
+                                            disabled={authLoading}
                                         >
-                                            {isLoading ? "Logging in..." : "Login"}
+                                            {authLoading ? "Logging in..." : "Login"}
                                         </button>
                                     </div>
 
@@ -132,7 +147,6 @@ function Login() {
                     </Col>
                 </Row>
             </Container>
-            <ToastContainer />
         </div>
     );
 }

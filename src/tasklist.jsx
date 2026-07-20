@@ -58,7 +58,6 @@ export default function SignupForm() {
     const { user } = useSelector(state => state.auth);
     const { isLoading, error } = useSelector(state => state.todo);
 
-    // Handle error toast
     useEffect(() => {
         if (error) {
             toast.error(error, {

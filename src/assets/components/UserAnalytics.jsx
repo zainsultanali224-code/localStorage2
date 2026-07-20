@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "./firebase";
 import { useNavigate } from "react-router-dom";
 import {
     Container,
@@ -26,53 +24,33 @@ import {
 } from "recharts";
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import "./Admin.css";
-import { logoutUser } from "../../features/auth/authSlice";
 import { fetchAllUsersTodos } from "../../features/todo/todoSlice";
 import { useDispatch, useSelector } from "react-redux";
 import "./Sidebar.css"
+import {
+    logoutUser,
+    fetchUsers
+} from "../../features/auth/authSlice";
 
 function UserAnalytics() {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [todos, setTodos] = useState([]);
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
+    const { users, usersLoading } = useSelector(
+        (state) => state.auth
+    );
+
+    const { allUsersTodos, isLoading } = useSelector(
+        (state) => state.todo
+    );
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                setLoading(true);
-                const docSnap = await getDocs(collection(db, "Users"));
-                const userList = docSnap.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setUsers(userList);
-
-                const allTodos = [];
-                for (const user of docSnap.docs) {
-                    const todoSnap = await getDocs(
-                        collection(db, "Users", user.id, "Todos")
-                    );
-                    const todoList = todoSnap.docs.map((todo) => ({
-                        id: todo.id,
-                        ...todo.data(),
-                    }));
-                    allTodos.push(...todoList);
-                }
-                setTodos(allTodos);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUsers();
-    }, []);
+        dispatch(fetchUsers());
+        dispatch(fetchAllUsersTodos());
+    }, [dispatch]);
 
     const chartData = [
         {
@@ -85,9 +63,11 @@ function UserAnalytics() {
         },
     ];
 
-    const todoChartData = todos.reduce((acc, todo) => {
+    const todoChartData = allUsersTodos.reduce((acc, todo) => {
         const date = todo.date || "No Date";
-        const existing = acc.find((item) => item.date === date);
+
+        const existing = acc.find(item => item.date === date);
+
         if (existing) {
             existing.total += 1;
         } else {
@@ -96,6 +76,7 @@ function UserAnalytics() {
                 total: 1,
             });
         }
+
         return acc;
     }, []);
 
@@ -110,7 +91,7 @@ function UserAnalytics() {
         }
     };
 
-    if (loading) {
+    if (usersLoading) {
         return (
             <Container
                 className="d-flex justify-content-center align-items-center"
@@ -160,7 +141,7 @@ function UserAnalytics() {
                                 </Nav.Link>
 
                                 <Nav.Link
-                                active
+                                    active
                                     className="sidebar-link"
                                     onClick={() => {
                                         navigate("/userAnalytics");
@@ -242,7 +223,7 @@ function UserAnalytics() {
                             </Card.Header>
 
                             <Card.Body style={{ height: "320px" }}>
-                                {loading ? (
+                                {usersLoading ? (
                                     <div className="h-100 d-flex justify-content-center align-items-center">
                                         <Spinner animation="border" variant="primary" />
                                     </div>
@@ -277,7 +258,7 @@ function UserAnalytics() {
                             </Card.Header>
 
                             <Card.Body style={{ height: "350px" }}>
-                                {loading ? (
+                                {usersLoading ? (
                                     <div className="h-100 d-flex justify-content-center align-items-center">
                                         <Spinner animation="border" variant="primary" />
                                     </div>

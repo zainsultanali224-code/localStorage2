@@ -10,28 +10,36 @@ import SignupForm from "./tasklist";
 import EditTask from "./todolist";
 import Profile_t from './assets/components/profile2';
 import HandleForgotPassword from "./assets/components/handleForgotPassword";
-import Admin from './assets/components/admin';
+import Admin from "./assets/components/admin";
 import AdminRoute from './assets/components/AdminRoute';
 import UsersTodos from './assets/components/adminShowAll';
 import UserAnalytics from './assets/components/UserAnalytics';
 import TotalUsers from './assets/components/TotalUsers';
+import { Container, Spinner } from "react-bootstrap";
 
 export default function App() {
   const dispatch = useDispatch();
-  const { isAuthenticated, isLoading, user } = useSelector(state => state.auth);
+  const {
+  isAuthenticated,
+  authLoading,
+  checkingAuth,
+  user,
+} = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    // Check authentication on app load
-    dispatch(checkAuth());
-  }, [dispatch]);
+ useEffect(() => {
+  dispatch(checkAuth());
+}, [dispatch]);
 
-  if (isLoading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-        <div>Loading...</div>
-      </div>
-    );
-  }
+ if (checkingAuth) {
+  return (
+    <Container
+      className="d-flex justify-content-center align-items-center"
+      style={{ height: "80vh" }}
+    >
+      <Spinner animation="border" />
+    </Container>
+  );
+}
 
   return (
     <>
@@ -96,13 +104,18 @@ export default function App() {
                     )
                   }
                 />
+
                 <Route
                   path="/admin"
-                  element={isAuthenticated ? (
-                    <AdminRoute>
-                      <Admin />
-                    </AdminRoute>
-                  ) : <Navigate to="/login" />}
+                  element={
+                    isAuthenticated ? (
+                      <AdminRoute>
+                        <Admin />
+                      </AdminRoute>
+                    ) : (
+                      <Navigate to="/login" />
+                    )
+                  }
                 />
 
                 <Route

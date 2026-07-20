@@ -16,19 +16,31 @@ import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "./assets/components/firebase";
 import getPaginationUsersTodos from "./assets/components/pagination";
 import { useState, useEffect } from "react";
-import { useNavigate  } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserId, fetchUserTodos, fetchSingleTodo, updateTodo } from "./features/todo/todoSlice";
+import {
+    fetchPaginationTodos,
+    deleteTodo,
+} from "./features/todo/todoSlice";
+
 
 export default function EditTask() {
     const { id } = useParams();
-    const [userId, setUserId] = useState(null);
-    const [task, setTask] = useState(null);
-    const [updateError, setUpdateError] = useState("");
     const navigate = useNavigate()
+    const dispatch = useDispatch();
+
+    const {
+        userId,
+        selectedTask,
+        isLoading,
+        updateError,
+    } = useSelector((state) => state.todo);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
-                setUserId(user.uid);
+                dispatch(setUserId(user.uid));
             } else {
                 navigate("/login");
             }
@@ -37,20 +49,10 @@ export default function EditTask() {
     }, [navigate]);
 
     useEffect(() => {
-        async function fetchTask() {
-            if (!userId) return;
-            const docRef = doc(db, "Users", userId, "Todos", id);
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                setTask({
-                    id: docSnap.id,
-                    ...docSnap.data(),
-                });
-            }
+        if (userId) {
+            dispatch(fetchSingleTodo({ userId, todoId: id }));
         }
-        fetchTask();
-    }, [userId, id]);
+    }, [dispatch, userId, id]);
 
     const SignupSchema = Yup.object().shape({
         title: Yup.string().required("Required"),
@@ -76,21 +78,19 @@ export default function EditTask() {
     });
 
     const handleUpdate = async (values) => {
-        try {
-            setUpdateError("");
-            await updateDoc(
-                doc(db, "Users", userId, "Todos", id),
-                {
-                    ...values,
-                }
-            );
+        const result = await dispatch(
+            updateTodo({
+                userId,
+                todoId: id,
+                updatedData: values,
+            })
+        );
+
+        if (updateTodo.fulfilled.match(result)) {
             navigate("/profile");
-        } catch (error) {
-            setUpdateError(error.message);
         }
     };
-
-    if (!userId || !task) {
+    if (!userId || !selectedTask) {
         return <p>Loading...</p>;
     }
 
@@ -111,18 +111,18 @@ export default function EditTask() {
             <Card.Body className="p-4">
                 <Formik
                     initialValues={{
-                        title: task?.title || "",
-                        location: task?.location || "",
-                        date: task?.date || "",
-                        desc: task?.desc || "",
-                        rang: task?.rang || "",
-                        col: task?.col || "#000000",
-                        count: task?.count || "Pakistan",
-                        num: task?.num || "",
-                        status: task?.status || "Pending",
-                        gender: task?.gender || "",
-                        merital: task?.merital || "",
-                        Children: task?.Children || 0,
+                        title: selectedTask?.title || "",
+                        location: selectedTask?.location || "",
+                        date: selectedTask?.date || "",
+                        desc: selectedTask?.desc || "",
+                        rang: selectedTask?.rang || "",
+                        col: selectedTask?.col || "#000000",
+                        count: selectedTask?.count || "Pakistan",
+                        num: selectedTask?.num || "",
+                        status: selectedTask?.status || "Pending",
+                        gender: selectedTask?.gender || "",
+                        merital: selectedTask?.merital || "",
+                        Children: selectedTask?.Children || 0,
                     }}
                     validationSchema={SignupSchema}
                     onSubmit={handleUpdate}
@@ -382,8 +382,9 @@ export default function EditTask() {
                                         type="submit"
                                         variant="outline-success"
                                         className="px-5 mt-3"
+                                        disabled={isLoading}
                                     >
-                                        Update Task
+                                        {isLoading ? "Updating Task..." : "Update Task"}
                                     </Button>
                                 </Col>
                             </Row>
@@ -398,41 +399,34 @@ export default function EditTask() {
 }
 
 export function Search({ userId }) {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [tasks, setTasks] = useState([]);
-    const [searchValue, setSearchValue] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [lastVisible, setLastVisible] = useState(null);
-    const [hasNextPage, setHasNextPage] = useState(false);
-    const [previousCursors, setPreviousCursors] = useState([]);
-    const [totalItems, setTotalItems] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
 
-    const fetchTasks = async (search = "", cursor = null) => {
+    const [searchValue, setSearchValue] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [previousCursors, setPreviousCursors] = useState([]);
+    const [nextLoading, setNextLoading] = useState(false);
+
+    const {
+        tasks,
+        isLoading,
+        lastVisible,
+        hasNextPage,
+        totalItems,
+    } = useSelector((state) => state.todo);
+
+    const fetchTasks = (search = "", cursor = null) => {
         if (!userId) return;
-        setLoading(true);
-        try {
-            const result = await getPaginationUsersTodos({
+
+        dispatch(
+            fetchPaginationTodos({
                 userId,
                 pageSize: 5,
                 searchValue: search,
                 lastVisible: cursor,
-            });
-            setTasks(result.data);
-            setLastVisible(result.lastVisible);
-            setHasNextPage(result.hasNextPage);
-
-            if (result.totalItems !== undefined) {
-                setTotalItems(result.totalItems);
-            }
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false);
-        }
+            })
+        );
     };
-
     useEffect(() => {
         fetchTasks();
     }, [userId]);
@@ -442,32 +436,48 @@ export function Search({ userId }) {
 
     const handleSearch = (e) => {
         const value = e.target.value;
+
         setSearchValue(value);
-        setPreviousCursors([]);
-        setLastVisible(null);
         setCurrentPage(1);
+        setPreviousCursors([]);
+
         fetchTasks(value, null);
     };
 
     const handleNext = async () => {
-        if (!hasNextPage || isLoading || currentPage >= totalPages) return;
-        setIsLoading(true);
+        if (!hasNextPage || nextLoading || currentPage >= totalPages)
+            return;
+
+        setNextLoading(true);
+
         try {
-            setPreviousCursors(prev => [...prev, lastVisible]);
-            await fetchTasks(searchValue, lastVisible);
-            setCurrentPage(prev => prev + 1);
+            setPreviousCursors((prev) => [...prev, lastVisible]);
+
+            await dispatch(
+                fetchPaginationTodos({
+                    userId,
+                    pageSize: 5,
+                    searchValue,
+                    lastVisible,
+                })
+            );
+
+            setCurrentPage((prev) => prev + 1);
         } finally {
-            setIsLoading(false);
+            setNextLoading(false);
         }
     };
 
     const handlePrevious = () => {
         if (previousCursors.length === 0) return;
+
         const history = [...previousCursors];
         history.pop();
 
         const previousCursor =
-            history.length === 0 ? null : history[history.length - 1];
+            history.length === 0
+                ? null
+                : history[history.length - 1];
 
         setPreviousCursors(history);
         setCurrentPage((prev) => prev - 1);
@@ -476,13 +486,16 @@ export function Search({ userId }) {
     };
 
     const handleDelete = async (id) => {
-        try {
-            await deleteDoc(doc(db, "Users", userId, "Todos", id));
-            fetchTasks(searchValue, null);
-        } catch (error) {
-            console.log(error);
-        }
+        await dispatch(
+            deleteTodo({
+                userId,
+                todoId: id,
+            })
+        );
+
+        fetchTasks(searchValue, null);
     };
+
     return (
         <Container fluid className="bg-light min-vh-100 py-5">
             <Container>
@@ -514,7 +527,7 @@ export function Search({ userId }) {
                 </Row>
 
                 <Row>
-                    {loading ? (
+                    {isLoading ? (
                         <Col>
                             <Card
                                 className="shadow border-0 text-center p-5"
@@ -526,12 +539,12 @@ export function Search({ userId }) {
                             </Card>
                         </Col>
                     ) : tasks.length > 0 ? (
-                        tasks.map((task) => (
+                        tasks.map((selectedTask) => (
                             <Col
                                 md={6}
                                 lg={4}
                                 className="mb-4"
-                                key={task.id}
+                                key={selectedTask.id}
                             >
                                 <Card
                                     className="shadow border-0 h-100"
@@ -544,25 +557,25 @@ export function Search({ userId }) {
                                                 "linear-gradient(135deg,#0d6efd,#6610f2)",
                                         }}
                                     >
-                                        <strong>{task.title}</strong>
+                                        <strong>{selectedTask.title}</strong>
                                     </Card.Header>
 
                                     <Card.Body>
                                         <p>
-                                            <strong>Location:</strong> {task.location}
+                                            <strong>Location:</strong> {selectedTask.location}
                                         </p>
                                         <p>
-                                            <strong>Date:</strong> {task.date}
+                                            <strong>Date:</strong> {selectedTask.date}
                                         </p>
                                         <p>
                                             <strong>Description:</strong>
                                             <br />
-                                            {task.desc}
+                                            {selectedTask.desc}
                                         </p>
                                         <p>
                                             <strong>Range:</strong>
                                             <Badge bg="info" className="ms-2">
-                                                {task.rang}
+                                                {selectedTask.rang}
                                             </Badge>
                                         </p>
                                         <p>
@@ -573,30 +586,30 @@ export function Search({ userId }) {
                                                     width: "35px",
                                                     height: "20px",
                                                     borderRadius: "2px",
-                                                    backgroundColor: task.col,
+                                                    backgroundColor: selectedTask.col,
                                                     marginLeft: "8px",
                                                     marginTop: "6px",
                                                 }}
                                             />
                                         </p>
                                         <p>
-                                            <strong>Country:</strong> {task.count}
+                                            <strong>Country:</strong> {selectedTask.count}
                                         </p>
                                         <p>
-                                            <strong>Number:</strong> {task.num}
+                                            <strong>Number:</strong> {selectedTask.num}
                                         </p>
                                         <p>
-                                            <strong>Status:</strong> {task.status}
+                                            <strong>Status:</strong> {selectedTask.status}
                                         </p>
                                         <p>
-                                            <strong>Gender:</strong> {task.gender}
+                                            <strong>Gender:</strong> {selectedTask.gender}
                                         </p>
                                         <p>
-                                            <strong>Marital Status:</strong> {task.merital}
+                                            <strong>Marital Status:</strong> {selectedTask.merital}
                                         </p>
-                                        {task.merital === "Married" && (
+                                        {selectedTask.merital === "Married" && (
                                             <p>
-                                                <strong>Children:</strong> {task.Children}
+                                                <strong>Children:</strong> {selectedTask.Children}
                                             </p>
                                         )}
                                     </Card.Body>
@@ -605,7 +618,7 @@ export function Search({ userId }) {
                                         <div className="d-flex justify-content-between">
                                             <Button
                                                 variant="outline-danger"
-                                                onClick={() => handleDelete(task.id)}
+                                                onClick={() => handleDelete(selectedTask.id)}
                                             >
                                                 Delete
                                             </Button>
@@ -613,7 +626,7 @@ export function Search({ userId }) {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={() =>
-                                                    navigate(`/edit-Task/${task.id}`)
+                                                    navigate(`/edit-Task/${selectedTask.id}`)
                                                 }
                                             >
                                                 Edit
@@ -653,9 +666,9 @@ export function Search({ userId }) {
                         <Button
                             variant="outline-primary"
                             onClick={handleNext}
-                            disabled={!hasNextPage || isLoading || currentPage >= totalPages}
+                            disabled={!hasNextPage || nextLoading || currentPage >= totalPages}
                         >
-                            {isLoading ? "Loading..." : "Next →"}
+                            {nextLoading ? "Loading..." : "Next →"}
                         </Button>
                     </div>
                 )}

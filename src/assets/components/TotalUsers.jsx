@@ -27,52 +27,32 @@ import {
 } from "recharts";
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { logoutUser } from "../../features/auth/authSlice";
 import { fetchAllUsersTodos } from "../../features/todo/todoSlice";
 import { useDispatch, useSelector } from "react-redux";
+import {
+    logoutUser,
+    fetchUsers
+} from "../../features/auth/authSlice";
 import "./Sidebar.css"
 
 function TotalUsers() {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [todos, setTodos] = useState([]);
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                setLoading(true);
-                const docSnap = await getDocs(collection(db, "Users"));
-                const userList = docSnap.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setUsers(userList);
+    const { users, usersLoading } = useSelector(
+        (state) => state.auth
+    );
 
-                const allTodos = [];
-                for (const user of docSnap.docs) {
-                    const todoSnap = await getDocs(
-                        collection(db, "Users", user.id, "Todos")
-                    );
-                    const todoList = todoSnap.docs.map((todo) => ({
-                        id: todo.id,
-                        ...todo.data(),
-                    }));
-                    allTodos.push(...todoList);
-                }
-                setTodos(allTodos);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUsers();
-    }, []);
+    const { allUsersTodos } = useSelector(
+        (state) => state.todo
+    );
+
+    useEffect(() => {
+        dispatch(fetchUsers());
+    }, [dispatch]);
 
     const chartData = [
         {
@@ -85,8 +65,9 @@ function TotalUsers() {
         },
     ];
 
-    const todoChartData = todos.reduce((acc, todo) => {
+    const todoChartData = allUsersTodos.reduce((acc, todo) => {
         const date = todo.date || "No Date";
+
         const existing = acc.find((item) => item.date === date);
 
         if (existing) {
@@ -97,21 +78,22 @@ function TotalUsers() {
                 total: 1,
             });
         }
+
         return acc;
     }, []);
 
-     useEffect(() => {
-            dispatch(fetchAllUsersTodos());
-        }, [dispatch]);
-    
-        const handleLogout = async () => {
-            const resultAction = await dispatch(logoutUser());
-            if (logoutUser.fulfilled.match(resultAction)) {
-                navigate("/login");
-            }
-        };
+    useEffect(() => {
+        dispatch(fetchAllUsersTodos());
+    }, [dispatch]);
 
-    if (loading) {
+    const handleLogout = async () => {
+        const resultAction = await dispatch(logoutUser());
+        if (logoutUser.fulfilled.match(resultAction)) {
+            navigate("/login");
+        }
+    };
+
+    if (usersLoading) {
         return (
             <Container
                 className="d-flex justify-content-center align-items-center"
@@ -171,7 +153,7 @@ function TotalUsers() {
                                 </Nav.Link>
 
                                 <Nav.Link
-                                active
+                                    active
                                     className="sidebar-link"
                                     onClick={() => {
                                         navigate("/totalUsers");

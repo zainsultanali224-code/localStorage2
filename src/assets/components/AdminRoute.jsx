@@ -1,39 +1,18 @@
-import { useEffect, useState } from "react";
-import { auth, db } from "./firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
 function AdminRoute({ children }) {
-    const [loading, setLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false);
+  const { user, authLoading, isAuthenticated } = useSelector(state => state.auth);
 
-    useEffect(() => {
-        const checkAdmin = async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                setLoading(false);
-                return;
-            }
-
-            const docRef = doc(db, "Users", user.uid);
-            const docSnap = await getDoc(docRef, {source: 'server'});
-
-            if (docSnap.exists()) {
-                const userData = docSnap.data();
-
-                if (userData.role === "admin") {
-                    setIsAdmin(true);
-                }
-            }
-            setLoading(false);
-        };
-        checkAdmin();
-    }, []);
-
-  if (loading) {
+  if (authLoading) {
     return <div>Loading...</div>;
+}
+
+  if (isAuthenticated && user?.role === "admin") {
+    return children;
   }
 
-  return isAdmin ? children : <Navigate to = "/login" />;
+  return <Navigate to="/login" replace />;
 }
+
 export default AdminRoute;

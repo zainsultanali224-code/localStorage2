@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "../../features/auth/authSlice";
 import { fetchUserTodos } from "../../features/todo/todoSlice";
 import { Search } from "../../todolist";
+import { logoutUser, cleanForm } from "../../features/auth/authSlice";
 
 function Profile() {
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ function Profile() {
   const handleLogout = async () => {
     const resultAction = await dispatch(logoutUser());
     if (logoutUser.fulfilled.match(resultAction)) {
+         dispatch(cleanForm());
       navigate("/login");
     }
   };

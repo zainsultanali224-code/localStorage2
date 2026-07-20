@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 import { useNavigate } from "react-router-dom";
@@ -30,63 +30,44 @@ import { logoutUser } from "../../features/auth/authSlice";
 import { fetchAllUsersTodos } from "../../features/todo/todoSlice";
 import { useDispatch, useSelector } from "react-redux";
 import "./Sidebar.css"
+import { fetchUsers } from "../../features/auth/authSlice";
+
 
 function Admin() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [todos, setTodos] = useState([]);
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
+
+  const { allUsersTodos, error } = useSelector((state) => state.todo)
+  const { users, usersLoading } = useSelector((state) => state.auth);
+
+
+  console.log("Admin Render");
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const docSnap = await getDocs(collection(db, "Users"));
-        const userList = docSnap.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUsers(userList);
+    console.log("Admin Mounted");
 
-        const allTodos = [];
-        for (const user of docSnap.docs) {
-          const todoSnap = await getDocs(
-            collection(db, "Users", user.id, "Todos")
-          );
-          const todoList = todoSnap.docs.map((todo) => ({
-            id: todo.id,
-            ...todo.data(),
-          }));
-          allTodos.push(...todoList);
-        }
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(fetchUsers());
+    }
 
-        setTodos(allTodos);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      } finally {
-        setLoading(false);
-      }
+    return () => {
+      console.log("Admin Unmounted");
     };
+  }, [dispatch]);
 
-    fetchUsers();
-  }, []);
+  const handleLogout = async () => {
+    const resultAction = await dispatch(logoutUser());
+    if (logoutUser.fulfilled.match(resultAction)) {
+      navigate("/login");
+    }
+  };
 
-  useEffect(() => {
-              dispatch(fetchAllUsersTodos());
-          }, [dispatch]);
-      
-          const handleLogout = async () => {
-              const resultAction = await dispatch(logoutUser());
-              if (logoutUser.fulfilled.match(resultAction)) {
-                  navigate("/login");
-              }
-          };
-
-  if (loading) {
+  if (usersLoading) {
     return (
       <Container
         className="d-flex justify-content-center align-items-center"
@@ -234,30 +215,17 @@ function Admin() {
                   <th>Role</th>
                 </tr>
               </thead>
-
               <tbody>
                 {users.map((user, index) => (
                   <tr key={user.id}>
-                    <td className="fw-semibold">
-                      {index + 1}
-                    </td>
-
-                    <td className="fw-semibold">
-                      {user.firstName}
-                    </td>
-
-                    <td className="fw-semibold">
-                      {user.lastName}
-                    </td>
-
-                    <td className="text-primary">
-                      {user.email}
-                    </td>
-
+                    <td>{index + 1}</td>
+                    <td>{user.firstName}</td>
+                    <td>{user.lastName}</td>
+                    <td>{user.email}</td>
                     <td>
                       <span
                         className={
-                          user.role === "admin"
+                          user.role.trim() === "admin"
                             ? "badge rounded-pill bg-success px-3 py-2"
                             : "badge rounded-pill bg-secondary px-3 py-2"
                         }
@@ -275,4 +243,5 @@ function Admin() {
     </>
   );
 }
+
 export default Admin;

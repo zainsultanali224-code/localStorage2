@@ -1,12 +1,19 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { 
-    signInWithEmailAndPassword, 
+import {
+    signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
-    onAuthStateChanged 
+    onAuthStateChanged
 } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import {
+    doc,
+    setDoc,
+    getDoc,
+    getDocs,
+    collection,
+} from "firebase/firestore";
 import { auth, db } from "../../assets/components/firebase";
+import { serverTimestamp } from "firebase/firestore";
 
 export const registerUser = createAsyncThunk(
     'auth/registerUser',
@@ -20,7 +27,7 @@ export const registerUser = createAsyncThunk(
                 firstName: firstName,
                 lastName: lastName || "",
                 role: "user",
-                createdAt: new Date(),
+                createdAt: serverTimestamp()
             };
 
             await setDoc(doc(db, "Users", uid), userData);
@@ -50,10 +57,14 @@ export const loginUser = createAsyncThunk(
 
             if (docSnap.exists()) {
                 const userData = docSnap.data();
+
                 return {
-                    uid: uid,
+                    uid,
                     email: userCredential.user.email,
-                    ...userData
+                    ...userData,
+                    createdAt: userData.createdAt
+                        ? userData.createdAt.toMillis()
+                        : null,
                 };
             }
 
@@ -80,20 +91,25 @@ export const logoutUser = createAsyncThunk(
 );
 
 export const checkAuth = createAsyncThunk(
-    'auth/checkAuth',
+    "auth/checkAuth",
     async (_, { rejectWithValue }) => {
         return new Promise((resolve, reject) => {
             const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                unsubscribe();
-                if (user) {
-                    try {
+                try {
+                    if (user) {
                         const docRef = doc(db, "Users", user.uid);
                         const docSnap = await getDoc(docRef);
+
                         if (docSnap.exists()) {
+                            const userData = docSnap.data();
+
                             resolve({
                                 uid: user.uid,
                                 email: user.email,
-                                ...docSnap.data()
+                                ...userData,
+                                createdAt: userData.createdAt
+                                    ? userData.createdAt.toMillis()
+                                    : null,
                             });
                         } else {
                             resolve({
@@ -101,73 +117,126 @@ export const checkAuth = createAsyncThunk(
                                 email: user.email,
                             });
                         }
-                    } catch (error) {
-                        reject(rejectWithValue(error.message));
+                    } else {
+                        resolve(null);
                     }
-                } else {
-                    resolve(null);
+                } catch (error) {
+                    reject(rejectWithValue(error.message));
+                } finally {
+                    unsubscribe();
                 }
             });
         });
     }
 );
 
+export const fetchUsers = createAsyncThunk(
+    "auth/fetchUsers",
+    async (_, { rejectWithValue }) => {
+        try {
+            const snapshot = await getDocs(collection(db, "Users"));
+
+            console.log("Users Count:", snapshot.size);
+
+            return snapshot.docs.map((doc) => {
+                const data = doc.data();
+
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt
+                        ? data.createdAt.toMillis()
+                        : null,
+                };
+            });
+        } catch (error) {
+            console.log(error);
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 const initialState = {
+    authLoading: false,
+    checkingAuth: true,
+    usersLoading: false,
+
     user: null,
+    users: [],
+    todos: [],
+
     isAuthenticated: false,
-    isLoading: false,
     error: null,
+
+    email: "",
+    password: "",
+    fname: "",
+    lname: "",
 };
 
 const authSlice = createSlice({
     name: 'auth',
     initialState,
+
     reducers: {
         clearError: (state) => {
             state.error = null;
         },
+
+        updateField: (state, action) => {
+            console.log(action.payload);
+
+            state[action.payload.name] = action.payload.value;
+        },
+        cleanForm: (state) => {
+            state.email = "";
+            state.password = "";
+            state.fname = "";
+            state.lname = "";
+        },
     },
+
     extraReducers: (builder) => {
         builder
             .addCase(registerUser.pending, (state) => {
-                state.isLoading = true;
+                state.authLoading = true;
                 state.error = null;
             })
             .addCase(registerUser.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.authLoading = false;
                 state.user = action.payload;
                 state.isAuthenticated = true;
                 state.error = null;
             })
             .addCase(registerUser.rejected, (state, action) => {
-                state.isLoading = false;
+                state.authLoading = false;
                 state.error = action.payload;
                 state.isAuthenticated = false;
             });
 
         builder
             .addCase(loginUser.pending, (state) => {
-                state.isLoading = true;
+                state.authLoading = true;
                 state.error = null;
             })
             .addCase(loginUser.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.authLoading = false;
                 state.user = action.payload;
                 state.isAuthenticated = true;
                 state.error = null;
             })
             .addCase(loginUser.rejected, (state, action) => {
-                state.isLoading = false;
+                state.authLoading = false;
                 state.error = action.payload;
                 state.isAuthenticated = false;
             });
 
         builder
             .addCase(logoutUser.pending, (state) => {
-                state.isLoading = true;
+                state.authLoading = true;
             })
             .addCase(logoutUser.fulfilled, (state) => {
-                state.isLoading = false;
+                state.authLoading = false;
                 state.user = null;
                 state.isAuthenticated = false;
                 state.error = null;
@@ -179,10 +248,11 @@ const authSlice = createSlice({
 
         builder
             .addCase(checkAuth.pending, (state) => {
-                state.isLoading = true;
+                state.checkingAuth = true;
             })
             .addCase(checkAuth.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.checkingAuth = false;
+
                 if (action.payload) {
                     state.user = action.payload;
                     state.isAuthenticated = true;
@@ -191,14 +261,25 @@ const authSlice = createSlice({
                     state.isAuthenticated = false;
                 }
             })
-            .addCase(checkAuth.rejected, (state, action) => {
-                state.isLoading = false;
+            .addCase(checkAuth.rejected, (state) => {
+                state.checkingAuth = false;
+            })
+        builder
+            .addCase(fetchUsers.pending, (state) => {
+                state.usersLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchUsers.fulfilled, (state, action) => {
+                state.usersLoading = false;
+                state.users = action.payload;
+                state.error = null;
+            })
+            .addCase(fetchUsers.rejected, (state, action) => {
+                state.usersLoading = false;
                 state.error = action.payload;
-                state.user = null;
-                state.isAuthenticated = false;
             });
     }
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, updateField, cleanForm } = authSlice.actions;
 export default authSlice.reducer;
