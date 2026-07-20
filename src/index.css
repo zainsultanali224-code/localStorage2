@@ -5,3 +5,30 @@
     margin-top: 1rem;
     text-align: center;
 }
+
+body{
+transition:0.3s;
+}
+
+
+.dark{
+
+background:#121212;
+color:white;
+
+}
+
+
+.dark .card{
+
+background:#1e1e1e;
+color:white;
+
+}
+
+
+.dark .navbar{
+
+background:#222!important;
+
+}

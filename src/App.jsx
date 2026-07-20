@@ -18,6 +18,7 @@ import UserAnalytics from './assets/components/UserAnalytics';
 import TotalUsers from './assets/components/TotalUsers';
 import { Container, Spinner } from "react-bootstrap";
 import ProfileDetail from './PfDetail';
+import './index.css'
 
 export default function App() {
 
@@ -30,6 +31,9 @@ export default function App() {
     user,
   } = useSelector((state) => state.auth);
 
+  const { mode } = useSelector(
+    (state) => state.theme
+  );
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
@@ -49,6 +53,7 @@ export default function App() {
     <>
 
       <BrowserRouter>
+      <div className={mode}>
         <div className='App'>
           <div className='auth-wrapper'>
             <div className='auth-inner'>
@@ -156,6 +161,7 @@ export default function App() {
               <ToastContainer />
             </div>
           </div>
+        </div>
         </div>
       </BrowserRouter>
     </>

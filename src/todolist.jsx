@@ -511,7 +511,7 @@ export function Search({ userId }) {
                     <Navbar.Brand >TODO</Navbar.Brand>
                     <Navbar.Toggle />
                     <Navbar.Collapse className="justify-content-end">
-                        <Navbar.Text>
+                        <Navbar.Text >
                             Profile: <img
                                 src={
                                     user?.image ||
@@ -523,6 +523,9 @@ export function Search({ userId }) {
                                 className="rounded-circle"
 
                                 onClick={() => setShowProfile(true)}
+                                style={{
+                                    cursor: "pointer"
+                                }}
                             />
 
                             <Modal

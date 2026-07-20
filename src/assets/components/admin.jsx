@@ -31,6 +31,7 @@ import { fetchAllUsersTodos } from "../../features/todo/todoSlice";
 import { useDispatch, useSelector } from "react-redux";
 import "./Sidebar.css"
 import { fetchUsers } from "../../features/auth/authSlice";
+import { toggleTheme, saveTheme } from "../../features/theme/themeSlice";
 
 
 function Admin() {
@@ -43,9 +44,28 @@ function Admin() {
 
   const { allUsersTodos, error } = useSelector((state) => state.todo)
   const { users, usersLoading } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
 
   console.log("Admin Render");
+  const { mode } = useSelector((state) => state.theme);
+
+  const changeTheme = () => {
+
+    let newTheme =
+      mode === "light"
+        ? "dark"
+        : "light";
+
+    dispatch(toggleTheme());
+
+    dispatch(
+      saveTheme({
+        uid: user.uid,
+        theme: newTheme,
+      })
+    );
+  }
 
   useEffect(() => {
     console.log("Admin Mounted");
@@ -87,6 +107,17 @@ function Admin() {
         sticky="top"
         className="shadow"
       >
+        <button onClick={changeTheme}>
+
+          {
+            mode === "light"
+              ? "🌙 Dark"
+              : "☀️ Light"
+          }
+
+        </button>
+
+
         <Container fluid="lg" className="py-3">
           <span style={{ color: "white", fontSize: "30px", cursor: "pointer" }} onClick={handleShow}>
             &#9776;
