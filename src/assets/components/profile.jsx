@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserTodos } from "../../features/todo/todoSlice";
@@ -8,8 +8,11 @@ import { logoutUser, cleanForm } from "../../features/auth/authSlice";
 function Profile() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
-  const { user, isAuthenticated } = useSelector(state => state.auth);
+
+  const { user, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+
   const { isLoading: todosLoading } = useSelector(state => state.todo);
 
   useEffect(() => {
@@ -27,10 +30,18 @@ function Profile() {
   const handleLogout = async () => {
     const resultAction = await dispatch(logoutUser());
     if (logoutUser.fulfilled.match(resultAction)) {
-         dispatch(cleanForm());
+      dispatch(cleanForm());
       navigate("/login");
     }
   };
+  const handleSave = () => {
+    dispatch(updateUserProfile({
+      uid: user.uid,
+      firstName,
+      lastName,
+      image
+    }));
+  }
 
   if (!isAuthenticated || !user) {
     return (

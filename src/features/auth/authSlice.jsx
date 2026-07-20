@@ -172,6 +172,10 @@ const initialState = {
     password: "",
     fname: "",
     lname: "",
+
+    loadings:{},
+    errors: {},
+    params: {},
 };
 
 const authSlice = createSlice({

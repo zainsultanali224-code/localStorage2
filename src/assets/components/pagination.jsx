@@ -25,6 +25,7 @@ async function getPaginationUsersTodos({
         countConstraints.push(
             where("title", ">=", searchValue),
             where("title", "<", searchValue + "\uf8ff")
+            
         );
     }
     const countQuery = query(todosCollection, ...countConstraints);
@@ -53,10 +54,17 @@ async function getPaginationUsersTodos({
         const hasNextPage = docs.length > pageSize;
 
         if (hasNextPage) docs.pop();
-        const todos = docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
+        const todos = docs.map(doc => {
+            const data = doc.data();
+
+            return {
+                id: doc.id,
+                ...data,
+                createdAt: data.createdAt
+                    ? data.createdAt.toMillis()
+                    : null,
+            };
+        });
 
         return {
             data: todos,

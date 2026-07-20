@@ -18,10 +18,17 @@ export const fetchUserTodos = createAsyncThunk(
         try {
             const todosRef = collection(db, "Users", userId, "Todos");
             const snapshot = await getDocs(todosRef);
-            const todos = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            const todos = snapshot.docs.map(doc => {
+                const data = doc.data();
+
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt
+                        ? data.createdAt.toMillis()
+                        : null,
+                };
+            });
             return todos;
         } catch (error) {
             return rejectWithValue(error.message);
@@ -41,10 +48,15 @@ export const fetchSingleTodo = createAsyncThunk(
 
             }
 
+            const data = todoSnap.data();
+
             return {
                 id: todoSnap.id,
-                ...todoSnap.data()
-            }
+                ...data,
+                createdAt: data.createdAt
+                    ? data.createdAt.toMillis()
+                    : null,
+            };
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -114,17 +126,25 @@ export const fetchAllUsersTodos = createAsyncThunk(
                 const todosRef = collection(db, "Users", userDoc.id, "Todos");
                 const todosSnapshot = await getDocs(todosRef);
 
-                const userTodos = todosSnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    userId: userDoc.id,
+                const userTodos = todosSnapshot.docs.map((doc) => {
+                    const data = doc.data();
 
-                    firstName: userData.firstName,
-                    lastName: userData.lastName,
-                    role: userData.role,
-                    userEmail: userData.email,
+                    return {
+                        id: doc.id,
+                        userId: userDoc.id,
 
-                    ...doc.data(),
-                }));
+                        firstName: userData.firstName,
+                        lastName: userData.lastName,
+                        role: userData.role,
+                        userEmail: userData.email,
+
+                        ...data,
+
+                        createdAt: data.createdAt
+                            ? data.createdAt.toMillis()
+                            : null,
+                    };
+                });
 
                 allTodos.push(...userTodos);
             }
@@ -137,13 +157,12 @@ export const fetchAllUsersTodos = createAsyncThunk(
 
 export const fetchPaginationTodos = createAsyncThunk(
     'todo/fetchPaginationTodos',
-    async ({ userId, pageSize, searchValue, lastVisible }, { rejectWithValue }) => {
+    async ({ userId, pageSize, searchValue }, { rejectWithValue }) => {
         try {
             const result = await getPaginationUsersTodos({
                 userId,
                 pageSize,
                 searchValue,
-                lastVisible
             })
             return result
         } catch (error) {
@@ -162,7 +181,6 @@ const initialState = {
     error: null,
 
     tasks: [],
-    lastVisible: null,
     hasNextPage: false,
     totalItems: 0
 };
@@ -306,7 +324,6 @@ const todoSlice = createSlice({
                 state.isLoading = false;
 
                 state.tasks = action.payload.data;
-                state.lastVisible = action.payload.lastVisible;
                 state.hasNextPage = action.payload.hasNextPage;
                 state.totalItems = action.payload.totalItems;
 

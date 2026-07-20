@@ -14,8 +14,7 @@ import {
 function Register() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { authLoading, error, isAuthenticated } = useSelector(state => state.auth);
-    const { email, password, fname, lname} = useSelector(state => state.auth)
+    const { authLoading, error, isAuthenticated, email, password, fname, lname} = useSelector(state => state.auth);
 
     console.log({ email, password, fname, lname });
 

@@ -8,6 +8,8 @@ import {
     Col,
     Card,
     Button,
+    Navbar,
+    Nav,
     Badge,
     Form as FForm
 } from "react-bootstrap";
@@ -402,23 +404,27 @@ export function Search({ userId }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
     const [searchValue, setSearchValue] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [previousCursors, setPreviousCursors] = useState([]);
     const [nextLoading, setNextLoading] = useState(false);
+    const [lastVisible, setLastVisible] = useState(null);
 
     const {
         tasks,
         isLoading,
-        lastVisible,
         hasNextPage,
         totalItems,
     } = useSelector((state) => state.todo);
 
-    const fetchTasks = (search = "", cursor = null) => {
+    const fetchTasks = async (search = "", cursor = null) => {
         if (!userId) return;
 
-        dispatch(
+        const result = await dispatch(
             fetchPaginationTodos({
                 userId,
                 pageSize: 5,
@@ -426,6 +432,10 @@ export function Search({ userId }) {
                 lastVisible: cursor,
             })
         );
+
+        if (fetchPaginationTodos.fulfilled.match(result)) {
+            setLastVisible(result.payload.lastVisible);
+        }
     };
     useEffect(() => {
         fetchTasks();
@@ -436,37 +446,28 @@ export function Search({ userId }) {
 
     const handleSearch = (e) => {
         const value = e.target.value;
-
         setSearchValue(value);
         setCurrentPage(1);
         setPreviousCursors([]);
-
+        setLastVisible(null);
         fetchTasks(value, null);
     };
-
     const handleNext = async () => {
-        if (!hasNextPage || nextLoading || currentPage >= totalPages)
-            return;
+        const result = await dispatch(
+            fetchPaginationTodos({
+                userId,
+                pageSize: 5,
+                searchValue,
+                lastVisible,
+            })
+        );
 
-        setNextLoading(true);
-
-        try {
+        if (fetchPaginationTodos.fulfilled.match(result)) {
             setPreviousCursors((prev) => [...prev, lastVisible]);
-
-            await dispatch(
-                fetchPaginationTodos({
-                    userId,
-                    pageSize: 5,
-                    searchValue,
-                    lastVisible,
-                })
-            );
-
+            setLastVisible(result.payload.lastVisible);
             setCurrentPage((prev) => prev + 1);
-        } finally {
-            setNextLoading(false);
         }
-    };
+    }
 
     const handlePrevious = () => {
         if (previousCursors.length === 0) return;
