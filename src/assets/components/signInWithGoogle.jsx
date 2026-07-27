@@ -14,7 +14,6 @@ function SignInWithGoogle() {
             const provider = new GoogleAuthProvider();
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
-            console.log(result.user);
 
             const docRef = doc(db, "Users", user.uid);
             const docSnap = await getDoc(docRef)
@@ -35,7 +34,6 @@ function SignInWithGoogle() {
             navigate("/profile_t");
             
         } catch (error) {
-            console.error(error);
             toast.error(error.message, {
                 position: "top-center",
             });

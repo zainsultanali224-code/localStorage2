@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 import SignupForm from "../../tasklist";
-import EditTask from "../../todolist";
-import { Search } from "../../todolist";
 
 function Profile_t() {
   const [userDetails, setUserDetails] = useState(null);
@@ -17,31 +15,22 @@ function Profile_t() {
 
     const setupListener = () => {
       unsubscribe = auth.onAuthStateChanged(async (user) => {
-        console.log("Auth state changed, user:", user?.uid);
-
         if (!user) {
-          console.log("No user, redirecting to login");
           setLoading(false);
           navigate("/login");
           return;
         }
 
         try {
-          console.log("Fetching user data for UID:", user.uid);
           const docRef = doc(db, "Users", user.uid);
           const docSnap = await getDoc(docRef);
 
-          console.log("Document exists:", docSnap.exists());
-
           if (docSnap.exists()) {
-            console.log("User data:", docSnap.data());
             setUserDetails(docSnap.data());
           } else {
-            console.log("Document not found for UID:", user.uid);
             setUserDetails(null);
           }
         } catch (err) {
-          console.error("Error fetching user data:", err.message);
           setUserDetails(null);
         } finally {
           setLoading(false);
@@ -60,13 +49,11 @@ function Profile_t() {
 
   async function handleLogout() {
     try {
-      console.log("Logging out...");
-      setUserDetails(null); 
+      setUserDetails(null);
       await auth.signOut();
-      console.log("Logged out successfully");
       navigate("/login");
     } catch (error) {
-      console.error("Error logging out:", error.message);
+      setUserDetails(null);
     }
   }
 

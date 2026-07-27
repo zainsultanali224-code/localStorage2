@@ -1,5 +1,5 @@
 import { logoutUser, cleanForm, updateProfile } from "./features/auth/authSlice";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, Button } from "react-bootstrap";
@@ -90,15 +90,11 @@ function ProfileDetail() {
                             className="btn btn-success mt-4"
                             onClick={handleSave}
                         >
-
                             Save Changes
-
                         </button>
 
                     </div>
-
                 </div>
-
             </div>
         </>
     )

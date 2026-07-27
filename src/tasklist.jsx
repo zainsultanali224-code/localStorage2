@@ -1,6 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { auth } from "./assets/components/firebase";
 import { useState, useEffect } from "react";
 import {
     Container,
@@ -11,8 +12,10 @@ import {
     Form as FForm
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewTodo } from "./features/todo/todoSlice";
-import { toast } from "react-toastify";
+import { addNewTodo, fetchSingleTodo, updateTodo, setUserId } from "./features/todo/todoSlice";
+import { ToastContainer, toast } from "react-toastify";
+import { ClearTask } from "./features/todo/todoSlice";
+
 
 const SignupSchema = Yup.object().shape({
     title: Yup.string()
@@ -52,23 +55,57 @@ const SignupSchema = Yup.object().shape({
 });
 
 export default function SignupForm() {
+    const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    
+
     const { user } = useSelector(state => state.auth);
-    const { isLoading, error } = useSelector(state => state.todo);
+
+    const {
+        userId,
+        selectedTask,
+        loadings,
+        updateError,
+        errors
+    } = useSelector((state) => state.todo);
+
+    const isLoading = loadings["addNewTodo"];
+    const error = errors["addNewTodo"];
 
     useEffect(() => {
         if (error) {
             toast.error(error, {
-                position: "bottom-center"
+                position: "bottom-center",
             });
         }
     }, [error]);
 
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                dispatch(setUserId(user.uid));
+            } else {
+                navigate("/login");
+            }
+        });
+        return () => unsubscribe();
+    }, [navigate]);
+
+    useEffect(() => {
+        if (userId) {
+            dispatch(fetchSingleTodo({ userId, todoId: id }));
+        }
+    }, [dispatch, userId, id]);
+
+    useEffect(() => {
+        if (!id) {
+            dispatch(ClearTask())
+        }
+    }, [id, dispatch])
+
+
     async function handleSubmit(values) {
         if (!user?.uid) {
-            console.error("User not authenticated");
             return;
         }
 
@@ -87,9 +124,9 @@ export default function SignupForm() {
             Children: values.Children,
         };
 
-        const resultAction = await dispatch(addNewTodo({ 
-            userId: user.uid, 
-            todoData 
+        const resultAction = await dispatch(addNewTodo({
+            userId: user.uid,
+            todoData
         }));
 
         if (addNewTodo.fulfilled.match(resultAction)) {
@@ -100,24 +137,41 @@ export default function SignupForm() {
         }
     }
 
+    const handleUpdate = async (values) => {
+        const result = await dispatch(
+            updateTodo({
+                userId,
+                todoId: id,
+                updatedData: values,
+            })
+        );
+
+        if (updateTodo.fulfilled.match(result)) {
+            toast.success("Todo updated successfully");
+            navigate("/profile");
+        }
+    };
+
     return (
         <Formik
+            enableReinitialize={true}
+
             initialValues={{
-                title: "",
-                location: "",
-                date: "",
-                desc: "",
-                rang: "50",
-                col: "#000000",
-                count: "Pakistan",
-                num: "0",
-                status: "Pending",
-                gender: "",
-                merital: "",
-                Children: "0"
+                title: selectedTask?.title || "",
+                location: selectedTask?.location || "",
+                date: selectedTask?.date || "",
+                desc: selectedTask?.desc || "",
+                rang: selectedTask?.rang || "50",
+                col: selectedTask?.col || "#000000",
+                count: selectedTask?.count || "Pakistan",
+                num: selectedTask?.num || "0",
+                status: selectedTask?.status || "Pending",
+                gender: selectedTask?.gender || "",
+                merital: selectedTask?.merital || "",
+                Children: selectedTask?.Children || "0",
             }}
             validationSchema={SignupSchema}
-            onSubmit={handleSubmit}
+            onSubmit={id ? handleUpdate : handleSubmit}
         >
             {(formik) => (<Container fluid className="bg-light min-vh-100 py-5">
                 <Container>
@@ -134,8 +188,8 @@ export default function SignupForm() {
                                 background:
                                     "linear-gradient(135deg,#0d6efd,#6610f2)",
                             }}
-                        > 
-                            <h2 className="mb-0">Add Task</h2>
+                        >
+                            <h2 className="mb-0">{id ? "Edit Task" : "Add Task"}</h2>
                         </Card.Header>
 
                         <Card.Body className="p-4">
@@ -394,21 +448,30 @@ export default function SignupForm() {
                                     </Col>
 
                                     <Col md={12} className="text-center mt-4">
-                                        <Button 
+                                        <Button
                                             type="submit"
                                             variant="outline-primary"
                                             size="lg"
                                             className="px-5"
                                             disabled={isLoading}
                                         >
-                                            {isLoading ? "Adding..." : "Add Task"}
+                                            {id ?
+                                                (isLoading ? "Updating..." : "Update Task") :
+                                                (isLoading ? "Adding..." : "Add Task")
+                                            }
                                         </Button>
                                     </Col>
+
                                 </Row>
                             </Form>
                         </Card.Body>
                     </Card>
                 </Container>
+                <ToastContainer
+                    position="top-right"
+                    autoClose={3000}
+                    theme="colored"
+                />
             </Container>
             )}
         </Formik>

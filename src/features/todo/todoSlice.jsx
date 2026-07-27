@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, isPending, isFulfilled, isRejected } from "@reduxjs/toolkit";
 import {
     collection,
     getDocs,
@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../assets/components/firebase";
 import getPaginationUsersTodos from "../../assets/components/pagination";
+import { handleAsyncState } from "../handleState";
 
 export const fetchUserTodos = createAsyncThunk(
     'todo/fetchUserTodos',
@@ -113,8 +114,6 @@ export const deleteTodo = createAsyncThunk(
 export const fetchAllUsersTodos = createAsyncThunk(
     'todo/fetchAllUsersTodos',
     async (_, { rejectWithValue }) => {
-        console.log("fetchAllUsersTodos called")
-
         try {
             const usersRef = collection(db, "Users");
             const usersSnapshot = await getDocs(usersRef);
@@ -156,41 +155,92 @@ export const fetchAllUsersTodos = createAsyncThunk(
 );
 
 export const fetchPaginationTodos = createAsyncThunk(
-    'todo/fetchPaginationTodos',
-    async ({ userId, pageSize, searchValue }, { rejectWithValue }) => {
+    "todo/fetchPaginationTodos",
+    async (
+        {
+            userId,
+            pageSize,
+            searchValue,
+            lastVisible,
+        },
+        { rejectWithValue }
+    ) => {
         try {
             const result = await getPaginationUsersTodos({
                 userId,
                 pageSize,
                 searchValue,
-            })
-            return result
+                lastVisible,
+            });
+
+            return result;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const deleteTodoByAdmin = createAsyncThunk(
+    'todo/deleteTodoByAdmin ',
+    async ({ userId, todoId }, { rejectWithValue }) => {
+        try {
+            await deleteDoc(doc(db, "Users", userId, "Todos", todoId))
+
+            return { userId, todoId }
         } catch (error) {
             return rejectWithValue(error.message)
         }
     }
 )
 
+export const updateTodoByAdmin = createAsyncThunk(
+    "todo/updateTodoByAdmin",
+    async ({ userId, todoId, updatedTodo }, thunkAPI) => {
+        try {
+            const todoRef = doc(db, "Users", userId, "Todos", todoId);
+
+            await updateDoc(todoRef, updatedTodo);
+
+            return {
+                userId,
+                todoId,
+                updatedTodo,
+            };
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
 const initialState = {
     todos: [],
     allUsersTodos: [],
     selectedTask: null,
     userId: null,
-    updateError: "",
-    isLoading: false,
-    error: null,
 
     tasks: [],
     hasNextPage: false,
-    totalItems: 0
+    totalItems: 0,
+
+
+    pageCursors: {
+        1: null,
+    },
+
+    loadings: {},
+    errors: {},
+    param: {},
+
+    updateError: "",
 };
 
 const todoSlice = createSlice({
     name: 'todo',
     initialState,
     reducers: {
-        clearError: (state) => {
-            state.error = null;
+
+        clearError: (state, action) => {
+            state.errors[action.payload] = null;
         },
 
         setUserId: (state, action) => {
@@ -204,46 +254,35 @@ const todoSlice = createSlice({
         setUpdateError: (state, action) => {
             state.updateError = action.payload;
         },
+
+        ClearTask: (state) => {
+            state.selectedTask = null
+        },
+
+        setPageCursor: (state, action) => {
+            const { page, cursor } = action.payload;
+            state.pageCursors[page] = cursor;
+        },
+
+        resetPagination: (state) => {
+            state.pageCursors = {
+                1: null,
+            };
+        },
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchUserTodos.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(fetchUserTodos.fulfilled, (state, action) => {
-                state.isLoading = false;
+            .addCase(fetchUserTodos.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 state.todos = action.payload;
-                state.error = null;
-            })
-            .addCase(fetchUserTodos.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-            });
+            }))
 
         builder
-            .addCase(addNewTodo.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(addNewTodo.fulfilled, (state, action) => {
-                state.isLoading = false;
+            .addCase(addNewTodo.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 state.todos.push(action.payload);
-                state.error = null;
-            })
-            .addCase(addNewTodo.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-            });
+            }))
 
         builder
-            .addCase(updateTodo.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(updateTodo.fulfilled, (state, action) => {
-                state.isLoading = false;
-
+            .addCase(updateTodo.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 const index = state.todos.findIndex(
                     todo => todo.id === action.payload.id
                 );
@@ -262,78 +301,53 @@ const todoSlice = createSlice({
                     };
                 }
 
-                state.error = null;
-            })
-            .addCase(updateTodo.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-            });
+            }))
 
         builder
-            .addCase(deleteTodo.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(deleteTodo.fulfilled, (state, action) => {
-                state.isLoading = false;
+            .addCase(deleteTodo.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 state.todos = state.todos.filter(todo => todo.id !== action.payload);
-                state.error = null;
-            })
-            .addCase(deleteTodo.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-            });
-
+            }))
         builder
-            .addCase(fetchAllUsersTodos.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(fetchAllUsersTodos.fulfilled, (state, action) => {
-                state.isLoading = false;
+            .addCase(fetchAllUsersTodos.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 state.allUsersTodos = action.payload;
-                state.error = null;
-            })
-            .addCase(fetchAllUsersTodos.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-            });
+            }))
 
         builder
-            .addCase(fetchSingleTodo.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(fetchSingleTodo.fulfilled, (state, action) => {
-                state.isLoading = false;
+            .addCase(fetchSingleTodo.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 state.selectedTask = action.payload;
-                state.error = null;
-            })
-            .addCase(fetchSingleTodo.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-            });
+            }))
 
         builder
-            .addCase(fetchPaginationTodos.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-            })
-
-            .addCase(fetchPaginationTodos.fulfilled, (state, action) => {
-                state.isLoading = false;
-
+            .addCase(fetchPaginationTodos.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 state.tasks = action.payload.data;
                 state.hasNextPage = action.payload.hasNextPage;
                 state.totalItems = action.payload.totalItems;
+            }))
 
-                state.error = null;
-            })
+        builder
+            .addCase(deleteTodoByAdmin.fulfilled, handleAsyncState("fulfilled", (state, action) => {
+                state.allUsersTodos = state.allUsersTodos.filter(
+                    (todo) => todo.id !== action.payload.todoId
+                );
+            }))
 
-            .addCase(fetchPaginationTodos.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-            });
+            .addCase(updateTodoByAdmin.fulfilled, handleAsyncState("fulfilled", (state, action) => {
+                const index = state.allUsersTodos.findIndex(
+                    todo => todo.id === action.payload.todoId
+                );
+
+                if (index !== -1) {
+                    state.allUsersTodos[index] = {
+                        ...state.allUsersTodos[index],
+                        ...action.payload.updatedTodo
+                    };
+                }
+            }))
+
+        builder
+            .addMatcher(isPending, handleAsyncState("pending"))
+            .addMatcher(isRejected, handleAsyncState("rejected"))
+
     }
 });
 
@@ -342,5 +356,8 @@ export const {
     setUserId,
     setSelectedTask,
     setUpdateError,
+    setPageCursor,
+    resetPagination,
+    ClearTask
 } = todoSlice.actions;
 export default todoSlice.reducer;

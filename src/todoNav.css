@@ -1,0 +1,60 @@
+/* Navbar Background */
+.custom-navbar{
+    background:#fff;
+    border-bottom:1px solid #e9ecef;
+    box-shadow:0 2px 15px rgba(0,0,0,.08);
+}
+
+/* Logo */
+.brand-logo {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    color: #222;
+}
+
+.brand-logo span {
+    color: #0d6efd;
+}
+
+/* Welcome Text */
+.welcome-text {
+    color: #6c757d;
+    font-size: 15px;
+}
+
+/* Profile Image */
+.profile-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 3px solid #0d6efd;
+    object-fit: cover;
+    cursor: pointer;
+    transition: all .3s ease;
+}
+
+.profile-img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 20px rgba(13,110,253,.35);
+}
+
+/* Navbar Toggle */
+.navbar-toggler {
+    border: none;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .welcome-text {
+        display: none;
+    }
+
+    .profile-img {
+        margin-top: 10px;
+    }
+}

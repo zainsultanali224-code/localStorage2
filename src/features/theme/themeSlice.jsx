@@ -24,15 +24,12 @@ const themeSlice = createSlice({
         loading:false
     },
 
-
     reducers:{
-
         toggleTheme:(state)=>{
             state.mode = state.mode === "light"
             ? "dark"
             :"light";
         },
-
 
         setTheme:(state,action)=>{
             state.mode = action.payload;
@@ -40,23 +37,18 @@ const themeSlice = createSlice({
 
     },
 
-
     extraReducers:(builder)=>{
-
         builder
         .addCase(saveTheme.fulfilled,(state,action)=>{
             state.mode = action.payload;
         })
-
     }
 
 });
-
 
 export const {
     toggleTheme,
     setTheme
 }=themeSlice.actions;
-
 
 export default themeSlice.reducer;

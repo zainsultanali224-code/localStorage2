@@ -23,10 +23,6 @@ function HandleForgotPassword() {
                 position: "top-center"
             });
         } catch (error) {
-            console.log(error);
-            console.log("Code:", error.code);
-            console.log("Message:", error.message);
-
             toast.error(error.message, {
                 position: "bottom-center"
             });

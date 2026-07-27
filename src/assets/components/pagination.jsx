@@ -6,55 +6,70 @@ import {
     limit,
     startAfter,
     getDocs,
-    getCountFromServer
+    getCountFromServer,
 } from "firebase/firestore";
+
 import { db } from "./firebase";
-import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 
 async function getPaginationUsersTodos({
     userId,
-    pageNumber = 1,
     pageSize = 5,
     searchValue = "",
     lastVisible = null,
 }) {
-    const todosCollection = collection(db, "Users", userId, "Todos");
-    let countConstraints = [];
-
-    if (searchValue?.trim()) {
-        countConstraints.push(
-            where("title", ">=", searchValue),
-            where("title", "<", searchValue + "\uf8ff")
-            
-        );
-    }
-    const countQuery = query(todosCollection, ...countConstraints);
-    const countSnapshot = await getCountFromServer(countQuery);
-    const totalItems = countSnapshot.data().count;
     try {
         const todosCollection = collection(db, "Users", userId, "Todos");
 
-        let constraints = [
-            orderBy("title", "asc"),
-            limit(pageSize + 1)
-        ];
-        if (searchValue?.trim()) {
-            constraints.push(
+        let countConstraints = [];
+
+        if (searchValue.trim()) {
+            countConstraints.push(
                 where("title", ">=", searchValue),
-                where("title", "<", searchValue + "\uf8ff")
+                where("title", "<=", searchValue + "\uf8ff")
             );
         }
+
+        const countQuery = query(
+            todosCollection,
+            ...countConstraints
+        );
+
+        const countSnapshot = await getCountFromServer(countQuery);
+        const totalItems = countSnapshot.data().count;
+
+        let constraints = [
+            orderBy("title"),
+            limit(pageSize + 1),
+        ];
+
+        if (searchValue.trim()) {
+            constraints.push(
+                where("title", ">=", searchValue),
+                where("title", "<=", searchValue + "\uf8ff")
+            );
+        }
+
         if (lastVisible) {
             constraints.push(startAfter(lastVisible));
         }
 
-        const todosQuery = query(todosCollection, ...constraints);
-        const todosSnapshot = await getDocs(todosQuery);
-        const docs = todosSnapshot.docs;
-        const hasNextPage = docs.length > pageSize;
+        const todosQuery = query(
+            todosCollection,
+            ...constraints
+        );
 
-        if (hasNextPage) docs.pop();
-        const todos = docs.map(doc => {
+        const snapshot = await getDocs(todosQuery);
+
+        let docs = snapshot.docs;
+
+        let hasNextPage = false;
+
+        if (docs.length > pageSize) {
+            hasNextPage = true;
+            docs.pop();
+        }
+
+        const todos = docs.map((doc) => {
             const data = doc.data();
 
             return {
@@ -68,14 +83,16 @@ async function getPaginationUsersTodos({
 
         return {
             data: todos,
-            lastVisible: docs[docs.length - 1],
+            lastVisible:
+                docs.length > 0
+                    ? docs[docs.length - 1]
+                    : null,
             hasNextPage,
-            pageSize: todos.length,
             totalItems,
         };
     } catch (error) {
-        console.error("Pagination error:", error);
         throw error;
     }
 }
+
 export default getPaginationUsersTodos;

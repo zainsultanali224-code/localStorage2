@@ -28,384 +28,15 @@ import {
 import account from "./account.png";
 import { Modal } from "react-bootstrap";
 import ProfileDetail from "./PfDetail";
-
-
-export default function EditTask() {
-    const { id } = useParams();
-    const navigate = useNavigate()
-    const dispatch = useDispatch();
-
-    const {
-        userId,
-        selectedTask,
-        isLoading,
-        updateError,
-    } = useSelector((state) => state.todo);
-
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            if (user) {
-                dispatch(setUserId(user.uid));
-            } else {
-                navigate("/login");
-            }
-        });
-        return () => unsubscribe();
-    }, [navigate]);
-
-    useEffect(() => {
-        if (userId) {
-            dispatch(fetchSingleTodo({ userId, todoId: id }));
-        }
-    }, [dispatch, userId, id]);
-
-    const SignupSchema = Yup.object().shape({
-        title: Yup.string().required("Required"),
-        location: Yup.string().required("Required"),
-        date: Yup.string().required("Required"),
-        desc: Yup.string().max(600),
-        col: Yup.string().required("Required"),
-        rang: Yup.string().required("Required"),
-        count: Yup.string().required("Required"),
-        num: Yup.number().required("Required"),
-        status: Yup.string().required("Required"),
-        merital: Yup.string()
-            .oneOf(["Single", "Married"]),
-        Children: Yup
-            .number()
-            .when("merital", {
-                is: 'Married',
-                then: (schema) => schema
-                    .required("Please enter the number of children.")
-                    .min(0, "Number of children cannot be negative."),
-                otherwise: (schema) => schema.optional().nullable()
-            })
-    });
-
-    const handleUpdate = async (values) => {
-        const result = await dispatch(
-            updateTodo({
-                userId,
-                todoId: id,
-                updatedData: values,
-            })
-        );
-
-        if (updateTodo.fulfilled.match(result)) {
-            navigate("/profile");
-        }
-    };
-    if (!userId || !selectedTask) {
-        return <p>Loading...</p>;
-    }
-
-    return (<Container fluid className="bg-light min-vh-100 py-5"> <Container>
-        <Card
-            className="shadow-lg border-0 mx-auto"
-            style={{ maxWidth: "900px", borderRadius: "20px" }}
-        >
-            <Card.Header
-                className="text-center text-white py-4"
-                style={{
-                    background:
-                        "linear-gradient(135deg,#198754,#20c997)",
-                }}
-            > <h2 className="mb-0">Edit Task</h2>
-            </Card.Header>
-
-            <Card.Body className="p-4">
-                <Formik
-                    initialValues={{
-                        title: selectedTask?.title || "",
-                        location: selectedTask?.location || "",
-                        date: selectedTask?.date || "",
-                        desc: selectedTask?.desc || "",
-                        rang: selectedTask?.rang || "",
-                        col: selectedTask?.col || "#000000",
-                        count: selectedTask?.count || "Pakistan",
-                        num: selectedTask?.num || "",
-                        status: selectedTask?.status || "Pending",
-                        gender: selectedTask?.gender || "",
-                        merital: selectedTask?.merital || "",
-                        Children: selectedTask?.Children || 0,
-                    }}
-                    validationSchema={SignupSchema}
-                    onSubmit={handleUpdate}
-                    enableReinitialize
-                >
-                    {(formik) => (
-                        <Form>
-                            <Row className="g-4">
-                                <Col md={6}>
-                                    <FForm.Label>Title</FForm.Label>
-                                    <FForm.Control
-                                        name="title"
-                                        value={formik.values.title}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                    />
-                                    <ErrorMessage
-                                        name="title"
-                                        component="div"
-                                        className="text-danger"
-                                    />
-                                </Col>
-
-                                <Col md={6}>
-                                    <FForm.Label>Location</FForm.Label>
-                                    <FForm.Control
-                                        name="location"
-                                        value={formik.values.location}
-                                        onChange={formik.handleChange}
-                                    />
-                                    <ErrorMessage
-                                        name="location"
-                                        component="div"
-                                        className="text-danger"
-                                    />
-                                </Col>
-
-                                <Col md={6}>
-                                    <FForm.Label>Date</FForm.Label>
-                                    <FForm.Control
-                                        type="date"
-                                        name="date"
-                                        value={formik.values.date}
-                                        onChange={formik.handleChange}
-                                    />
-                                    <ErrorMessage
-                                        name="date"
-                                        component="div"
-                                        className="text-danger"
-                                    />
-                                </Col>
-
-                                <Col md={6}>
-                                    <FForm.Label>Number</FForm.Label>
-                                    <FForm.Control
-                                        type="number"
-                                        name="num"
-                                        value={formik.values.num}
-                                        onChange={formik.handleChange}
-                                    />
-                                    <ErrorMessage
-                                        name="num"
-                                        component="div"
-                                        className="text-danger"
-                                    />
-                                </Col>
-
-                                <Col md={12}>
-                                    <FForm.Label>Description</FForm.Label>
-                                    <FForm.Control
-                                        as="textarea"
-                                        rows={4}
-                                        name="desc"
-                                        value={formik.values.desc}
-                                        onChange={formik.handleChange}
-                                    />
-                                    <ErrorMessage
-                                        name="desc"
-                                        component="div"
-                                        className="text-danger"
-                                    />
-                                </Col>
-
-                                <Col md={6}>
-                                    <FForm.Label>Range: {formik.values.rang}</FForm.Label>
-                                    <FForm.Range
-                                        name="rang"
-                                        value={formik.values.rang}
-                                        onChange={formik.handleChange}
-                                    />
-                                    <ErrorMessage
-                                        name="rang"
-                                        component="div"
-                                        className="text-danger"
-                                    />
-                                </Col>
-
-                                <Col md={6}>
-                                    <FForm.Label>Color</FForm.Label>
-                                    <FForm.Control
-                                        type="color"
-                                        name="col"
-                                        value={formik.values.col}
-                                        onChange={formik.handleChange}
-                                    />
-                                    <ErrorMessage
-                                        name="col"
-                                        component="div"
-                                        className="text-danger"
-                                    />
-                                </Col>
-
-                                <Col md={6}>
-                                    <FForm.Label>
-                                        Status:
-                                    </FForm.Label>
-
-                                    <Col>
-                                        <div className="mb-3">
-                                            <FForm.Check
-                                                inline
-                                                label="Pending"
-                                                name="status"
-                                                value="Pending"
-                                                checked={formik.values.status === "Pending"}
-                                                onChange={formik.handleChange}
-                                                type="radio"
-                                            />
-
-                                            <FForm.Check
-                                                inline
-                                                label="Completed"
-                                                name="status"
-                                                value="Completed"
-                                                checked={formik.values.status === "Completed"}
-                                                onChange={formik.handleChange}
-                                                type="radio"
-                                            />
-                                        </div>
-                                        <ErrorMessage
-                                            name="status"
-                                            component="div"
-                                            className="text-danger"
-                                        />
-                                    </Col>
-                                </Col>
-
-                                <Col md={6}>
-                                    <FForm.Label>
-                                        Gender:
-                                    </FForm.Label>
-                                    <Col>
-                                        <div className="mb-3">
-                                            <FForm.Check
-                                                inline
-                                                label="Male"
-                                                name="gender"
-                                                value="Male"
-                                                checked={formik.values.gender === "Male"}
-                                                onChange={formik.handleChange}
-                                                type="radio"
-                                            />
-
-                                            <FForm.Check
-                                                inline
-                                                label="Female"
-                                                name="gender"
-                                                value="Female"
-                                                checked={formik.values.gender === "Female"}
-                                                onChange={formik.handleChange}
-                                                type="radio"
-                                            />
-
-                                            <FForm.Check
-                                                inline
-                                                label="Others"
-                                                name="gender"
-                                                value="Others"
-                                                checked={formik.values.gender === "Others"}
-                                                onChange={formik.handleChange}
-                                                type="radio"
-                                            />
-                                        </div>
-                                        <ErrorMessage
-                                            name="gender"
-                                            component="div"
-                                            className="text-danger"
-                                        />
-                                    </Col>
-                                </Col>
-
-                                <Col>
-                                    <FForm.Label>
-                                    </FForm.Label>
-                                    <Col>
-                                        <div className="mb-3">
-                                            <FForm.Check
-                                                inline
-                                                label="Single"
-                                                name="merital"
-                                                value="Single"
-                                                checked={formik.values.merital === "Single"}
-                                                onChange={formik.handleChange}
-                                                type="radio"
-                                            />
-
-                                            <FForm.Check
-                                                inline
-                                                label="Married"
-                                                name="merital"
-                                                value="Married"
-                                                checked={formik.values.merital === "Married"}
-                                                onChange={formik.handleChange}
-                                                type="radio"
-                                            />
-
-                                            {formik.values.merital === "Married" && (
-                                                <FForm.Group>
-                                                    <FForm.Label>Number of Children</FForm.Label>
-                                                    <FForm.Control
-                                                        type="number"
-                                                        name="Children"
-                                                        value={formik.values.Children}
-                                                        onChange={formik.handleChange}
-                                                    />
-                                                </FForm.Group>
-                                            )}
-                                        </div>
-                                        <ErrorMessage
-                                            name="Children"
-                                            component="div"
-                                            className="text-danger"
-                                        />
-                                    </Col>
-                                </Col>
-                                <Col md={12}>
-                                    <FForm.Select
-                                        name="count"
-                                        value={formik.values.count}
-                                        onChange={formik.handleChange}
-                                    >
-                                        <option value="">Select Country</option>
-                                        <option value="Pakistan">Pakistan</option>
-                                        <option value="India">India</option>
-                                        <option value="USA">USA</option>
-                                    </FForm.Select>
-
-                                    <ErrorMessage
-                                        name="count"
-                                        component="div"
-                                        className="text-danger"
-                                    />
-                                </Col>
-
-                                <Col md={12} className="text-center">
-                                    <Button
-                                        type="submit"
-                                        variant="outline-success"
-                                        className="px-5 mt-3"
-                                        disabled={isLoading}
-                                    >
-                                        {isLoading ? "Updating Task..." : "Update Task"}
-                                    </Button>
-                                </Col>
-                            </Row>
-                        </Form>
-                    )}
-                </Formik>
-            </Card.Body>
-        </Card>
-    </Container>
-    </Container>
-    );
-}
+import { useRef } from "react";
+import "./todoNav.css"
+import "./todolist.css"
 
 export function Search({ userId }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const [selectedTodo, setSelectedTodo] = useState(null);
 
     const [showProfile, setShowProfile] = useState(false);
     const handleClose = () => setShowProfile(false);
@@ -413,16 +44,21 @@ export function Search({ userId }) {
 
     const [searchValue, setSearchValue] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [previousCursors, setPreviousCursors] = useState([]);
-    const [nextLoading, setNextLoading] = useState(false);
+    const [pageCursors, setPageCursors] = useState({
+        1: null,
+    });
     const [lastVisible, setLastVisible] = useState(null);
+    const nextRequestRef = useRef(false);
+    const [deletingId, setDeletingId] = useState(null);
 
     const {
         tasks,
-        isLoading,
+        loadings,
         hasNextPage,
         totalItems,
     } = useSelector((state) => state.todo);
+
+    const isLoading = loadings["fetchPaginationTodos"];
 
     const { user, isAuthenticated } = useSelector(
         (state) => state.auth
@@ -449,106 +85,195 @@ export function Search({ userId }) {
     }, [userId]);
 
     const pageSize = 5;
-    const totalPages = Math.ceil(totalItems / pageSize);
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
     const handleSearch = (e) => {
         const value = e.target.value;
+
         setSearchValue(value);
         setCurrentPage(1);
-        setPreviousCursors([]);
         setLastVisible(null);
+
+        setPageCursors({
+            1: null,
+        });
+
         fetchTasks(value, null);
     };
+
+
     const handleNext = async () => {
+        if (nextRequestRef.current || isLoading || !hasNextPage) return;
+
+        nextRequestRef.current = true;
+
+        try {
+            const currentCursor = lastVisible;
+
+            const result = await dispatch(
+                fetchPaginationTodos({
+                    userId,
+                    pageSize: 5,
+                    searchValue,
+                    lastVisible: currentCursor,
+                })
+            );
+
+            if (fetchPaginationTodos.fulfilled.match(result)) {
+
+                const nextPage = currentPage + 1;
+
+                setPageCursors(prev => ({
+                    ...prev,
+                    [nextPage]: currentCursor,
+                }));
+
+                setCurrentPage(nextPage);
+                setLastVisible(result.payload.lastVisible);
+            }
+
+        } finally {
+            nextRequestRef.current = false;
+        }
+    };
+
+    const handlePrevious = async () => {
+        if (currentPage === 1) return;
+
+        const previousPage = currentPage - 1;
+
+        const cursor = pageCursors[previousPage] || null;
+
         const result = await dispatch(
             fetchPaginationTodos({
                 userId,
                 pageSize: 5,
                 searchValue,
-                lastVisible,
+                lastVisible: cursor,
             })
         );
 
         if (fetchPaginationTodos.fulfilled.match(result)) {
-            setPreviousCursors((prev) => [...prev, lastVisible]);
+            setCurrentPage(previousPage);
             setLastVisible(result.payload.lastVisible);
-            setCurrentPage((prev) => prev + 1);
         }
-    }
-
-    const handlePrevious = () => {
-        if (previousCursors.length === 0) return;
-
-        const history = [...previousCursors];
-        history.pop();
-
-        const previousCursor =
-            history.length === 0
-                ? null
-                : history[history.length - 1];
-
-        setPreviousCursors(history);
-        setCurrentPage((prev) => prev - 1);
-
-        fetchTasks(searchValue, previousCursor);
     };
 
     const handleDelete = async (id) => {
-        await dispatch(
-            deleteTodo({
-                userId,
-                todoId: id,
-            })
-        );
+        setDeletingId(id);
 
-        fetchTasks(searchValue, null);
+        try {
+            const result = await dispatch(
+                deleteTodo({
+                    userId,
+                    todoId: id,
+                })
+            );
+
+            if (!deleteTodo.fulfilled.match(result)) return;
+
+            const cursor = pageCursors[currentPage] || null;
+
+            const response = await dispatch(
+                fetchPaginationTodos({
+                    userId,
+                    pageSize: 5,
+                    searchValue,
+                    lastVisible: cursor,
+                })
+            );
+
+            if (fetchPaginationTodos.fulfilled.match(response)) {
+                if (
+                    response.payload.data.length === 0 &&
+                    currentPage > 1
+                ) {
+                    const previousPage = currentPage - 1;
+
+                    setCurrentPage(previousPage);
+
+                    dispatch(
+                        fetchPaginationTodos({
+                            userId,
+                            pageSize: 5,
+                            searchValue,
+                            lastVisible: pageCursors[previousPage] || null,
+                        })
+                    );
+                } else {
+                    setLastVisible(response.payload.lastVisible);
+                }
+            }
+        } finally {
+            setDeletingId(null);
+        }
     };
+    useEffect(() => {
+        const pages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+        if (currentPage > pages) {
+            setCurrentPage(pages);
+        }
+    }, [totalItems, currentPage]);
 
     return (
         <>
-            <Navbar className="bg-body-tertiary">
+            <Navbar
+                expand="lg"
+                className="custom-navbar shadow-sm py-3"
+                sticky="top"
+            >
                 <Container>
-                    <Navbar.Brand >TODO</Navbar.Brand>
-                    <Navbar.Toggle />
-                    <Navbar.Collapse className="justify-content-end">
-                        <Navbar.Text >
-                            Profile: <img
+                    <Navbar.Brand className="brand-logo fw-bold">
+                        <span className="text-primary">TODO</span> APP
+                    </Navbar.Brand>
+
+                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
+
+                    <Navbar.Collapse
+                        id="basic-navbar-nav"
+                        className="justify-content-end"
+                    >
+                        <div className="d-flex align-items-center gap-3">
+
+                            <span className="welcome-text">
+                                Welcome,
+                                <span className="fw-semibold ms-1">
+                                    {user?.firstName || "User"}
+                                </span>
+                            </span>
+
+                            <img
                                 src={
                                     user?.image ||
                                     "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                                 }
-                                alt="Logo"
-                                width="40"
-                                height="40"
-                                className="rounded-circle"
-
+                                alt="Profile"
+                                className="profile-img"
                                 onClick={() => setShowProfile(true)}
-                                style={{
-                                    cursor: "pointer"
-                                }}
                             />
-
-                            <Modal
-                                show={showProfile}
-                                onHide={() => setShowProfile(false)}
-                                size="lg"
-                                centered
-                            >
-                                <Modal.Header closeButton>
-                                    <Modal.Title>Profile</Modal.Title>
-                                </Modal.Header>
-
-                                <Modal.Body>
-                                    <ProfileDetail />
-                                </Modal.Body>
-                            </Modal>
-
-                        </Navbar.Text>
+                        </div>
                     </Navbar.Collapse>
                 </Container>
-            </Navbar>
 
-            <Container fluid className="bg-light min-vh-100 py-5">
+                <Modal
+                    show={showProfile}
+                    onHide={() => setShowProfile(false)}
+                    size="lg"
+                    centered
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title>Profile</Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body>
+                        <ProfileDetail />
+                    </Modal.Body>
+                </Modal>
+            </Navbar>
+            <Container style={{
+                backgroundColor: "#f4f7fb"
+            }}>
                 <Container>
                     <div className="text-center mb-5">
                         <h1 className="fw-bold">Task Manager</h1>
@@ -557,9 +282,12 @@ export function Search({ userId }) {
                         </p>
                     </div>
 
-                    <Row className="mb-4">
-                        <Col md={8}>
+
+                    <Row className="align-items-center mb-4">
+                        <Col md={9}>
                             <FForm.Control
+                                placeholder="🔍 Search Task..."
+                                className="search-box"
                                 size="lg"
                                 type="text"
                                 placeholder="Search Task..."
@@ -568,25 +296,23 @@ export function Search({ userId }) {
                             />
                         </Col>
 
-                        <Col md={4} className="text-md-end mt-3 mt-md-0">
+                        <Col md={3} className="text-end">
                             <Link to="/add-task">
-                                <Button size="lg" variant="outline-primary">
-                                    Add New Task
+                                <Button className="add-btn" size="lg" variant="outline-primary">
+                                    + Add Task
                                 </Button>
                             </Link>
                         </Col>
                     </Row>
 
-                    <Row>
+                    <Row >
                         {isLoading ? (
                             <Col>
-                                <Card
-                                    className="shadow border-0 text-center p-5"
-                                    style={{ minHeight: "50vh" }}
-                                >
-                                    <h3 style={{ marginTop: "74px" }}>
-                                        Loading tasks...
-                                    </h3>
+                                <Card className="shadow border-0 text-center p-5">
+                                    <div className="text-center py-5">
+                                        <div className="spinner-border text-primary" role="status"></div>
+                                        <p className="mt-3 text-muted">Loading tasks...</p>
+                                    </div>
                                 </Card>
                             </Col>
                         ) : tasks.length > 0 ? (
@@ -611,7 +337,9 @@ export function Search({ userId }) {
                                             <strong>{selectedTask.title}</strong>
                                         </Card.Header>
 
-                                        <Card.Body>
+
+                                        {/* <Card.Body> */}
+                                        <Card.Body className="task-body">
                                             <p>
                                                 <strong>Location:</strong> {selectedTask.location}
                                             </p>
@@ -625,13 +353,16 @@ export function Search({ userId }) {
                                             </p>
                                             <p>
                                                 <strong>Range:</strong>
-                                                <Badge bg="info" className="ms-2">
+                                                {/* <Badge bg="info" className="ms-2">
+                                                    {selectedTask.rang}
+                                                </Badge> */}
+                                                <Badge bg="info" className="task-badge ms-2">
                                                     {selectedTask.rang}
                                                 </Badge>
                                             </p>
                                             <p>
                                                 <strong>Color:</strong>{" "}
-                                                <span
+                                                {/* <span
                                                     style={{
                                                         display: "inline-block",
                                                         width: "35px",
@@ -641,7 +372,11 @@ export function Search({ userId }) {
                                                         marginLeft: "8px",
                                                         marginTop: "6px",
                                                     }}
-                                                />
+                                                /> */}
+                                                <span
+                                                    className="color-box"
+                                                    style={{ backgroundColor: selectedTask.col }}
+                                                ></span>
                                             </p>
                                             <p>
                                                 <strong>Country:</strong> {selectedTask.count}
@@ -665,13 +400,16 @@ export function Search({ userId }) {
                                             )}
                                         </Card.Body>
 
+
+
                                         <Card.Footer className="bg-white border-0">
                                             <div className="d-flex justify-content-between">
                                                 <Button
                                                     variant="outline-danger"
                                                     onClick={() => handleDelete(selectedTask.id)}
+                                                    disabled={deletingId === selectedTask.id}
                                                 >
-                                                    Delete
+                                                    {deletingId === selectedTask.id ? "Deleting..." : "Delete"}
                                                 </Button>
 
                                                 <Button
@@ -685,6 +423,38 @@ export function Search({ userId }) {
                                             </div>
                                         </Card.Footer>
                                     </Card>
+
+                                    <Modal
+                                        show={selectedTodo !== null}
+                                        onHide={() => setSelectedTodo(null)}
+                                        centered
+                                    >
+
+                                        <Modal.Header closeButton>
+                                            <Modal.Title>
+                                                {selectedTodo?.title}
+                                            </Modal.Title>
+                                        </Modal.Header>
+
+                                        <Modal.Body>
+
+                                            <p><strong>Country:</strong> {selectedTodo?.count}</p>
+
+                                            <p><strong>Phone:</strong> {selectedTodo?.num}</p>
+
+                                            <p><strong>Gender:</strong> {selectedTodo?.gender}</p>
+
+                                            <p><strong>Marital:</strong> {selectedTodo?.merital}</p>
+
+                                            {selectedTodo?.merital === "Married" && (
+                                                <p>
+                                                    <strong>Children:</strong> {selectedTodo?.Children}
+                                                </p>
+                                            )}
+
+                                        </Modal.Body>
+
+                                    </Modal>
                                 </Col>
                             ))
                         ) : (
@@ -702,24 +472,27 @@ export function Search({ userId }) {
                     </Row>
 
                     {tasks.length > 0 && (
-                        <div className="text-center mt-4">
+                        <div className="pagination-box text-center">
                             <Button
-                                variant="outline-secondary"
+                                variant="secondary"
                                 onClick={handlePrevious}
-                                disabled={previousCursors.length === 0}
-                                className="me-3"
+                                disabled={currentPage === 1 || isLoading}
+                                className="px-4"
                             >
                                 ← Previous
                             </Button>
-                            <span className="mx-3 fw-semibold">
-                                Page {currentPage} of {totalPages}
+
+                            <span className="mx-4 fw-bold fs-5">
+                                {currentPage} / {totalPages}
                             </span>
+
                             <Button
-                                variant="outline-primary"
+                                variant="primary"
                                 onClick={handleNext}
-                                disabled={!hasNextPage || nextLoading || currentPage >= totalPages}
+                                disabled={!hasNextPage || isLoading}
+                                className="px-4"
                             >
-                                {nextLoading ? "Loading..." : "Next →"}
+                                Next →
                             </Button>
                         </div>
                     )}

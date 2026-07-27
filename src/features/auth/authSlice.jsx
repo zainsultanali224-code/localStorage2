@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, isPending, isRejected } from "@reduxjs/toolkit";
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
@@ -16,17 +16,21 @@ import {
 import { auth, db } from "../../assets/components/firebase";
 import { serverTimestamp } from "firebase/firestore";
 import { uploadImage } from "../../assets/components/cloudinary";
+import { handleAsyncState } from "../handleState";
+import { updateTodoByAdmin, deleteTodoByAdmin } from "../todo/todoSlice";
 
 export const registerUser = createAsyncThunk(
     'auth/registerUser',
-    async ({ email, password, firstName, lastName }, { rejectWithValue }) => {
+    async (params, { rejectWithValue }) => {
         try {
+            const { email, password, firstName, lastName } = params;
+
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
 
             const userData = {
-                email: email,
-                firstName: firstName,
+                email,
+                firstName,
                 lastName: lastName || "",
                 role: "user",
                 createdAt: serverTimestamp()
@@ -34,13 +38,7 @@ export const registerUser = createAsyncThunk(
 
             await setDoc(doc(db, "Users", uid), userData);
 
-            return {
-                uid: uid,
-                email: email,
-                firstName: firstName,
-                lastName: lastName,
-                role: "user"
-            };
+            return { uid, email, firstName, lastName, role: "user" };
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -59,21 +57,15 @@ export const loginUser = createAsyncThunk(
 
             if (docSnap.exists()) {
                 const userData = docSnap.data();
-
                 return {
                     uid,
                     email: userCredential.user.email,
                     ...userData,
-                    createdAt: userData.createdAt
-                        ? userData.createdAt.toMillis()
-                        : null,
+                    createdAt: userData.createdAt ? userData.createdAt.toMillis() : null,
                 };
             }
 
-            return {
-                uid: uid,
-                email: userCredential.user.email,
-            };
+            return { uid, email: userCredential.user.email };
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -96,7 +88,8 @@ export const checkAuth = createAsyncThunk(
     "auth/checkAuth",
     async (_, { rejectWithValue }) => {
         return new Promise((resolve, reject) => {
-            const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            let unsubscribe;
+            unsubscribe = onAuthStateChanged(auth, async (user) => {
                 try {
                     if (user) {
                         const docRef = doc(db, "Users", user.uid);
@@ -104,28 +97,23 @@ export const checkAuth = createAsyncThunk(
 
                         if (docSnap.exists()) {
                             const userData = docSnap.data();
-
                             resolve({
                                 uid: user.uid,
                                 email: user.email,
                                 ...userData,
-                                createdAt: userData.createdAt
-                                    ? userData.createdAt.toMillis()
-                                    : null,
+                                createdAt: userData.createdAt ? userData.createdAt.toMillis() : null,
                             });
                         } else {
-                            resolve({
-                                uid: user.uid,
-                                email: user.email,
-                            });
+                            resolve({ uid: user.uid, email: user.email });
                         }
                     } else {
                         resolve(null);
                     }
                 } catch (error) {
+                    console.error("checkAuth error", error);
                     reject(rejectWithValue(error.message));
                 } finally {
-                    unsubscribe();
+                    if (unsubscribe) unsubscribe();
                 }
             });
         });
@@ -137,26 +125,20 @@ export const fetchUsers = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const snapshot = await getDocs(collection(db, "Users"));
-
-            console.log("Users Count:", snapshot.size);
-
             return snapshot.docs.map((doc) => {
                 const data = doc.data();
-
                 return {
                     id: doc.id,
                     ...data,
-                    createdAt: data.createdAt
-                        ? data.createdAt.toMillis()
-                        : null,
+                    createdAt: data.createdAt ? data.createdAt.toMillis() : null,
                 };
             });
         } catch (error) {
-            console.log(error);
             return rejectWithValue(error.message);
         }
     }
 );
+
 export const updateProfile = createAsyncThunk(
     "auth/updateProfile",
     async ({ firstName, lastName, image }, { rejectWithValue }) => {
@@ -166,7 +148,6 @@ export const updateProfile = createAsyncThunk(
             if (image) {
                 imageUrl = await uploadImage(image);
             } else {
-
                 const snap = await getDoc(doc(db, "Users", auth.currentUser.uid));
                 imageUrl = snap.data().image || "";
             }
@@ -177,10 +158,88 @@ export const updateProfile = createAsyncThunk(
                 image: imageUrl,
             });
 
+            return { firstName, lastName, image: imageUrl };
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const fetchEntity = createAsyncThunk(
+    "admin/fetchEntity",
+    async ({ key, search = "", page = 1, limit = 10 }, { rejectWithValue }) => {
+        try {
+            let allData = [];
+
+            switch (key) {
+                case "users": {
+                    const usersSnapshot = await getDocs(collection(db, "Users"));
+                    allData = usersSnapshot.docs.map((docItem) => ({
+                        id: docItem.id,
+                        ...docItem.data(),
+                        createdAt: docItem.data().createdAt ? docItem.data().createdAt.toMillis() : null,
+                    }));
+                    break;
+                }
+
+                case "usersTodos": {
+                    const usersSnapshot = await getDocs(collection(db, "Users"));
+                    const allTodos = [];
+
+                    for (const userDoc of usersSnapshot.docs) {
+                        const userData = userDoc.data();
+                        const todosSnapshot = await getDocs(collection(db, "Users", userDoc.id, "Todos"));
+
+                        todosSnapshot.docs.forEach((todoDoc) => {
+                            const todoData = todoDoc.data();
+                            allTodos.push({
+                                id: todoDoc.id,
+                                userId: userDoc.id,
+                                firstName: userData.firstName || "",
+                                lastName: userData.lastName || "",
+                                role: userData.role || "user",
+                                userEmail: userData.email || "",
+                                ...todoData,
+                                createdAt: todoData.createdAt ? todoData.createdAt.toMillis() : null,
+                            });
+                        });
+                    }
+
+                    allData = allTodos;
+                    break;
+                }
+
+                default:
+                    allData = [];
+            }
+
+            const query = search.trim().toLowerCase();
+            const filtered = query
+                ? allData.filter((item) =>
+                    [item.email, item.userEmail, item.title].some((value) =>
+                        value?.toString().toLowerCase().includes(query)
+                    )
+                )
+                : allData;
+
+            const total = filtered.length;
+            const start = (page - 1) * limit;
+            const pageData = filtered.slice(start, start + limit);
+
+            const completedCount = key === "usersTodos"
+                ? filtered.filter((item) => item.status === "Completed").length
+                : undefined;
+            const pendingCount = key === "usersTodos"
+                ? filtered.filter((item) => item.status !== "Completed").length
+                : undefined;
+
             return {
-                firstName,
-                lastName,
-                image: imageUrl,
+                key,
+                data: pageData,
+                total,
+                page,
+                limit,
+                extra: { completedCount, pendingCount },
             };
         } catch (error) {
             return rejectWithValue(error.message);
@@ -188,17 +247,61 @@ export const updateProfile = createAsyncThunk(
     }
 );
 
+
+const emptyView = (page = 1, limit = 10) => ({
+    data: [],
+    total: 0,
+
+    search: "",
+    appliedSearch: "",
+    page,
+    limit,
+    reloadId: 0,
+    extra: {},
+
+    selected: null,
+    formValues: {},
+    detailsItem: null,
+    viewMode: "list",
+});
+
+const getView = (state, id, page, limit) => {
+    if (!state.views[id]) state.views[id] = emptyView(page, limit);
+    return state.views[id];
+};
+
+const setViewStatus = (state, id, status, error = null) => {
+    if (!state.loadings) state.loadings = {};
+    if (!state.errors) state.errors = {};
+    state.loadings[id] = status === "pending";
+    state.errors[id] = status === "rejected" ? (error || "Something went wrong") : null;
+};
+
 const initialState = {
-    authLoading: false,
     checkingAuth: true,
-    usersLoading: false,
 
     user: null,
+    entities: {
+        users: {
+            data: [],
+            total: 0,
+            search: "",
+            pagination: { page: 1, limit: 10, totalPages: 1 }
+        },
+
+        usersTodos:
+        {
+            data: [],
+            total: 0,
+            search: "",
+            pagination: { page: 1, limit: 10, totalPages: 1 }
+        }
+    },
+
     users: [],
     todos: [],
 
     isAuthenticated: false,
-    error: null,
 
     email: "",
     password: "",
@@ -208,6 +311,8 @@ const initialState = {
     loadings: {},
     errors: {},
     params: {},
+
+    views: {},
 };
 
 const authSlice = createSlice({
@@ -215,78 +320,111 @@ const authSlice = createSlice({
     initialState,
 
     reducers: {
-        clearError: (state) => {
-            state.error = null;
+        clearError: (state, action) => {
+            state.errors[action.payload] = null;
         },
 
         updateField: (state, action) => {
-            console.log(action.payload);
-
             state[action.payload.name] = action.payload.value;
         },
+
         cleanForm: (state) => {
             state.email = "";
             state.password = "";
             state.fname = "";
             state.lname = "";
         },
+
+
+        ensureView: (state, { payload }) => {
+            getView(state, payload.id, payload.initialPage, payload.limit);
+        },
+
+        setSearch: (state, { payload }) => {
+            getView(state, payload.id).search = payload.value;
+        },
+
+        applySearch: (state, { payload }) => {
+            const view = getView(state, payload.id);
+            view.appliedSearch = view.search;
+            view.page = 1;
+        },
+
+        setPage: (state, { payload }) => {
+            getView(state, payload.id).page = Math.max(1, Number(payload.page) || 1);
+        },
+
+        requestStarted: (state, { payload }) => {
+            getView(state, payload.id);
+            setViewStatus(state, payload.id, "pending");
+        },
+
+        requestSucceeded: (state, { payload }) => {
+            const view = getView(state, payload.id);
+            view.data = payload.data || [];
+            view.total = payload.total ?? view.data.length;
+            view.extra = payload.extra || {};
+            setViewStatus(state, payload.id, "fulfilled");
+        },
+
+        requestFailed: (state, { payload }) => {
+            getView(state, payload.id);
+            setViewStatus(state, payload.id, "rejected", payload.error);
+        },
+
+        refetch: (state, { payload }) => {
+            getView(state, payload.id).reloadId += 1;
+        },
+
+        openEdit: (state, { payload }) => {
+            const view = getView(state, payload.id);
+            view.selected = payload.item;
+            view.formValues = Object.fromEntries(
+                payload.columns.map((column) => [column.key, payload.item[column.key] ?? ""])
+            );
+        },
+        closeEdit: (state, { payload }) => {
+            const view = getView(state, payload.id);
+            view.selected = null;
+            view.formValues = {};
+        },
+        setFormValue: (state, { payload }) => {
+            getView(state, payload.id).formValues[payload.key] = payload.value;
+        },
+
+        setViewMode: (state, { payload }) => {
+            getView(state, payload.id).viewMode = payload.mode;
+        },
+
+        openDetails: (state, { payload }) => {
+            getView(state, payload.id).detailsItem = payload.item;
+        },
+        closeDetails: (state, { payload }) => {
+            getView(state, payload.id).detailsItem = null;
+        },
     },
 
     extraReducers: (builder) => {
         builder
-            .addCase(registerUser.pending, (state) => {
-                state.authLoading = true;
-                state.error = null;
-            })
-            .addCase(registerUser.fulfilled, (state, action) => {
-                state.authLoading = false;
+            .addCase(registerUser.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 state.user = action.payload;
                 state.isAuthenticated = true;
-                state.error = null;
-            })
-            .addCase(registerUser.rejected, (state, action) => {
-                state.authLoading = false;
-                state.error = action.payload;
-                state.isAuthenticated = false;
-            });
+            }))
 
         builder
-            .addCase(loginUser.pending, (state) => {
-                state.authLoading = true;
-                state.error = null;
-            })
-            .addCase(loginUser.fulfilled, (state, action) => {
-                state.authLoading = false;
+            .addCase(loginUser.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 state.user = action.payload;
                 state.isAuthenticated = true;
-                state.error = null;
-            })
-            .addCase(loginUser.rejected, (state, action) => {
-                state.authLoading = false;
-                state.error = action.payload;
-                state.isAuthenticated = false;
-            });
+            }))
 
         builder
-            .addCase(logoutUser.pending, (state) => {
-                state.authLoading = true;
-            })
-            .addCase(logoutUser.fulfilled, (state) => {
-                state.authLoading = false;
+            .addCase(logoutUser.fulfilled, handleAsyncState("fulfilled", (state) => {
                 state.user = null;
                 state.isAuthenticated = false;
-                state.error = null;
-            })
-            .addCase(logoutUser.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-            });
+            }))
 
         builder
-            .addCase(checkAuth.pending, (state) => {
-                state.checkingAuth = true;
-            })
-            .addCase(checkAuth.fulfilled, (state, action) => {
+            .addCase(checkAuth.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 state.checkingAuth = false;
 
                 if (action.payload) {
@@ -296,37 +434,118 @@ const authSlice = createSlice({
                     state.user = null;
                     state.isAuthenticated = false;
                 }
-            })
-            .addCase(checkAuth.rejected, (state) => {
+            }))
+
+        builder.addCase(
+            checkAuth.rejected,
+            handleAsyncState("rejected", (state) => {
                 state.checkingAuth = false;
+                state.user = null;
+                state.isAuthenticated = false;
             })
+        );
+
         builder
-            .addCase(fetchUsers.pending, (state) => {
-                state.usersLoading = true;
-                state.error = null;
-            })
-            .addCase(fetchUsers.fulfilled, (state, action) => {
-                state.usersLoading = false;
+            .addCase(fetchUsers.fulfilled, handleAsyncState("fulfilled", (state, action) => {
                 state.users = action.payload;
-                state.error = null;
-            })
-            .addCase(fetchUsers.rejected, (state, action) => {
-                state.usersLoading = false;
-                state.error = action.payload;
-            });
+            }))
 
         builder
-        .addCase(updateProfile.fulfilled, (state, action) => {
-            state.user = {
-                ...state.user,
-                firstName: action.payload.firstName,
-                lastName: action.payload.lastName,
-                image: action.payload.image
-            };
+            .addCase(updateProfile.fulfilled, handleAsyncState("fulfilled", (state, action) => {
+                state.user = {
+                    ...state.user,
+                    firstName: action.payload.firstName,
+                    lastName: action.payload.lastName,
+                    image: action.payload.image
+                };
+            }));
 
-        });
+        builder.addCase(
+            fetchEntity.fulfilled,
+            handleAsyncState("fulfilled", (state, action) => {
+                const { key, data, total, page, limit } = action.payload;
+
+                if (!state.entities[key]) {
+                    state.entities[key] = {
+                        data: [],
+                        total: 0,
+                        search: "",
+                        pagination: { page: 1, limit: 10, totalPages: 1 },
+                    };
+                }
+
+                state.entities[key].data = data;
+                state.entities[key].total = total;
+                state.entities[key].pagination = {
+                    page,
+                    limit,
+                    totalPages: Math.max(1, Math.ceil(total / limit)),
+                };
+            }));
+
+        builder.addCase(
+            deleteTodoByAdmin.fulfilled,
+            handleAsyncState("fulfilled", (state, action) => {
+                if (state.entities.usersTodos?.data) {
+                    state.entities.usersTodos.data = state.entities.usersTodos.data.filter(
+                        (todo) => todo.id !== action.payload.todoId
+                    );
+                }
+            })
+        );
+
+        builder.addCase(
+            updateTodoByAdmin.fulfilled,
+            handleAsyncState("fulfilled", (state, action) => {
+                if (state.entities.usersTodos?.data) {
+                    const index = state.entities.usersTodos.data.findIndex(
+                        (todo) => todo.id === action.payload.todoId
+                    );
+
+                    if (index !== -1) {
+                        state.entities.usersTodos.data[index] = {
+                            ...state.entities.usersTodos.data[index],
+                            ...action.payload.updatedTodo,
+                        };
+                    }
+                }
+            })
+        );
+
+        builder
+            .addMatcher(isPending, handleAsyncState("pending"))
+            .addMatcher(isRejected, handleAsyncState("rejected"))
     }
 });
 
-export const { clearError, updateField, cleanForm } = authSlice.actions;
+export const {
+    clearError,
+    updateField,
+    cleanForm,
+
+    ensureView,
+    setSearch,
+    applySearch,
+    setPage,
+    requestStarted,
+    requestSucceeded,
+    requestFailed,
+    refetch,
+    openEdit,
+    closeEdit,
+    setFormValue,
+    setViewMode,
+    openDetails,
+    closeDetails,
+} = authSlice.actions;
+
+export const selectDataView = (state, id, initialPage = 1, limit = 10) => {
+    const view = state.auth.views[id] || emptyView(initialPage, limit);
+    return {
+        ...view,
+        loading: !!state.auth.loadings?.[id],
+        error: state.auth.errors?.[id] || null,
+    };
+};
+
 export default authSlice.reducer;

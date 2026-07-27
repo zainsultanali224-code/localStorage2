@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +33,7 @@ import {
     logoutUser,
     fetchUsers
 } from "../../features/auth/authSlice";
+import { toggleTheme, saveTheme } from "../../features/theme/themeSlice";
 import "./Sidebar.css"
 
 function TotalUsers() {
@@ -42,9 +43,11 @@ function TotalUsers() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const { users, usersLoading } = useSelector(
-        (state) => state.auth
-    );
+    const { users, user, loadings } = useSelector((state) => state.auth);
+    const { mode } = useSelector((state) => state.theme);
+
+    const usersLoading = loadings.fetchUsers || false;
+
 
     const { allUsersTodos } = useSelector(
         (state) => state.todo
@@ -63,6 +66,7 @@ function TotalUsers() {
             name: "Users",
             total: users.filter((user) => user.role === "user").length,
         },
+
     ];
 
     const todoChartData = allUsersTodos.reduce((acc, todo) => {
@@ -86,6 +90,16 @@ function TotalUsers() {
         dispatch(fetchAllUsersTodos());
     }, [dispatch]);
 
+    const changeTheme = () => {
+        const newTheme = mode === "light" ? "dark" : "light";
+
+        dispatch(toggleTheme());
+
+        if (user?.uid) {
+            dispatch(saveTheme({ uid: user.uid, theme: newTheme }));
+        }
+    };
+
     const handleLogout = async () => {
         const resultAction = await dispatch(logoutUser());
         if (logoutUser.fulfilled.match(resultAction)) {
@@ -103,107 +117,145 @@ function TotalUsers() {
             </Container>
         );
     }
+
+    const isDark = mode === "dark";
+
     return (
         <>
-            <Navbar
-                bg="dark"
-                variant="dark"
-                expand="lg"
-                sticky="top"
-                className="shadow"
+           <Navbar
+        style={{
+          background: isDark ? "#1f2937" : "#ffffff",
+          color: isDark ? "#f9fafb" : "#111827",
+          borderBottom: isDark ? "1px solid #374151" : "1px solid #e5e7eb"
+        }}
+        variant={isDark ? "dark" : "light"}
+        expand="lg"
+        sticky="top"
+        className="shadow"
+      >
+        <Container fluid="lg" className="py-3">
+          <span
+            style={{
+              color: isDark ? "#f9fafb" : "#111827",
+              fontSize: "30px",
+              cursor: "pointer",
+            }}
+            onClick={handleShow}
+          >
+            &#9776;
+          </span>
+
+          <Offcanvas
+            show={show}
+            onHide={handleClose}
+            style={{
+              width: "280px",
+              background: isDark ? "#111827" : "#f9fafb",
+              color: isDark ? "#f9fafb" : "#111827",
+            }}
+          >
+            <Offcanvas.Header
+              closeButton
+              style={{
+                background: isDark ? "#111827" : "#f9fafb",
+                color: isDark ? "#f9fafb" : "#111827",
+                borderBottom: isDark ? "1px solid #374151" : "1px solid #e5e7eb",
+              }}
             >
-                <Container fluid="lg" className="py-4">
-                    <span style={{ color: "white", fontSize: "30px", cursor: "pointer" }} onClick={handleShow}>
-                        &#9776;
-                    </span>
+              <Offcanvas.Title
+                className="fw-bold"
+                style={{ color: isDark ? "#f9fafb" : "#111827" }}
+              >
+                Dashboard Menu
+              </Offcanvas.Title>
+            </Offcanvas.Header>
 
-                    <Offcanvas
-                        show={show}
-                        onHide={handleClose}
-                        style={{ width: "280px" }}
-                    >
-                        <Offcanvas.Header closeButton>
-                            <Offcanvas.Title className="fw-bold">
-                                Dashboard Menu
-                            </Offcanvas.Title>
-                        </Offcanvas.Header>
+            <Offcanvas.Body className="d-flex flex-column sidebar-body">
+              <Nav className="flex-column">
+                <Nav.Link
+                  className="sidebar-link"
+                  onClick={() => {
+                    navigate("/admin");
+                    handleClose();
+                  }}
+                >
+                  📊 Admin Dashboard
+                </Nav.Link>
 
-                        <Offcanvas.Body className="d-flex flex-column sidebar-body">
+                <Nav.Link
+                  className="sidebar-link"
+                  onClick={() => {
+                    navigate("/userAnalytics");
+                    handleClose();
+                  }}
+                >
+                  📈 User Analytics
+                </Nav.Link>
 
-                            <Nav className="flex-column">
+                <Nav.Link
+                  active
+                  className="sidebar-link"
+                  onClick={() => {
+                    navigate("/totalUsers");
+                    handleClose();
+                  }}
+                >
+                  👥 Total Users
+                </Nav.Link>
 
-                                <Nav.Link
-                                    className="sidebar-link"
-                                    onClick={() => {
-                                        navigate("/admin");
-                                        handleClose();
-                                    }}
-                                >
-                                    📊 Admin Dashboard
-                                </Nav.Link>
+                <Nav.Link
+                  className="sidebar-link"
+                  onClick={() => {
+                    navigate("/adminShowAll");
+                    handleClose();
+                  }}
+                >
+                  📝 View Todos
+                </Nav.Link>
+              </Nav>
 
-                                <Nav.Link
-                                    className="sidebar-link"
-                                    onClick={() => {
-                                        navigate("/userAnalytics");
-                                        handleClose();
-                                    }}
-                                >
-                                    📈 User Analytics
-                                </Nav.Link>
+              <div className="mt-auto pt-3 border-top">
+                <button
+                  className="btn w-100"
+                  onClick={handleLogout}
+                  style={{
+                    background: "#dc3545",
+                    border: "none",
+                    color: "#fff",
+                    fontWeight: "600",
+                    borderRadius: "10px"
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            </Offcanvas.Body>
+          </Offcanvas>
 
-                                <Nav.Link
-                                    active
-                                    className="sidebar-link"
-                                    onClick={() => {
-                                        navigate("/totalUsers");
-                                        handleClose();
-                                    }}
-                                >
-                                    👥 Total Users
-                                </Nav.Link>
+          <Navbar.Brand className="fw-bold fs-4">
+            Admin Dashboard
+          </Navbar.Brand>
 
-                                <Nav.Link
-                                    className="sidebar-link"
-                                    onClick={() => {
-                                        navigate("/adminShowAll");
-                                        handleClose();
-                                    }}
-                                >
-                                    📝 View Todos
-                                </Nav.Link>
+          <Nav className="ms-auto align-items-center gap-2">
+            <Button
+              variant={isDark ? "outline-light" : "outline-dark"}
+              onClick={() => navigate("/adminShowAll")}
+            >
+              View Todos
+            </Button>
 
-                            </Nav>
+            <Button
+              variant={isDark ? "outline-light" : "outline-dark"}
+              onClick={changeTheme}
+              className="rounded-pill"
+            >
+              {isDark ? "☀️ Light" : "🌙 Dark"}
+            </Button>
+          </Nav>
+        </Container>
+      </Navbar>
 
-                            <div className="mt-auto pt-3 border-top">
-                                <button
-                                    className="btn btn-danger w-100"
-                                    onClick={handleLogout}
-                                >
-                                    Logout
-                                </button>
-                            </div>
-
-                        </Offcanvas.Body>
-                    </Offcanvas>
-
-                    <Navbar.Brand className="fw-bold fs-4">
-                        Admin Dashboard
-                    </Navbar.Brand>
-
-                    <Nav className="ms-auto">
-                        <Button
-                            variant="outline-light"
-                            className="fw-semibold px-4"
-                            onClick={() => navigate("/adminShowAll")}
-                        >
-                            View Todos
-                        </Button>
-                    </Nav>
-                </Container>
-            </Navbar>
-
-            <Container className="mt-4">
+            <Container className="mt-4" style={{ background: isDark ? "#111827" : "#f8fafc", borderRadius: "20px", padding: "20px" }}>
                 <Row className="mb-4">
                     <Col>
                         <h2 className="fw-bold">
@@ -245,23 +297,27 @@ function TotalUsers() {
                                 </h5>
 
                                 <h1>
-                                    {users.filter((user) => user.role === "admin").length}
+                                    {users.filter((u) => u.role?.trim() === "admin").length}
                                 </h1>
                             </Card.Body>
                         </Card>
                     </Col>
 
                     <Col md={6}>
-                        <Card className="dashboard-card bg-warning text-dark shadow">
+                        <Card className={isDark ? "dashboard-card bg-secondary text-white shadow" : "dashboard-card bg-warning text-dark shadow"}>
                             <Card.Body className="text-center">
                                 <h5 className="fw-semibold">
                                     <i className="bi bi-person-fill me-2"></i>
                                     Users
                                 </h5>
 
+
                                 <h1>
-                                    {users.filter((user) => user.role === "user").length}
+                                    {users.filter((u) => u.role?.trim() === "user").length}
                                 </h1>
+
+
+
 
                             </Card.Body>
                         </Card>
