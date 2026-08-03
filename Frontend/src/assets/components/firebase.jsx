@@ -1,0 +1,20 @@
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+const firebaseConfig = {
+  apiKey: "AIzaSyBJ_XwfOBGy44_eleEWS1G5FDWZo3X2x10",
+  authDomain: "login-auth-2050c.firebaseapp.com",
+  projectId: "login-auth-2050c",
+  storageBucket: "login-auth-2050c.firebasestorage.app",
+  messagingSenderId: "428233074707",
+  appId: "1:428233074707:web:9c073c6a611f383b79f7e6"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+export const auth=getAuth();
+export const db=getFirestore(app)
+export const storage=getStorage(app);
+export default app;

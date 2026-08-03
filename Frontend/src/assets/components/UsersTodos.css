@@ -1,0 +1,46 @@
+body {
+    background: #f4f7fc;
+}
+
+.table tbody tr {
+    transition: .3s;
+}
+
+.table tbody tr:hover {
+    background: #eef5ff;
+    transform: scale(1.01);
+}
+
+.card {
+    transition: .3s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.btn {
+    transition: .3s;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.offcanvas {
+    background: #1e293b;
+    color: white;
+}
+
+.sidebar-link {
+    color: #d1d5db !important;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    transition: .3s;
+}
+
+.sidebar-link:hover {
+    background: #2563eb;
+    color: white !important;
+}
