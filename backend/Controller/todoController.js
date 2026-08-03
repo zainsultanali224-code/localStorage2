@@ -1,6 +1,7 @@
 const Todo = require("../Models/todo")
 
 // create Todo
+
 const createTodo = async (req, res) => {
     try {
         const todo = await Todo.create(req.body)
@@ -101,13 +102,35 @@ const editTodo = async (req, res) => {
 // Delete Todo
 
 const deleteTodo = async (req, res) => {
-   
-}
+    try {
+        const id = req.params.id;
+
+        const delTodo = await Todo.findByIdAndDelete(id);
+
+        if (!delTodo) {
+            return res.status(404).json({
+                success: false,
+                message: "Todo not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Todo deleted successfully",
+            data: delTodo,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
 
 module.exports = {
     createTodo,
     getAllTodos,
     getSingleTodo,
     editTodo,
-
+    deleteTodo
 }
