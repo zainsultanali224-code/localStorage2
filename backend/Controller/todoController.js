@@ -1,4 +1,5 @@
 const Todo = require("../Models/todo")
+const { post } = require("../Routes/TodoRoutes")
 
 // create Todo
 
@@ -64,7 +65,6 @@ const getSingleTodo = async (req, res) => {
     }
 }
 
-
 // Edit Todo
 
 const editTodo = async (req, res) => {
@@ -126,6 +126,23 @@ const deleteTodo = async (req, res) => {
         });
     }
 };
+
+// Pagination
+
+
+const paginate = async (req, res) => {
+    try {
+        const page = parseInt(req.body.page) || 1;
+        const perPage = 4;
+
+        const total = 
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+}
 
 module.exports = {
     createTodo,
