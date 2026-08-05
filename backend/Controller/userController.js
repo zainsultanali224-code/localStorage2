@@ -5,6 +5,9 @@ const asyncHandler = require("../utils/handleAsync")
 const pagination = require("../utils/pagination")
 const { StatusCodes } = require("http-status-codes")
 
+const jwt = require("jsonwebtoken")
+const {generateToken} = require("../Services/auth")
+
 
 // Register User
 
@@ -43,7 +46,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const foundUser = await user.findOne({ email });
 
-
     if (!foundUser) {
         return res.status(StatusCodes.NOT_FOUND).json({
             success: false,
@@ -51,7 +53,7 @@ const loginUser = asyncHandler(async (req, res) => {
         });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, foundUser.password)
+    const isPasswordValid = await bcrypt.compare(password, foundUser.password);
 
     if (!isPasswordValid) {
         return res.status(StatusCodes.BAD_REQUEST).json({
@@ -60,12 +62,20 @@ const loginUser = asyncHandler(async (req, res) => {
         });
     }
 
+    // Generate JWT
+    const token = generateToken({
+        id: foundUser._id,
+        email: foundUser.email,
+    });
+
     res.status(StatusCodes.OK).json({
         success: true,
         message: "Login successful",
+        token,
         data: foundUser,
     });
-})
+});
+
 // Get User
 
 const getUser = asyncHandler(async (req, res) => {

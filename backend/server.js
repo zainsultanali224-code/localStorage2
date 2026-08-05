@@ -1,6 +1,9 @@
+require("dotenv").config()
+
 const express = require("express");
 const connect = require("./config/db")
 const { StatusCodes, ReasonPhrases } = require("http-status-codes")
+// const verifyToken = require("./Middleware/verifyJWT")
 
 const logger = require("./utils/logger")
 
@@ -12,6 +15,8 @@ const userRoute = require("./Routes/userRoute")
 connect();
 
 app.use(express.json())
+
+// app.use(verifyToken)
 
 app.use("/api/todos", todoRoute)
 app.use("/api/users", userRoute)

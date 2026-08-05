@@ -7,14 +7,16 @@ const { createTodo,
     editTodo,
     deleteTodo,
     paginate,
-} = require("../Controller/todoController")
+} = require("../Controller/todoController");
 
-router.post("/", createTodo);
+const verifyToken = require("../Middleware/verifyJWT");
+
+router.post("/", verifyToken, createTodo);
 // router.get("/", getAllTodos)
-router.get("/", paginate);
+router.get("/", verifyToken, paginate);
 
-router.get("/:id", getSingleTodo);
-router.patch("/:id", editTodo);
-router.delete("/:id", deleteTodo);
+router.get("/:id", verifyToken, getSingleTodo);
+router.patch("/:id", verifyToken, editTodo);
+router.delete("/:id", verifyToken, deleteTodo);
 
 module.exports = router;
