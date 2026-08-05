@@ -1,22 +1,24 @@
-const express = require("express")
-const router = express.Router();
-
-const { createTodo,
+import express from "express";
+import {
+    createTodo,
     getAllTodos,
     getSingleTodo,
     editTodo,
     deleteTodo,
     paginate,
-} = require("../Controller/todoController");
+} from "../Controller/todoController.js";
 
-const verifyToken = require("../Middleware/verifyJWT");
+import verifyToken from "../Middleware/verifyJWT.js";
+
+const router = express.Router();
 
 router.post("/", verifyToken, createTodo);
-// router.get("/", getAllTodos)
+
+// router.get("/", verifyToken, getAllTodos);
 router.get("/", verifyToken, paginate);
 
 router.get("/:id", verifyToken, getSingleTodo);
 router.patch("/:id", verifyToken, editTodo);
 router.delete("/:id", verifyToken, deleteTodo);
 
-module.exports = router;
+export default router;

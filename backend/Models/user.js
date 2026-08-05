@@ -1,11 +1,11 @@
-const mongoose = require("mongoose")
-const mongoosePaginate = require("mongoose-paginate-v2")
+import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const userSchema = new mongoose.Schema(
     {
         firstName: {
             type: String,
-            required: true
+            required: true,
         },
 
         lastName: {
@@ -15,19 +15,21 @@ const userSchema = new mongoose.Schema(
         email: {
             type: String,
             required: true,
-            unique: true
+            unique: true,
         },
 
         password: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
     {
-        timestamps: true
+        timestamps: true,
     }
-)
+);
 
-userSchema.plugin(mongoosePaginate)
+userSchema.plugin(mongoosePaginate);
 
-module.exports = mongoose.model("User", userSchema)
+const User = mongoose.model("User", userSchema);
+
+export default User;

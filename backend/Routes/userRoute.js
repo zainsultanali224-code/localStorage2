@@ -1,25 +1,28 @@
-const express = require("express")
-const router = express.Router()
-const verifyToken = require("../Middleware/verifyJWT")
+import express from "express";
+import verifyToken from "../Middleware/verifyJWT.js";
 
-
-const {
+import {
     registerUser,
     loginUser,
     getUser,
     getSingleUser,
     editUser,
     deleteUser,
-    paginate
-} = require("../Controller/userController")
+    paginate,
+} from "../Controller/userController.js";
 
-router.post("/register", registerUser)
-router.post("/login", loginUser)
+const router = express.Router();
 
-router.get("/", verifyToken, paginate)
+// Authentication Routes
+router.post("/register", registerUser);
+router.post("/login", loginUser);
 
-router.get("/:id", verifyToken, getSingleUser)
-router.patch("/:id", verifyToken, editUser)
-router.delete("/:id", verifyToken, deleteUser)
+// User Routes
+// router.get("/", verifyToken, getUser);
+router.get("/", verifyToken, paginate);
 
-module.exports = router
+router.get("/:id", verifyToken, getSingleUser);
+router.patch("/:id", verifyToken, editUser);
+router.delete("/:id", verifyToken, deleteUser);
+
+export default router;

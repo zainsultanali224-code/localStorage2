@@ -1,4 +1,4 @@
-const paginate = async (Model, req, searchField = "title") => {
+const paginate = async (Model, req, searchFields = ["title"]) => {
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.min(parseInt(req.query.limit) || 5, 100);
 
@@ -8,7 +8,7 @@ const paginate = async (Model, req, searchField = "title") => {
         "title",
         "-title",
         "email",
-        "-email"
+        "-email",
     ];
 
     const sort = allowedSort.includes(req.query.sort)
@@ -18,23 +18,12 @@ const paginate = async (Model, req, searchField = "title") => {
     const escapeRegex = (text) =>
         text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-    // const search = escapeRegex(req.query.search || "");
-
-    // const filter = search
-    //     ? {
-    //         [searchField]: {
-    //             $regex: search,
-    //             $options: "i",
-    //         },
-    //     }
-    //     : {};
-
     const search = escapeRegex((req.query.search || "").trim());
 
     let filter = {};
 
     if (search) {
-        filter.$or = searchField.map((field) => ({
+        filter.$or = searchFields.map((field) => ({
             [field]: {
                 $regex: search,
                 $options: "i",
@@ -49,4 +38,4 @@ const paginate = async (Model, req, searchField = "title") => {
     });
 };
 
-module.exports = paginate;
+export default paginate;

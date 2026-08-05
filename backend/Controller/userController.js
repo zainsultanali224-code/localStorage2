@@ -1,20 +1,16 @@
-const user = require("../Models/user")
-const bcrypt = require("bcrypt")
-
-const asyncHandler = require("../utils/handleAsync")
-const pagination = require("../utils/pagination")
-const { StatusCodes } = require("http-status-codes")
-
-const jwt = require("jsonwebtoken")
-const {generateToken} = require("../Services/auth")
-
+import User from "../Models/user.js";
+import bcrypt from "bcrypt";
+import asyncHandler from "../utils/handleAsync.js";
+import pagination from "../utils/pagination.js";
+import { StatusCodes } from "http-status-codes";
+import jwt from "jsonwebtoken";
+import { generateToken } from "../Services/auth.js";
 
 // Register User
-
-const registerUser = asyncHandler(async (req, res) => {
+export const registerUser = asyncHandler(async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
 
-    const existingUser = await user.findOne({ email });
+    const existingUser = await User.findOne({ email });
 
     if (existingUser) {
         return res.status(StatusCodes.BAD_REQUEST).json({
@@ -23,9 +19,9 @@ const registerUser = asyncHandler(async (req, res) => {
         });
     }
 
-    const hashPassword = await bcrypt.hash(password, 10)
+    const hashPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await user.create({
+    const newUser = await User.create({
         firstName,
         lastName,
         email,
@@ -37,14 +33,13 @@ const registerUser = asyncHandler(async (req, res) => {
         message: "User registered successfully",
         data: newUser,
     });
-})
+});
 
-// login 
-
-const loginUser = asyncHandler(async (req, res) => {
+// Login User
+export const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
-    const foundUser = await user.findOne({ email });
+    const foundUser = await User.findOne({ email });
 
     if (!foundUser) {
         return res.status(StatusCodes.NOT_FOUND).json({
@@ -76,104 +71,82 @@ const loginUser = asyncHandler(async (req, res) => {
     });
 });
 
-// Get User
-
-const getUser = asyncHandler(async (req, res) => {
-    const users = await user.find()
+// Get All Users
+export const getUser = asyncHandler(async (req, res) => {
+    const users = await User.find();
 
     res.status(StatusCodes.OK).json({
         success: true,
         count: users.length,
-        data: users
-    })
-})
+        data: users,
+    });
+});
 
+// Get Single User
+export const getSingleUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id);
 
-// Get single User
-
-const getSingleUser = asyncHandler(async (req, res) => {
-    const users = await user.findById(req.params.id)
-
-    if (!users) {
+    if (!user) {
         return res.status(StatusCodes.NOT_FOUND).json({
             success: false,
-            message: "User not found"
-        })
+            message: "User not found",
+        });
     }
 
     res.status(StatusCodes.OK).json({
         success: true,
-        data: users
-    })
-})
+        data: user,
+    });
+});
 
 // Edit User
-
-const editUser = asyncHandler(async (req, res) => {
-    const id = req.params.id
-    const users = await user.findByIdAndUpdate(
-        id,
+export const editUser = asyncHandler(async (req, res) => {
+    const updatedUser = await User.findByIdAndUpdate(
+        req.params.id,
         req.body,
         {
-            returnDocument: "after",
-            runValidators: true
+            new: true,
+            runValidators: true,
         }
-    )
+    );
 
-    if (!users) {
+    if (!updatedUser) {
         return res.status(StatusCodes.NOT_FOUND).json({
             success: false,
-            message: "User not found"
-        })
+            message: "User not found",
+        });
     }
 
     res.status(StatusCodes.OK).json({
         success: true,
-        data: users
-    })
-
-})
+        data: updatedUser,
+    });
+});
 
 // Delete User
+export const deleteUser = asyncHandler(async (req, res) => {
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
 
-const deleteUser = asyncHandler(async (req, res) => {
-    const id = req.params.id
-    const delUser = await user.findByIdAndDelete(id)
-
-    if (!delUser) {
+    if (!deletedUser) {
         return res.status(StatusCodes.NOT_FOUND).json({
             success: false,
-            message: "user not found",
+            message: "User not found",
         });
     }
 
     res.status(StatusCodes.OK).json({
         success: true,
         message: "User deleted successfully",
-        data: delUser
+        data: deletedUser,
     });
-
-
-})
+});
 
 // Pagination, Search & Sorting
-
-const paginate = asyncHandler(async (req, res) => {
-    const users = await pagination(user, req, [
+export const paginate = asyncHandler(async (req, res) => {
+    const users = await pagination(User, req, [
         "firstName",
         "email",
-    ])
+    ]);
 
     res.status(StatusCodes.OK).json(users);
-})
-
-
-module.exports = {
-    registerUser,
-    loginUser,
-    getUser,
-    getSingleUser,
-    editUser,
-    deleteUser,
-    paginate
-}
+});

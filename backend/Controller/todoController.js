@@ -1,88 +1,77 @@
-const { request } = require("express")
-const Todo = require("../Models/todo")
-const asyncHandler = require("../utils/handleAsync")
-const pagination = require("../utils/pagination")
-const logger = require("../utils/logger")
-const { StatusCodes, ReasonPhrases } = require("http-status-codes")
+import Todo from "../Models/todo.js";
+import asyncHandler from "../utils/handleAsync.js";
+import pagination from "../utils/pagination.js";
+import logger from "../utils/logger.js";
+import { StatusCodes } from "http-status-codes";
 
-
-// create Todo
-
-const createTodo = asyncHandler(async (req, res) => {
-    const todo = await Todo.create(req.body)
+// Create Todo
+export const createTodo = asyncHandler(async (req, res) => {
+    const todo = await Todo.create(req.body);
 
     res.status(StatusCodes.CREATED).json({
         success: true,
-        message: "Todo created succesfully",
-        data: todo
-    })
-})
+        message: "Todo created successfully",
+        data: todo,
+    });
+});
 
 // Get All Todos
-
-const getAllTodos = asyncHandler(async (req, res) => {
-    const todos = await Todo.find()
+export const getAllTodos = asyncHandler(async (req, res) => {
+    const todos = await Todo.find();
 
     res.status(StatusCodes.OK).json({
         success: true,
         count: todos.length,
-        data: todos
-    })
-})
+        data: todos,
+    });
+});
 
-// Get Single Todo 
-
-const getSingleTodo = asyncHandler(async (req, res) => {
-    const todo = await Todo.findById(req.params.id)
+// Get Single Todo
+export const getSingleTodo = asyncHandler(async (req, res) => {
+    const todo = await Todo.findById(req.params.id);
 
     if (!todo) {
         return res.status(StatusCodes.NOT_FOUND).json({
             success: false,
-            message: "Todo not found"
-        })
+            message: "Todo not found",
+        });
     }
 
     res.status(StatusCodes.OK).json({
         success: true,
-        data: todo
-    })
-})
+        data: todo,
+    });
+});
 
 // Edit Todo
-
-const editTodo = asyncHandler(async (req, res) => {
-    const id = req.params.id
-    const todos = await Todo.findByIdAndUpdate(
-        id,
+export const editTodo = asyncHandler(async (req, res) => {
+    const todo = await Todo.findByIdAndUpdate(
+        req.params.id,
         req.body,
         {
             new: true,
-            runValidators: true
+            runValidators: true,
         }
-    )
+    );
 
-    if (!todos) {
+    if (!todo) {
         return res.status(StatusCodes.NOT_FOUND).json({
             success: false,
-            message: "Todo not found"
-        })
+            message: "Todo not found",
+        });
     }
 
     res.status(StatusCodes.OK).json({
         success: true,
-        data: todos
-    })
-
-})
+        data: todo,
+    });
+});
 
 // Delete Todo
+export const deleteTodo = asyncHandler(async (req, res) => {
+    const todo = await Todo.findByIdAndDelete(req.params.id);
 
-const deleteTodo = asyncHandler(async (req, res) => {
-    const id = req.params.id;
-
-    const delTodo = await Todo.findByIdAndDelete(id);
-
-    if (!delTodo) {
+    if (!todo) {
         return res.status(StatusCodes.NOT_FOUND).json({
             success: false,
             message: "Todo not found",
@@ -92,13 +81,12 @@ const deleteTodo = asyncHandler(async (req, res) => {
     res.status(StatusCodes.OK).json({
         success: true,
         message: "Todo deleted successfully",
-        data: delTodo,
+        data: todo,
     });
-})
+});
 
 // Pagination, Search, Sorting
-
-const paginate = asyncHandler(async (req, res) => {
+export const paginate = asyncHandler(async (req, res) => {
     const todos = await pagination(Todo, req, [
         "title",
         "description",
@@ -106,13 +94,4 @@ const paginate = asyncHandler(async (req, res) => {
     ]);
 
     res.status(StatusCodes.OK).json(todos);
-})
-
-module.exports = {
-    createTodo,
-    getAllTodos,
-    getSingleTodo,
-    editTodo,
-    deleteTodo,
-    paginate,
-}
+});

@@ -1,7 +1,7 @@
-// Schema 
+// Schema
 
-const mongoose = require("mongoose");
-const mongoosePaginate = require("mongoose-paginate-v2")
+import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const todoSchema = new mongoose.Schema(
   {
@@ -40,7 +40,7 @@ const todoSchema = new mongoose.Schema(
 
     color: {
       type: String,
-      default:"#000000",
+      default: "#000000",
     },
 
     status: {
@@ -60,23 +60,26 @@ const todoSchema = new mongoose.Schema(
       required: true,
     },
 
-    children:{
-        type: Number,
-        min: 0,
-        required: function () {
-            return this.maritalStatus === "Married"
-        }
+    children: {
+      type: Number,
+      min: 0,
+      required: function () {
+        return this.maritalStatus === "Married";
+      },
     },
 
     country: {
       type: String,
-    default: "Pakistan"
+      default: "Pakistan",
     },
   },
   {
     timestamps: true,
   }
 );
-todoSchema.plugin(mongoosePaginate)
 
-module.exports = mongoose.model("Todo", todoSchema);
+todoSchema.plugin(mongoosePaginate);
+
+const Todo = mongoose.model("Todo", todoSchema);
+
+export default Todo;

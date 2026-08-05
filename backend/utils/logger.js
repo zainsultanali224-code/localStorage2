@@ -1,7 +1,7 @@
-const winston = require('winston');
+import winston from "winston";
 
 const logger = winston.createLogger({
-    level: 'info',
+    level: "info",
     format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.printf(({ level, message, timestamp }) => {
@@ -9,18 +9,24 @@ const logger = winston.createLogger({
         })
     ),
     transports: [
-        new winston.transports.File({ filename: 'error.log', level: 'error' }),
-        new winston.transports.File({ filename: 'combined.log' }),
+        new winston.transports.File({
+            filename: "error.log",
+            level: "error",
+        }),
+        new winston.transports.File({
+            filename: "combined.log",
+        }),
     ],
 });
 
-
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(new winston.transports.Console({
-        format: winston.format.simple(),
-    }));
+if (process.env.NODE_ENV !== "production") {
+    logger.add(
+        new winston.transports.Console({
+            format: winston.format.simple(),
+        })
+    );
 }
 
-logger.info("An info log")
+logger.info("An info log");
 
-module.exports = logger
+export default logger;
