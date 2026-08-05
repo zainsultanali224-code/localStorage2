@@ -5,14 +5,16 @@ const { createTodo,
     getAllTodos,
     getSingleTodo,
     editTodo,
-    deleteTodo
+    deleteTodo,
+    paginate,
 } = require("../Controller/todoController")
 
-router.post("/", createTodo),
-    router.get("/", getAllTodos)
-router.get("/:id", getSingleTodo)
-router.patch("/:id", editTodo)
-router.delete("/:id", deleteTodo)
+router.post("/", createTodo);
+// router.get("/", getAllTodos)
+router.get("/", paginate);
 
+router.get("/:id", getSingleTodo);
+router.patch("/:id", editTodo);
+router.delete("/:id", deleteTodo);
 
 module.exports = router;

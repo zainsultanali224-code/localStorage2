@@ -1,153 +1,118 @@
+const { request } = require("express")
 const Todo = require("../Models/todo")
-const { post } = require("../Routes/TodoRoutes")
+const asyncHandler = require("../utils/handleAsync")
+const pagination = require("../utils/pagination")
+const logger = require("../utils/logger")
+const { StatusCodes, ReasonPhrases } = require("http-status-codes")
+
 
 // create Todo
 
-const createTodo = async (req, res) => {
-    try {
-        const todo = await Todo.create(req.body)
+const createTodo = asyncHandler(async (req, res) => {
+    const todo = await Todo.create(req.body)
 
-        res.status(201).json({
-            success: true,
-            message: "Todo created succesfully",
-            data: todo
-        })
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
+    res.status(StatusCodes.CREATED).json({
+        success: true,
+        message: "Todo created succesfully",
+        data: todo
+    })
+})
 
 // Get All Todos
 
-const getAllTodos = async (req, res) => {
-    try {
-        const todos = await Todo.find()
+const getAllTodos = asyncHandler(async (req, res) => {
+    const todos = await Todo.find()
 
-        res.status(200).json({
-            success: true,
-            count: todos.length,
-            data: todos
-        })
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
+    res.status(StatusCodes.OK).json({
+        success: true,
+        count: todos.length,
+        data: todos
+    })
+})
 
 // Get Single Todo 
 
-const getSingleTodo = async (req, res) => {
-    try {
+const getSingleTodo = asyncHandler(async (req, res) => {
+    const todo = await Todo.findById(req.params.id)
 
-        const todo = await Todo.findById(req.params.id)
-
-        if (!todo) {
-            return res.status(404).json({
-                success: false,
-                message: "Todo not found"
-            })
-        }
-
-        res.status(200).json({
-            success: true,
-            data: todo
-        })
-    } catch (error) {
-        res.status(500).json({
+    if (!todo) {
+        return res.status(StatusCodes.NOT_FOUND).json({
             success: false,
-            message: error.message
+            message: "Todo not found"
         })
     }
-}
+
+    res.status(StatusCodes.OK).json({
+        success: true,
+        data: todo
+    })
+})
 
 // Edit Todo
 
-const editTodo = async (req, res) => {
-    try {
-        const id = req.params.id
-        const todos = await Todo.findByIdAndUpdate(
-            id,
-            req.body,
-            {
-                new: true,
-                runValidators: true
-            }
-        )
-
-        if (!todos) {
-            return res.status(404).json({
-                success: false,
-                message: "Todo not found"
-            })
+const editTodo = asyncHandler(async (req, res) => {
+    const id = req.params.id
+    const todos = await Todo.findByIdAndUpdate(
+        id,
+        req.body,
+        {
+            new: true,
+            runValidators: true
         }
+    )
 
-        res.status(200).json({
-            success: true,
-            data: todos
-        })
-
-    } catch (error) {
-        res.status(500).json({
+    if (!todos) {
+        return res.status(StatusCodes.NOT_FOUND).json({
             success: false,
-            message: error.message
+            message: "Todo not found"
         })
     }
-}
+
+    res.status(StatusCodes.OK).json({
+        success: true,
+        data: todos
+    })
+
+})
 
 // Delete Todo
 
-const deleteTodo = async (req, res) => {
-    try {
-        const id = req.params.id;
+const deleteTodo = asyncHandler(async (req, res) => {
+    const id = req.params.id;
 
-        const delTodo = await Todo.findByIdAndDelete(id);
+    const delTodo = await Todo.findByIdAndDelete(id);
 
-        if (!delTodo) {
-            return res.status(404).json({
-                success: false,
-                message: "Todo not found",
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Todo deleted successfully",
-            data: delTodo,
-        });
-    } catch (error) {
-        res.status(500).json({
+    if (!delTodo) {
+        return res.status(StatusCodes.NOT_FOUND).json({
             success: false,
-            message: error.message,
+            message: "Todo not found",
         });
     }
-};
 
-// Pagination
+    res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Todo deleted successfully",
+        data: delTodo,
+    });
+})
 
+// Pagination, Search, Sorting
 
-const paginate = async (req, res) => {
-    try {
-        const page = parseInt(req.body.page) || 1;
-        const perPage = 4;
+const paginate = asyncHandler(async (req, res) => {
+    const todos = await pagination(Todo, req, [
+        "title",
+        "description",
+        "location",
+    ]);
 
-        const total = 
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
-    }
-}
+    res.status(StatusCodes.OK).json(todos);
+})
 
 module.exports = {
     createTodo,
     getAllTodos,
     getSingleTodo,
     editTodo,
-    deleteTodo
+    deleteTodo,
+    paginate,
 }
