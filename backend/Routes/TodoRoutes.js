@@ -14,7 +14,6 @@ const router = express.Router();
 
 router.post("/", verifyToken, createTodo);
 
-// router.get("/", verifyToken, getAllTodos);
 router.get("/", verifyToken, paginate);
 
 router.get("/:id", verifyToken, getSingleTodo);

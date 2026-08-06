@@ -18,7 +18,8 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 
 // User Routes
-// router.get("/", verifyToken, getUser);
+
+router.get("/", verifyToken, getUser);
 router.get("/", verifyToken, paginate);
 
 router.get("/:id", verifyToken, getSingleUser);
