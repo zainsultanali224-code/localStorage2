@@ -12,101 +12,128 @@ import {
 import { db } from "../../assets/components/firebase";
 import getPaginationUsersTodos from "../../assets/components/pagination";
 import { handleAsyncState } from "../handleState";
+import axios from "axios"
 
 export const fetchUserTodos = createAsyncThunk(
     'todo/fetchUserTodos',
     async (userId, { rejectWithValue }) => {
         try {
-            const todosRef = collection(db, "Users", userId, "Todos");
-            const snapshot = await getDocs(todosRef);
-            const todos = snapshot.docs.map(doc => {
-                const data = doc.data();
+            // const todosRef = collection(db, "Users", userId, "Todos");
+            // const snapshot = await getDocs(todosRef);
+            // const todos = snapshot.docs.map(doc => {
+            //     const data = doc.data();
 
-                return {
-                    id: doc.id,
-                    ...data,
-                    createdAt: data.createdAt
-                        ? data.createdAt.toMillis()
-                        : null,
-                };
-            });
-            return todos;
+            //     return {
+            //         id: doc.id,
+            //         ...data,
+            //         createdAt: data.createdAt
+            //             ? data.createdAt.toMillis()
+            //             : null,
+            //     };
+            // });
+            // return todos;
+
+            const res = await axios.get("/todos")
+            return res.data
+
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(
+                error.res?.data?.message || error.message
+            );
         }
     }
 );
 
 export const fetchSingleTodo = createAsyncThunk(
     'todo/fetchSingleTodo',
-    async ({ userId, todoId }, { rejectWithValue }) => {
+    async ({ id }, { rejectWithValue }) => {
         try {
-            const todoRef = doc(db, "Users", userId, "Todos", todoId);
-            const todoSnap = await getDoc(todoRef);
+            // const todoRef = doc(db, "Users", userId, "Todos", todoId);
+            // const todoSnap = await getDoc(todoRef);
 
-            if (!todoSnap.exists()) {
-                throw new Error("Task not found");
+            // if (!todoSnap.exists()) {
+            //     throw new Error("Task not found");
 
-            }
+            // }
 
-            const data = todoSnap.data();
+            // const data = todoSnap.data();
 
-            return {
-                id: todoSnap.id,
-                ...data,
-                createdAt: data.createdAt
-                    ? data.createdAt.toMillis()
-                    : null,
-            };
+            // return {
+            //     id: todoSnap.id,
+            //     ...data,
+            //     createdAt: data.createdAt
+            //         ? data.createdAt.toMillis()
+            //         : null,
+            // };
+
+            const res = await axios.get(`/todos/${id}`)
+            return res.data
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(
+                error.res?.data?.message || error.message
+            );
         }
     }
 )
 export const addNewTodo = createAsyncThunk(
     'todo/addNewTodo',
-    async ({ userId, todoData }, { rejectWithValue }) => {
+    async ({ todo }, { rejectWithValue }) => {
         try {
-            const todosRef = collection(db, "Users", userId, "Todos");
-            const docRef = await addDoc(todosRef, {
-                ...todoData,
-                createdAt: serverTimestamp(),
-            });
-            return {
-                id: docRef.id,
-                ...todoData
-            };
+            // const todosRef = collection(db, "Users", userId, "Todos");
+            // const docRef = await addDoc(todosRef, {
+            //     ...todoData,
+            //     createdAt: serverTimestamp(),
+            // });
+            // return {
+            //     id: docRef.id,
+            //     ...todoData
+            // };
+
+            const res = await axios.post("/todos", todo)
+            return res.data
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(
+                error.res?.data?.message || error.message
+            );
         }
     }
 );
 
 export const updateTodo = createAsyncThunk(
     'todo/updateTodo',
-    async ({ userId, todoId, updatedData }, { rejectWithValue }) => {
+    async ({ id, todo }, { rejectWithValue }) => {
         try {
-            const todoRef = doc(db, "Users", userId, "Todos", todoId);
-            await updateDoc(todoRef, updatedData);
-            return {
-                id: todoId,
-                ...updatedData
-            };
+            // const todoRef = doc(db, "Users", userId, "Todos", todoId);
+            // await updateDoc(todoRef, updatedData);
+            // return {
+            //     id: todoId,
+            //     ...updatedData
+            // };
+
+            const res = await axios.patch(`/todos${id}`, todo)
+            return res.data
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(
+                error.res?.data?.message || error.message
+            );
         }
     }
 );
 
 export const deleteTodo = createAsyncThunk(
     'todo/deleteTodo',
-    async ({ userId, todoId }, { rejectWithValue }) => {
+    async ({ id }, { rejectWithValue }) => {
         try {
-            const todoRef = doc(db, "Users", userId, "Todos", todoId);
-            await deleteDoc(todoRef);
-            return todoId;
+            // const todoRef = doc(db, "Users", userId, "Todos", todoId);
+            // await deleteDoc(todoRef);
+            // return todoId;
+
+            const res = await axios.delete(`/todos/${id}`)
+            return res.data
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(
+                error.res?.data?.message || error.message
+            );
         }
     }
 );
