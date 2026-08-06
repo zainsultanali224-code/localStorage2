@@ -12,10 +12,11 @@ import {
 import { db } from "../../assets/components/firebase";
 import getPaginationUsersTodos from "../../assets/components/pagination";
 import { handleAsyncState } from "../handleState";
+import axios from "axios"
 
 export const fetchUserTodos = createAsyncThunk(
     'todo/fetchUserTodos',
-    async (userId, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
         try {
             const todosRef = collection(db, "Users", userId, "Todos");
             const snapshot = await getDocs(todosRef);
@@ -30,9 +31,9 @@ export const fetchUserTodos = createAsyncThunk(
                         : null,
                 };
             });
-            return todos;
+
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.message)
         }
     }
 );
@@ -59,13 +60,13 @@ export const fetchSingleTodo = createAsyncThunk(
                     : null,
             };
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.message)
         }
     }
 )
 export const addNewTodo = createAsyncThunk(
     'todo/addNewTodo',
-    async ({ userId, todoData }, { rejectWithValue }) => {
+    async ({ todoData }, { rejectWithValue }) => {
         try {
             const todosRef = collection(db, "Users", userId, "Todos");
             const docRef = await addDoc(todosRef, {
@@ -77,14 +78,14 @@ export const addNewTodo = createAsyncThunk(
                 ...todoData
             };
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.message)
         }
     }
 );
 
 export const updateTodo = createAsyncThunk(
     'todo/updateTodo',
-    async ({ userId, todoId, updatedData }, { rejectWithValue }) => {
+    async ({ id, todo }, { rejectWithValue }) => {
         try {
             const todoRef = doc(db, "Users", userId, "Todos", todoId);
             await updateDoc(todoRef, updatedData);
@@ -93,20 +94,21 @@ export const updateTodo = createAsyncThunk(
                 ...updatedData
             };
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.message)
         }
     }
 );
 
 export const deleteTodo = createAsyncThunk(
     'todo/deleteTodo',
-    async ({ userId, todoId }, { rejectWithValue }) => {
+    async ({ id }, { rejectWithValue }) => {
         try {
             const todoRef = doc(db, "Users", userId, "Todos", todoId);
             await deleteDoc(todoRef);
             return todoId;
+
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.message)
         }
     }
 );
