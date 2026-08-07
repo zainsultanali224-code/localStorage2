@@ -16,8 +16,8 @@ router.post("/", verifyToken, createTodo);
 
 router.get("/", verifyToken, paginate);
 
-router.get("/:id", verifyToken, getSingleTodo);
-router.patch("/:id", verifyToken, editTodo);
-router.delete("/:id", verifyToken, deleteTodo);
+router.get("/profile/:id", verifyToken, getSingleTodo);
+router.patch("/profile/:id", verifyToken, editTodo);
+router.delete("/profile/:id", verifyToken, deleteTodo);
 
 export default router;
