@@ -2,17 +2,11 @@ import { createContext, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
-    ensureView,
-    requestStarted,
-    requestSucceeded,
-    requestFailed,
-    applySearch,
-    setSearch,
-    setPage as setPageAction,
+    ensureView, requestStarted, requestSucceeded, requestFailed, applySearch, setSearch, setPage as setPageAction,
     setViewMode as setViewModeAction,
     refetch as refetchAction,
     selectDataView,
-} from "../../../features/auth/authSlice";
+} from "../../../auth/authSlice";
 import { shallowEqual } from "react-redux";
 import {
     Button,
@@ -24,14 +18,13 @@ import {
     Row,
     Col,
 } from "react-bootstrap";
-
 import {
     openEdit as openEditView,
     closeEdit as closeEditView,
     openDetails,
     closeDetails,
     setFormValue,
-} from "../../../features/auth/authSlice";
+} from "../../../auth/authSlice";
 
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";

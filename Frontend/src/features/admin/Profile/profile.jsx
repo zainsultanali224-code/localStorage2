@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserTodos } from "../../features/todo/todoSlice";
-import { Search } from "../../todolist";
-import { logoutUser, cleanForm } from "../../features/auth/authSlice";
-import { toggleTheme, saveTheme } from "../../features/theme/themeSlice";
+import { fetchUserTodos } from "../../todo/todoSlice";
+import { Search } from "../../todo/components/todolist";
+import { loginUser, cleanForm, logoutUser } from "../../auth/authSlice";
+import { toggleTheme, saveTheme } from "../../theme/themeSlice";
 import { Button } from "react-bootstrap";
 
 function Profile() {

@@ -2,10 +2,10 @@ import { Row, Col, Card } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { AdminLayout } from "./UI/AdminUsersUI";
-import Provider, { DataTable, useProviderContext } from "./UI/AdminTodosProvider";
-import { fetchEntity } from "../../features/auth/authSlice";
-import { deleteTodoByAdmin, updateTodoByAdmin } from "../../features/todo/todoSlice";
+import { AdminLayout } from "../users/components/AdminUsersUI";
+import Provider ,{ DataTable, useProviderContext } from "../users/components/AdminTodosProvider";
+import { fetchEntity } from "../../auth/authSlice";
+import { deleteTodoByAdmin, updateTodoByAdmin } from "../../todo/todoSlice";
 
 function TodosStats() {
   const { total = 0, completedCount = 0, pendingCount = 0 } = useProviderContext();

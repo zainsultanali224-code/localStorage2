@@ -13,10 +13,10 @@ import {
     collection,
     updateDoc,
 } from "firebase/firestore";
-import { auth, db } from "../../assets/components/firebase";
+import { auth, db } from "../fireBase/firebase";
 import { serverTimestamp } from "firebase/firestore";
-import { uploadImage } from "../../assets/components/cloudinary";
-import { handleAsyncState } from "../handleState";
+import { uploadImage } from "../fireBase/cloudinary"
+import { handleAsyncState } from "../utils/handleState";
 import { updateTodoByAdmin, deleteTodoByAdmin } from "../todo/todoSlice";
 
 export const registerUser = createAsyncThunk(

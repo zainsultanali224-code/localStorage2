@@ -9,9 +9,9 @@ import {
     doc,
     serverTimestamp
 } from "firebase/firestore";
-import { db } from "../../assets/components/firebase";
-import getPaginationUsersTodos from "../../assets/components/pagination";
-import { handleAsyncState } from "../handleState";
+import { db } from "../fireBase/firebase";
+import getPaginationUsersTodos from "../hooks/pagination";
+import { handleAsyncState } from "../utils/handleState";
 import axios from "axios"
 
 export const fetchUserTodos = createAsyncThunk(
@@ -66,7 +66,7 @@ export const fetchSingleTodo = createAsyncThunk(
 )
 export const addNewTodo = createAsyncThunk(
     'todo/addNewTodo',
-    async ({ todoData }, { rejectWithValue }) => {
+    async ({ userId, todoData }, { rejectWithValue }) => {
         try {
             const todosRef = collection(db, "Users", userId, "Todos");
             const docRef = await addDoc(todosRef, {
@@ -84,24 +84,26 @@ export const addNewTodo = createAsyncThunk(
 );
 
 export const updateTodo = createAsyncThunk(
-    'todo/updateTodo',
-    async ({ id, todo }, { rejectWithValue }) => {
+    "todo/updateTodo",
+    async ({ userId, todoId, updatedData }, { rejectWithValue }) => {
         try {
             const todoRef = doc(db, "Users", userId, "Todos", todoId);
+
             await updateDoc(todoRef, updatedData);
+
             return {
                 id: todoId,
-                ...updatedData
+                ...updatedData,
             };
         } catch (error) {
-            return rejectWithValue(error.message)
+            return rejectWithValue(error.message);
         }
     }
 );
 
 export const deleteTodo = createAsyncThunk(
     'todo/deleteTodo',
-    async ({ id }, { rejectWithValue }) => {
+    async ({ userId, todoId }, { rejectWithValue }) => {
         try {
             const todoRef = doc(db, "Users", userId, "Todos", todoId);
             await deleteDoc(todoRef);

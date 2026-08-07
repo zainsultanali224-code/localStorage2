@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../../assets/components/firebase";
+import { db } from "../fireBase/firebase";
 
 
 export const saveTheme = createAsyncThunk(

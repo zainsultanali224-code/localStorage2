@@ -1,65 +1,55 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "./Login.css";
-import SignInWithGoogle from "./signInWithGoogle";
+import { toast } from "react-toastify";
+import "../../../assets/styles/Register.css"
 import { useDispatch, useSelector } from "react-redux";
-import {
-    loginUser,
-    clearError,
-    updateField,
-    cleanForm,
-} from "../../features/auth/authSlice";
-import { toggleTheme, saveTheme } from "../../features/theme/themeSlice";
+import { registerUser, clearError, updateField, cleanForm } from "../authSlice";
+import { toggleTheme, saveTheme } from "../../theme/themeSlice";
 
-function Login() {
-
+function Register() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    
     const {
         loadings,
         errors,
+        param,
         isAuthenticated,
         user,
         email,
         password,
+        authState,
+        fname, lname 
     } = useSelector(state => state.auth);
 
     const { mode } = useSelector(state => state.theme);
 
-    const authLoading = loadings.loginUser || false;
-    const error = errors.loginUser;
+    const authLoading = loadings.registerUser || false;
+    const error = errors.registerUser;
     const isDark = mode === "dark";
 
-    useEffect(() => {
-        if (isAuthenticated && user) {
-            toast.success("Login Successful!", {
-                position: "top-center",
-                autoClose: 1500,
-            });
-
-            dispatch(cleanForm());
-            setTimeout(() => {
-                if (user.role === "admin") {
-                    navigate("/admin");
-                } else {
-                    navigate("/profile");
-                }
-            }, 500);
-        }
-    }, [isAuthenticated, user, navigate, dispatch]);
 
     useEffect(() => {
         if (error) {
             toast.error(error, {
-                position: "bottom-center",
+                position: "bottom-center"
             });
-            dispatch(clearError("loginUser"))
+            dispatch(clearError("registerUser"))
         }
     }, [error, dispatch]);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            toast.success("Registration Successful!", {
+                position: "top-center"
+            });
+            dispatch(cleanForm());
+
+            setTimeout(() => {
+                navigate("/profile");
+            }, 1000);
+        }
+    }, [isAuthenticated, navigate]);
 
     const changeTheme = () => {
         const newTheme = mode === "light" ? "dark" : "light";
@@ -71,22 +61,27 @@ function Login() {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
 
-        if (!email || !password) {
-            toast.error("Please fill all fields", {
-                position: "bottom-center",
+        if (!fname || !email || !password) {
+            toast.error("Please fill all required fields", {
+                position: "bottom-center"
             });
             return;
         }
 
-        dispatch(loginUser({ email, password }));
+        dispatch(registerUser({
+            email,
+            password,
+            firstName: fname,
+            lastName: lname
+        }));
     };
 
     return (
         <div
-            className="login-page"
+            className="register-page"
             style={{
                 background: isDark ? "#0f172a" : "#f8fafc",
                 minHeight: "100vh",
@@ -108,27 +103,59 @@ function Login() {
                 <Row className="justify-content-center align-items-center min-vh-100">
                     <Col xs={12} sm={10} md={8} lg={5}>
                         <Card
-                            className="login-card shadow-lg border-0"
+                            className="register-card shadow-lg border-0"
                             style={{
                                 background: isDark ? "#111827" : "#ffffff",
                                 color: isDark ? "#f8fafc" : "#111827",
                             }}
                         >
                             <Card.Body className="p-5">
-                                <form onSubmit={handleSubmit}>
-                                    <h3 className="text-center mb-4 fw-bold" style={{ color: isDark ? "#f8fafc" : "#111827" }}>
-                                        Login
+                                <form onSubmit={handleRegister}>
+                                    <h3 className="text-center fw-bold mb-4" style={{ color: isDark ? "#f8fafc" : "#111827" }}>
+                                        Create Account
                                     </h3>
 
                                     <div className="mb-3">
-                                        <label className="form-label">
-                                            Email Address
-                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="First Name"
+                                            value={fname}
+                                            onChange={(e) => {
+                                                dispatch(updateField({
+                                                    name: "fname",
+                                                    value: e.target.value
+                                                }))
+                                            }}
+                                            disabled={authLoading}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="mb-3">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="Last Name"
+                                            value={lname}
+                                            onChange={(e) => {
+
+                                                dispatch(updateField({
+                                                    name: "lname",
+                                                    value: e.target.value
+                                                }))
+                                            }}
+                                            disabled={authLoading}
+                                        />
+                                    </div>
+
+                                    <div className="mb-3">
                                         <input
                                             type="email"
                                             className="form-control"
                                             placeholder="Enter Email"
                                             value={email}
+
                                             onChange={(e) => {
                                                 dispatch(updateField({
                                                     name: "email",
@@ -141,9 +168,6 @@ function Login() {
                                     </div>
 
                                     <div className="mb-4">
-                                        <label className="form-label">
-                                            Password
-                                        </label>
                                         <input
                                             type="password"
                                             className="form-control"
@@ -158,14 +182,6 @@ function Login() {
                                             disabled={authLoading}
                                             required
                                         />
-                                        <p
-                                            style={{ color: isDark ? "#60a5fa" : "#2563eb", cursor: "pointer" }}
-                                            onClick={() => {
-                                                navigate("/handleForgotPassword");
-                                            }}
-                                        >
-                                            Forgot Password?
-                                        </p>
                                     </div>
 
                                     <div className="d-grid">
@@ -174,22 +190,22 @@ function Login() {
                                             className="btn btn-primary btn-lg"
                                             disabled={authLoading}
                                         >
-                                            {authLoading ? "Logging in..." : "Login"}
+                                            {authLoading ? "Creating account..." : "Create Account"}
                                         </button>
                                     </div>
 
-                                    <p className="text-center mt-4 mb-3" style={{ color: isDark ? "#d1d5db" : "#374151" }}>
-                                        New user?{" "}
-                                        <Link
-                                            to="/register"
-                                            className="fw-semibold text-decoration-none"
+                                    <p className="text-center mt-4 mb-0" style={{ color: isDark ? "#d1d5db" : "#374151" }}>
+                                        Already have an account?{" "}
+
+                                        <a
+                                            href="/login"
+                                            className="text-decoration-none fw-semibold"
                                             style={{ color: isDark ? "#60a5fa" : "#2563eb" }}
                                         >
-                                            Register Here
-                                        </Link>
+                                            Login Here
+                                        </a>
                                     </p>
 
-                                    <SignInWithGoogle />
                                 </form>
                             </Card.Body>
                         </Card>
@@ -199,4 +215,4 @@ function Login() {
         </div>
     );
 }
-export default Login;
+export default Register;

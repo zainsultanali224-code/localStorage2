@@ -1,22 +1,22 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { checkAuth } from './features/auth/authSlice';
-import Login from './assets/components/login';
-import Register from './assets/components/register';
-import Profile from './assets/components/profile';
+import { checkAuth } from '../features/auth/authSlice';
+import Login from '../features/auth/components/login';
+import Register from '../features/auth/components/register';
+import Profile from '../features/admin/Profile/profile';
 import { ToastContainer } from 'react-toastify';
-import SignupForm from "./tasklist";
-import Profile_t from './assets/components/profile2';
-import HandleForgotPassword from "./assets/components/handleForgotPassword";
-import Admin from "./assets/components/admin";
-import AdminRoute from './assets/components/AdminRoute';
-import UsersTodos from './assets/components/adminShowAll';
-import UserAnalytics from './assets/components/UserAnalytics';
-import TotalUsers from './assets/components/TotalUsers';
+import SignupForm from '../features/todo/components/tasklist';
+import Profile_t from "../features/admin/Profile/profile2"
+import HandleForgotPassword from '../features/auth/components/handleForgotPassword';
+import Admin from '../features/admin/components/admin';
+import AdminRoute from "../features/admin/components/AdminRoute"
+import UsersTodos from '../features/admin/components/adminShowAll';
+import UserAnalytics from '../features/admin/components/UserAnalytics';
+import TotalUsers from '../features/admin/components/TotalUsers';
 import { Container, Spinner } from "react-bootstrap";
-import ProfileDetail from './PfDetail';
-import './index.css'
+import ProfileDetail from "../features/admin/Profile/PfDetail"
+import '../assets/styles/index.css'
 
 export default function App() {
 

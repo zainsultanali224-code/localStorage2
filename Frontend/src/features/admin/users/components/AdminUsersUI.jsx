@@ -6,10 +6,10 @@ import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { useProviderContext } from "./AdminTodosProvider";
-import { logoutUser } from "../../../features/auth/authSlice";
-import { toggleTheme, saveTheme } from "../../../features/theme/themeSlice";
-import "../Admin.css";
-import "../Sidebar.css";
+import { logoutUser } from "../../../auth/authSlice";
+import { toggleTheme, saveTheme } from "../../../theme/themeSlice";
+import "../../../../assets/styles/Admin.css"
+import "../../../../assets/styles/Sidebar.css"
 
 const DEFAULT_MENU = [
   { label: "📊 Admin Dashboard", path: "/admin" },

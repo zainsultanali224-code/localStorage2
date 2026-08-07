@@ -23,15 +23,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import "./Admin.css";
-import { fetchAllUsersTodos } from "../../features/todo/todoSlice";
+import "../../../assets/styles/Admin.css";
+import { fetchAllUsersTodos } from "../../todo/todoSlice";
 import { useDispatch, useSelector } from "react-redux";
-import "./Sidebar.css"
-import {
-  logoutUser,
-  fetchUsers
-} from "../../features/auth/authSlice";
-import { toggleTheme, saveTheme } from "../../features/theme/themeSlice";
+import "../../../assets/styles/Sidebar.css";
+import { logoutUser,fetchUsers } from "../../auth/authSlice";
+import { toggleTheme, saveTheme } from "../../theme/themeSlice";
 
 function UserAnalytics() {
   const [show, setShow] = useState(false);

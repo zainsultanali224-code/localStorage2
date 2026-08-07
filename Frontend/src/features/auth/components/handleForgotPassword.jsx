@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { ToastContainer, toast } from "react-toastify";
-import { auth } from "./firebase";
+import { auth } from "../../fireBase/firebase";
 import { Link } from "react-router-dom";
 
 function HandleForgotPassword() {

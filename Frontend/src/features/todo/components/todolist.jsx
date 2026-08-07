@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { auth } from "./assets/components/firebase";
+import { auth } from "../../fireBase/firebase";
 import {
     Container,
     Row,
@@ -15,22 +15,19 @@ import {
 } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
 import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "./assets/components/firebase";
-import getPaginationUsersTodos from "./assets/components/pagination";
+import { db } from "../../fireBase/firebase";
+import getPaginationUsersTodos from "../../hooks/pagination";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setUserId, fetchUserTodos, fetchSingleTodo, updateTodo } from "./features/todo/todoSlice";
-import {
-    fetchPaginationTodos,
-    deleteTodo,
-} from "./features/todo/todoSlice";
-import account from "./account.png";
+import { setUserId, fetchUserTodos, fetchSingleTodo, updateTodo } from "../todoSlice";
+import { fetchPaginationTodos, deleteTodo } from "../todoSlice";
+import account from "../../../assets/images/account.png"
 import { Modal } from "react-bootstrap";
-import ProfileDetail from "./PfDetail";
+import ProfileDetail from "../../admin/Profile/PfDetail";
 import { useRef } from "react";
-import "./todoNav.css"
-import "./todolist.css"
+import "../../../assets/styles/todoNav.css"
+import "../../../assets/styles/todolist.css"
 
 export function Search({ userId }) {
     const dispatch = useDispatch();
@@ -159,16 +156,20 @@ export function Search({ userId }) {
         }
     };
 
-    const handleDelete = async (id) => {
-        setDeletingId(id);
+    const handleDelete = async (todoId) => {
+         console.log("Delete clicked");
+    console.log("userId:", userId);
+    console.log("todoId:", todoId);
 
-        try {
-            const result = await dispatch(
-                deleteTodo({
-                    userId,
-                    todoId: id,
-                })
-            );
+    setDeletingId(todoId);
+
+    try {
+        const result = await dispatch(
+            deleteTodo({
+                userId,
+                todoId,
+            })
+        );
 
             if (!deleteTodo.fulfilled.match(result)) return;
 

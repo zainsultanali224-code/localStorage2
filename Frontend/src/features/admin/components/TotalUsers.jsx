@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "./firebase";
+import { db } from "../../fireBase/firebase";
 import { useNavigate } from "react-router-dom";
 import {
     Container,
@@ -27,14 +27,11 @@ import {
 } from "recharts";
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { fetchAllUsersTodos } from "../../features/todo/todoSlice";
+import { fetchAllUsersTodos } from "../../todo/todoSlice";
 import { useDispatch, useSelector } from "react-redux";
-import {
-    logoutUser,
-    fetchUsers
-} from "../../features/auth/authSlice";
-import { toggleTheme, saveTheme } from "../../features/theme/themeSlice";
-import "./Sidebar.css"
+import { loginUser, fetchUsers } from "../../auth/authSlice";
+import { toggleTheme, saveTheme } from "../../theme/themeSlice";
+import "../../../assets/styles/Sidebar.css"
 
 function TotalUsers() {
     const [show, setShow] = useState(false);

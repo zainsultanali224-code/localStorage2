@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { auth } from "./assets/components/firebase";
+import { auth } from "../../fireBase/firebase";
 import { useState, useEffect } from "react";
 import {
     Container,
@@ -12,10 +12,9 @@ import {
     Form as FForm
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewTodo, fetchSingleTodo, updateTodo, setUserId } from "./features/todo/todoSlice";
+import { addNewTodo, fetchSingleTodo, updateTodo, setUserId } from "../todoSlice";
 import { ToastContainer, toast } from "react-toastify";
-import { ClearTask } from "./features/todo/todoSlice";
-
+import { ClearTask } from "../todoSlice";
 
 const SignupSchema = Yup.object().shape({
     title: Yup.string()
@@ -65,11 +64,13 @@ export default function SignupForm() {
         userId,
         selectedTask,
         loadings,
-        updateError,
         errors
     } = useSelector((state) => state.todo);
 
-    const isLoading = loadings["addNewTodo"];
+    // const isLoading = loadings["addNewTodo"];
+    const isLoading = id
+        ? loadings["updateTodo"]
+        : loadings["addNewTodo"];
     const error = errors["addNewTodo"];
 
     useEffect(() => {
@@ -89,7 +90,7 @@ export default function SignupForm() {
             }
         });
         return () => unsubscribe();
-    }, [navigate]);
+    }, [dispatch, navigate]);
 
     useEffect(() => {
         if (userId) {
@@ -109,20 +110,21 @@ export default function SignupForm() {
             return;
         }
 
-        const todoData = {
-            title: values.title,
-            location: values.location,
-            date: values.date,
-            desc: values.desc,
-            rang: values.rang,
-            col: values.col,
-            count: values.count,
-            num: values.num,
-            status: values.status,
-            gender: values.gender,
-            merital: values.merital,
-            Children: values.Children,
-        };
+        // const todoData = {
+        //     title: values.title,
+        //     location: values.location,
+        //     date: values.date,
+        //     desc: values.desc,
+        //     rang: values.rang,
+        //     col: values.col,
+        //     count: values.count,
+        //     num: values.num,
+        //     status: values.status,
+        //     gender: values.gender,
+        //     merital: values.merital,
+        //     Children: values.Children,
+        // };
+        const todoData = { ...values }
 
         const resultAction = await dispatch(addNewTodo({
             userId: user.uid,
@@ -138,6 +140,7 @@ export default function SignupForm() {
     }
 
     const handleUpdate = async (values) => {
+       
         const result = await dispatch(
             updateTodo({
                 userId,

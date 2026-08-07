@@ -1,8 +1,8 @@
 import { Card } from "react-bootstrap";
 import { useSelector } from "react-redux";
-import { AdminLayout } from "./UI/AdminUsersUI";
-import Provider, { DataTable } from "./UI/AdminTodosProvider";
-import { fetchEntity } from "../../features/auth/authSlice";
+import { AdminLayout } from "../users/components/AdminUsersUI"
+import Provider ,{ DataTable } from "../users/components/AdminTodosProvider";
+import { fetchEntity } from "../../auth/authSlice";
 
 function Admin() {
   const { mode } = useSelector((state) => state.theme);

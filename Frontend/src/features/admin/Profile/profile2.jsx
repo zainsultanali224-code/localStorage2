@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { auth, db } from "./firebase";
+import { auth, db } from "../../fireBase/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
-import SignupForm from "../../tasklist";
+import SignupForm from "../../todo/components/tasklist";
 
 function Profile_t() {
   const [userDetails, setUserDetails] = useState(null);

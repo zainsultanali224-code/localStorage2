@@ -1,7 +1,7 @@
-import google from "./google.png";
-import "../../index.css";
+import google from "../../../assets/images/google.png"
+import "../../../assets/styles/index.css"
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth, db } from "./firebase";
+import {  auth, db } from "../../fireBase/firebase";
 import { useNavigate } from "react-router-dom"; 
 import { toast } from "react-toastify";
 import { doc, getDoc, setDoc } from "firebase/firestore";
